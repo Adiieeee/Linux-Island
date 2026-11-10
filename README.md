@@ -15,6 +15,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 
 - The applet id is `linuxisland` and the widget name is **Linux Island**, so
   it installs alongside the original instead of replacing it.
+- The Wi-Fi card's percentage (the signal strength of the network you're
+  connected to) is now always current. In the original it was only read while
+  the Wi-Fi panel was open, so the card showed 0% or a stale value.
 
 ## Install
 
