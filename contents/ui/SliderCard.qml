@@ -1,5 +1,6 @@
 import QtQuick
 import org.kde.plasma.private.brightnesscontrolplugin as BC
+import org.kde.plasma.private.volume as PA
 import "."
 
 // full-width sliders for sound and brightness. a long track is easier to
@@ -18,19 +19,79 @@ Rectangle {
         isSilent: true
     }
 
+    // KDE's own audio models (plasma-pa): live, no polling. declared here with
+    // an id, not inline as a Repeater model, so the GC never owns them.
+    // the main volume row still goes through Audio (wpctl)
+    PA.SinkModel {
+        id: paSinks
+    }
+    PA.SourceModel {
+        id: paSources
+    }
+
     implicitHeight: rows.implicitHeight + 20
     radius: Theme.shapeLg
     color: Theme.containerHigh
 
-    // all label columns are as wide as the widest label, so the tracks line up
-    readonly property real labelWidth: {
+    // which dropdown is open: "", "sound"
+    property string menu: ""
+
+    function toggle(name) {
+        root.menu = root.menu === name ? "" : name;
+    }
+
+    // all label columns are as wide as the widest label, so the tracks line
+    // up. walks into the dropdowns too, so opening one doesn't shift anything
+    readonly property real labelWidth: Math.min(root.widestLabel(rows), 110)
+
+    function widestLabel(item) {
         let w = 0;
-        for (let i = 0; i < rows.children.length; i++) {
-            const r = rows.children[i];
-            if (r.labelImplicitWidth !== undefined)
-                w = Math.max(w, r.labelImplicitWidth);
+        for (let i = 0; i < item.children.length; i++) {
+            const c = item.children[i];
+            if (c.labelImplicitWidth !== undefined)
+                w = Math.max(w, c.labelImplicitWidth);
+            else
+                w = Math.max(w, root.widestLabel(c));
         }
-        return Math.min(w, 96);
+        return w;
+    }
+
+    // a device worth listing: real hardware whose active port is connected.
+    // virtual sinks (Easy Effects…) only when they are the default
+    function usable(dev) {
+        if (!dev)
+            return false;
+        if (dev.virtualDevice && !dev.default)
+            return false;
+        const port = dev.ports[dev.activePortIndex];
+        return !port || port.availability !== PA.Port.Unavailable;
+    }
+
+    // "HDA NVidia Digital Stereo (HDMI) [24G2W1G3-]" → "24G2W1G3",
+    // "Alder Lake … Controller Headphones" → "Headphones", bluetooth names as they are
+    function deviceName(dev) {
+        const desc = dev?.description ?? "";
+        const bracket = desc.match(/\[(.+?)\]\s*$/);
+        if (bracket)
+            return bracket[1].replace(/[-\s]+$/, "");
+        const port = dev?.ports[dev.activePortIndex]?.description ?? "";
+        if (port && desc.endsWith(port))
+            return port;
+        return desc || Cfg.t("Desconocido");
+    }
+
+    function deviceIcon(dev, input) {
+        const name = dev?.name ?? "";
+        const text = (dev?.description ?? "") + " " + (dev?.ports[dev.activePortIndex]?.description ?? "");
+        if (name.startsWith("bluez"))
+            return input ? "headset_mic" : "earbuds";
+        if (input)
+            return "mic";
+        if (/HDMI|DisplayPort/i.test(text))
+            return "tv";
+        if (/Headphone|Headset/i.test(text))
+            return "headphones";
+        return "speaker";
     }
 
     TextMetrics {
@@ -60,14 +121,18 @@ Rectangle {
         // thin tick on the track at boostFrom, so 100% is easy to find
         property bool showMark: false
         property bool iconClickable: true
+        // a clickable label gets a chevron and opens a dropdown
+        property bool labelClickable: false
+        property bool expanded: false
 
         // left button only: a right-click opens a panel, it doesn't drag
         readonly property bool pressed: dragArea.pressed && (dragArea.pressedButtons & Qt.LeftButton) !== 0
-        readonly property real labelImplicitWidth: labelText.implicitWidth
+        readonly property real labelImplicitWidth: labelText.implicitWidth + (row.labelClickable ? chevron.implicitWidth + 2 : 0)
 
         signal moved(real fraction)
         signal stepped(int direction)
         signal iconClicked
+        signal labelClicked
         signal rightClicked
 
         width: parent ? parent.width : 0
@@ -98,18 +163,64 @@ Rectangle {
             }
         }
 
-        Text {
-            id: labelText
+        Item {
+            id: labelBox
             anchors.left: iconText.right
             anchors.leftMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             width: root.labelWidth
-            text: row.label
-            color: Theme.fgDim
-            font.family: Theme.font
-            font.pixelSize: Theme.labelSmall
-            font.letterSpacing: Theme.labelSpacing
-            elide: Text.ElideRight
+
+            readonly property bool lit: row.expanded || labelMa.containsMouse
+
+            Text {
+                id: labelText
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                width: Math.min(implicitWidth, parent.width - (row.labelClickable ? chevron.implicitWidth + 2 : 0))
+                text: row.label
+                color: row.labelClickable && labelBox.lit ? Theme.fg : Theme.fgDim
+                font.family: Theme.font
+                font.pixelSize: Theme.labelSmall
+                font.letterSpacing: Theme.labelSpacing
+                elide: Text.ElideRight
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Theme.durShort
+                    }
+                }
+            }
+
+            Text {
+                id: chevron
+                anchors.left: labelText.right
+                anchors.leftMargin: 2
+                anchors.verticalCenter: parent.verticalCenter
+                visible: row.labelClickable
+                text: "expand_more"
+                color: labelText.color
+                font.family: Theme.fontIcons
+                font.pixelSize: 16
+                rotation: row.expanded ? 180 : 0
+
+                Behavior on rotation {
+                    NumberAnimation {
+                        duration: Theme.durMedium
+                        easing.type: Easing.Bezier
+                        easing.bezierCurve: Theme.emphasized
+                    }
+                }
+            }
+
+            MouseArea {
+                id: labelMa
+                anchors.fill: parent
+                enabled: row.labelClickable
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: row.labelClicked()
+            }
         }
 
         Text {
@@ -128,7 +239,7 @@ Rectangle {
 
         Item {
             id: trackArea
-            anchors.left: labelText.right
+            anchors.left: labelBox.right
             anchors.leftMargin: 12
             anchors.right: valueText.left
             anchors.rightMargin: 14
@@ -238,6 +349,91 @@ Rectangle {
         }
     }
 
+    // small uppercase heading inside a dropdown
+    component SectionLabel: Text {
+        width: parent ? parent.width : 0
+        topPadding: 6
+        bottomPadding: 2
+        color: Theme.fgFaint
+        font.family: Theme.font
+        font.pixelSize: Theme.labelSmall
+        font.letterSpacing: Theme.labelSpacing
+    }
+
+    // one pickable device in a dropdown: icon · name · check when selected
+    component DeviceRow: Item {
+        id: dr
+
+        property string icon
+        property string name
+        property bool selected: false
+
+        signal picked
+
+        width: parent ? parent.width : 0
+        height: 30
+
+        // transparent at rest: same colour at both ends, only alpha moves (README: hover flash)
+        Rectangle {
+            anchors.fill: parent
+            anchors.leftMargin: -6
+            anchors.rightMargin: -6
+            radius: Theme.shapeSm
+            color: Qt.alpha(Theme.fg, drMa.containsMouse ? Theme.stateHover * 0.6 : 0)
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: Theme.durShort
+                }
+            }
+        }
+
+        Text {
+            id: drIcon
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            width: 20
+            horizontalAlignment: Text.AlignHCenter
+            text: dr.icon
+            color: dr.selected ? Theme.fg : Theme.fgDim
+            font.family: Theme.fontIcons
+            font.pixelSize: 18
+        }
+
+        Text {
+            anchors.left: drIcon.right
+            anchors.leftMargin: 10
+            anchors.right: drCheck.left
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+            text: dr.name
+            color: dr.selected ? Theme.fg : Theme.fgDim
+            font.family: Theme.font
+            font.pixelSize: Theme.bodySmall
+            font.weight: dr.selected ? Font.Medium : Font.Normal
+            elide: Text.ElideRight
+        }
+
+        Text {
+            id: drCheck
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            visible: dr.selected
+            text: "check"
+            color: Theme.fg
+            font.family: Theme.fontIcons
+            font.pixelSize: 18
+        }
+
+        MouseArea {
+            id: drMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: dr.selected ? Qt.ArrowCursor : Qt.PointingHandCursor
+            onClicked: dr.picked()
+        }
+    }
+
     Column {
         id: rows
         anchors.left: parent.left
@@ -252,6 +448,8 @@ Rectangle {
             icon: Audio.muted ? "volume_off" : "volume_up"
             iconColor: Audio.muted ? Theme.outline : Audio.boosted ? Theme.alert : Theme.fgVariant
             label: Cfg.t("SONIDO")
+            labelClickable: true
+            expanded: root.menu === "sound"
             value: Audio.volume / Audio.maxVolume
             boostFrom: 1 / Audio.maxVolume
             showMark: true
@@ -265,7 +463,68 @@ Rectangle {
             onMoved: f => Audio.setVolume(f * Audio.maxVolume)
             onStepped: d => Audio.step(d * 0.05)
             onIconClicked: Audio.toggleMute()
+            onLabelClicked: root.toggle("sound")
             onRightClicked: root.requestPanel("audio")
+        }
+
+        // ── sound dropdown: outputs, then the mic level and inputs ──
+        Column {
+            width: parent.width
+            visible: root.menu === "sound"
+            bottomPadding: 4
+
+            SectionLabel {
+                text: Cfg.t("SALIDA")
+            }
+
+            Repeater {
+                model: paSinks
+                delegate: DeviceRow {
+                    visible: root.usable(model.PulseObject)
+                    icon: root.deviceIcon(model.PulseObject, false)
+                    name: root.deviceName(model.PulseObject)
+                    selected: model.Default
+                    onPicked: model.PulseObject.default = true
+                }
+            }
+
+            SectionLabel {
+                text: Cfg.t("ENTRADA")
+            }
+
+            // level of the default microphone
+            SliderRow {
+                readonly property bool hasMic: PA.PreferredDevice.source !== null
+                readonly property bool micMuted: hasMic && PA.PreferredDevice.source.muted
+
+                visible: hasMic
+                icon: micMuted ? "mic_off" : "mic"
+                iconColor: micMuted ? Theme.outline : Theme.fgVariant
+                label: Cfg.t("MIC")
+                value: hasMic ? PA.PreferredDevice.source.volume / PA.PulseAudio.NormalVolume : 0
+                fillColor: micMuted ? Theme.outline : Theme.fg
+                valueText: Math.round(value * 100) + "%"
+                valueColor: micMuted ? Theme.outline : Theme.fg
+
+                function setLevel(f) {
+                    PA.PreferredDevice.source.volume = Math.round(Math.max(0, Math.min(1, f)) * PA.PulseAudio.NormalVolume);
+                }
+
+                onMoved: f => setLevel(f)
+                onStepped: d => setLevel(value + d * 0.05)
+                onIconClicked: PA.PreferredDevice.source.muted = !micMuted
+            }
+
+            Repeater {
+                model: paSources
+                delegate: DeviceRow {
+                    visible: root.usable(model.PulseObject)
+                    icon: root.deviceIcon(model.PulseObject, true)
+                    name: root.deviceName(model.PulseObject)
+                    selected: model.Default
+                    onPicked: model.PulseObject.default = true
+                }
+            }
         }
 
         // ── brightness: one row per display, like Plasma's own applet ──

@@ -38,6 +38,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the output/input panel. Wi-Fi and Bluetooth now share the row at half
   width each. Changing the volume while muted now also unmutes. Before, the
   slider snapped back to muted.
+- Click **SOUND** to open a dropdown, like KDE's own audio applet. It lists the
+  output devices (click one to switch, e.g. to your earbuds once they're
+  connected) and the inputs, with a level slider for the default microphone
+  (click its icon to mute it). Virtual devices such as Easy Effects only show
+  when they're the default, and outputs whose port is unplugged are hidden.
 - New brightness sliders in the same card, one per display, like Plasma's
   own brightness applet. With a single display the row is labelled
   **SCREEN**. With several, the built-in panel is **LAPTOP** and external
@@ -66,7 +71,7 @@ section stays empty, but the rest of the island keeps working:
 | --- | --- |
 | Network, Wi-Fi | `nmcli` (NetworkManager) |
 | Bluetooth | `bluetoothctl` |
-| Sound | `wpctl`, `pactl` (PipeWire) |
+| Sound | `wpctl`, `pactl` (PipeWire), plus Plasma's audio applet (plasma-pa) for the device dropdown |
 | Brightness | Plasma's PowerDevil (built in). External monitors need DDC/CI support |
 | GPU meter | `nvidia-smi` (hidden if missing) |
 | Screen recording | `spectacle` |
@@ -347,6 +352,13 @@ Two rules to avoid it:
   is decided once in the parent `Column` (`anchoValor`), not per row.
   Otherwise, with RAM in "7.8/31" mode that row widens on its own and the
   bars end up different lengths again.
+- **Plasma's audio models do say which device is the default, just not right
+  away.** `Audio.qml` still polls `wpctl` because the original author found
+  that plasma-pa's `SinkModel` didn't expose the active device. It does: right
+  after creation every row reports `Default: false`, and the real values (and
+  `PreferredDevice.sink` / `.source`) arrive a moment later, once the server
+  info is in. Bind to them instead of reading them once in
+  `Component.onCompleted`. The sound dropdown uses these models.
 - **Numbers must not change width as they tick.** Most fonts have
   proportional digits. In Inter, `1` is 17 px wide at the clock's size and
   `0` is 27 px. In the original's NDOT 47 this made the clock change width

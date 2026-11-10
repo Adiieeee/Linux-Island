@@ -109,6 +109,7 @@ QtObject {
             "SALIDA": ["SALIDA", "OUTPUT"],
             "ENTRADA": ["ENTRADA", "INPUT"],
             "Sin salidas": ["Sin salidas", "No outputs"],
+            "MIC": ["MIC", "MIC"],
 
             // brightness
             "PANTALLA": ["PANTALLA", "SCREEN"],
