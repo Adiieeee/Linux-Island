@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A KDE Plasma 6 applet (plasmoid), "Linux Island": a Nothing OS-style dynamic island that sits in the middle of the panel and works as a control center. It is the user's personal fork of **Nothing Dynamic Island** by Omar (applet id `org.omar.nothingisland`, MIT), which was itself a port of a Quickshell/Hyprland island. The fork changes the UI to the user's own taste. The applet is a compact pill in a panel, with a Plasma popup (`fullRepresentation`) that opens on click. Pure QML plus two small Python helpers. There is no build step and no test suite.
 
-**Git:** public repo `github.com/Adiieeee/linuxisland`, branch `main`. The first commit is the unmodified upstream code; every later commit is a fork change. Keep `LICENSE` with the original author's copyright line, since MIT requires it.
+**Git:** public repo `github.com/Adiieeee/linuxisland`, branch `main`. The first commit is the unmodified upstream code; every later commit is a fork change. Use **micro commits**: commit each small, self-contained change on its own as soon as it's done, together with the README update it needs, and keep unrelated edits in separate commits. Keep `LICENSE` with the original author's copyright line, since MIT requires it.
 
-`README.md` (in Spanish) is the original project's design log. It records why things are done the way they are and each crash or bug found so far. Read the relevant section before changing an area. The short English note at its top describes the fork.
+`README.md` is the user-facing doc and design log, translated to English from the upstream Spanish. It records why things are done the way they are and each crash or bug found so far. Read the relevant section before changing an area. **Keep it current:** in the same change as the code, update any section the change makes stale, add new gotchas, and log every user-visible change under "What this fork changes".
 
-**Upstream copy:** `../org.omar.nothingisland/` is the original install, with the same code as the first commit. It is not part of this repo. If both applets are on the desktop, two islands show up. Ask before you touch or delete it.
+**Upstream copy:** `../org.omar.nothingisland/` is the original install, with the same code as the first commit. It is not part of this repo. It stays installed **on purpose**, so the user can compare it side by side with this fork. Two islands on the desktop are expected. Never modify or remove that folder.
 
 ## Commands
 
@@ -72,6 +72,6 @@ Spectacle specifics (`Recorder.qml`): the mode flag is the short letter (`--reco
 
 ## Conventions
 
-- Comments, identifiers and the README are in Spanish (lowercase, informal comments). Match that style when editing.
+- **Write all documentation in English**: README, CLAUDE.md, any docs, commit messages and new code comments. The repo is shared with other users. The upstream comments and identifiers are in Spanish. Leave existing Spanish comments as they are unless asked to translate them, and don't rename identifiers.
 - All user-visible strings go through `Cfg.t("CLAVE")`. Add a `["es", "en"]` pair to `Cfg.textos`; Plasma's i18n is deliberately not used, so the language switches live. Use `Cfg.esp` for one-off conditionals.
 - Use `Theme` tokens for every color, size, duration and easing. Don't hardcode colors.
