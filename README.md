@@ -48,7 +48,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - New **BRIGHTNESS** slider in the same card, for the screen the island is on.
   If the brightness of that screen can't be controlled, it falls back to the
   built-in panel. With more than one screen, click **BRIGHTNESS** to show the
-  others: the built-in panel as **LAPTOP**, external monitors by model name.
+  others below a dividing line: the built-in panel as **LAPTOP**, external
+  monitors by model name.
   Drag or scroll to adjust. The slider never goes below 1%, because 0 switches
   some backlights off completely.
 

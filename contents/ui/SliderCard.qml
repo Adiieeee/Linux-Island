@@ -592,7 +592,9 @@ Rectangle {
         Column {
             width: parent.width
             visible: root.menu === "screens"
-            bottomPadding: 4
+
+            // sets the island's own screen apart from the others
+            Divider {}
 
             Repeater {
                 model: screens.isBrightnessAvailable ? screens.displays : null
