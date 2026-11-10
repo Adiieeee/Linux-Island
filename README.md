@@ -1,5 +1,12 @@
 # Isla — versión Plasma
 
+> **Linux Island** is a personal fork of **Nothing Dynamic Island** by Omar
+> (applet id `org.omar.nothingisland`, MIT). This fork uses the applet id
+> `linuxisland` and shows up as **Linux Island** in "Add Widgets". To install
+> it, clone this repo into `~/.local/share/plasma/plasmoids/linuxisland` and
+> restart plasmashell. The notes below come from the original project and are
+> written in Spanish.
+
 Port de la isla de Quickshell (`~/.config/quickshell/`) a un widget de KDE
 Plasma. Mismo estilo Nothing OS, mismas animaciones, mismo contenido.
 
