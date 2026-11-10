@@ -54,7 +54,7 @@ QtObject {
     property color colorAlerta: "#D71921"
     property color colorTexto: "#FFFFFF"
 
-    // vacío = la fuente empaquetada
+    // empty = system font (numbers: the interface font)
     property string fuenteUi: ""
     property string fuenteNumeros: ""
 

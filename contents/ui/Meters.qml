@@ -105,6 +105,7 @@ Column {
             text: m.valorTexto !== "" ? m.valorTexto : Math.round(m.v * 100) + "%"
             color: Theme.fg
             font.family: Theme.fontDots
+            font.features: Theme.numFeatures
             font.pixelSize: 14
             font.weight: Font.Bold
         }
@@ -131,6 +132,7 @@ Column {
                 text: m.temp + "°"
                 color: m.hot ? Theme.alert : Theme.fgDim
                 font.family: Theme.fontDots
+                font.features: Theme.numFeatures
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }

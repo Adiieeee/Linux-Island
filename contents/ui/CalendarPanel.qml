@@ -388,6 +388,7 @@ Item {
                                         return celda.modelData.esteMes ? Theme.fg : Theme.fgFaint;
                                     }
                                     font.family: Theme.fontDots
+                                    font.features: Theme.numFeatures
                                     font.pixelSize: 15
                                     font.weight: Font.Bold
                                 }
@@ -510,6 +511,7 @@ Item {
                 text: pie.foco.getDate()
                 color: Theme.fg
                 font.family: Theme.fontDots
+                font.features: Theme.numFeatures
                 font.pixelSize: 24
                 font.weight: Font.Bold
             }

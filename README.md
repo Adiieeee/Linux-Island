@@ -18,6 +18,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The Wi-Fi card's percentage (the signal strength of the network you're
   connected to) is now always current. In the original it was only read while
   the Wi-Fi panel was open, so the card showed 0% or a stale value.
+- Text uses your system font (Plasma's general font) instead of the bundled
+  Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
+  Numbers use tabular figures so they don't jiggle as they change.
 
 ## Install
 
@@ -193,22 +196,23 @@ page declares its own `cfg_lang`, which Plasma connects to the same live
 `/usr/share/plasma/shells/org.kde.plasma.desktop/contents/configuration/AppletConfiguration.qml`),
 and computes `esp` from that value instead of importing the singleton.
 
-## Fonts ship inside the widget
+## Fonts
 
-`contents/fonts/` contains all three: `SpaceGrotesk.ttf`,
-`ndot-47-inspired-by-nothing.otf` and `MaterialSymbolsRounded.ttf`.
-`Theme.qml` loads them with `FontLoader` and uses the name it returns,
-instead of asking the system for them by name.
+Text uses Plasma's general font (System Settings → Fonts), so the island
+matches the rest of the desktop. `Theme.qml` reads it from
+`Qt.application.font`. The interface font and the numbers font can both be
+overridden in the widget settings. By default, numbers use the interface
+font.
 
-This came from the original widget's first bug report on the KDE Store.
-Requested by name on a machine where they weren't installed, the icons
-showed up as text (`skip_previous`, `local_fire_department`) and the digits
-as empty boxes. Those boxes were the "black borders" people saw.
+Only the icon font ships inside the widget: `contents/fonts/MaterialSymbolsRounded.ttf`.
+`Theme.qml` loads it with `FontLoader` and uses the name it returns, instead
+of asking the system for it by name. This came from the original widget's
+first bug report on the KDE Store. Requested by name on a machine where it
+wasn't installed, the icons showed up as text (`skip_previous`,
+`local_fire_department`).
 
-A detail that could have gone wrong but didn't: `SpaceGrotesk.ttf` is a
-variable font whose legacy family name is `Space Grotesk Light`. If
-`FontLoader` had returned that name, all the text would have been thinner
-than before. It returns `Space Grotesk`, checked.
+The original also bundled Space Grotesk for text and NDOT 47 (a Nothing-style
+dot-matrix font) for numbers. This fork removed both.
 
 ## Be careful when touching this (it crashed plasmashell)
 
@@ -321,11 +325,14 @@ Two rules to avoid it:
   is decided once in the parent `Column` (`anchoValor`), not per row.
   Otherwise, with RAM in "7.8/31" mode that row widens on its own and the
   bars end up different lengths again.
-- **In NDOT 47 the `1` is 888 units wide and every other digit is 1333.**
-  It's not a monospaced font, so the clock changed width every second and the
-  calendar button, which sits right next to it, moved around. Both clock
-  texts reserve their width with a `TextMetrics` whose template is the same
-  text with every digit set to zero (`0` is one of the wide digits).
+- **Numbers must not change width as they tick.** Most fonts have
+  proportional digits. In Inter, `1` is 17 px wide at the clock's size and
+  `0` is 27 px. In the original's NDOT 47 this made the clock change width
+  every second, and the calendar button right next to it moved around. Every
+  number text sets `font.features: Theme.numFeatures` (tabular figures,
+  `tnum`), which makes all digits equally wide. Both clock texts also reserve
+  their width with a `TextMetrics` whose template is the same text with every
+  digit set to zero. That covers user-picked fonts without `tnum`.
 
 ## Things that were broken and aren't anymore
 
@@ -467,5 +474,4 @@ instead of a generic music note.
 
 - Original widget: **Nothing Dynamic Island** by Omar, MIT license.
 - Fork: **Linux Island** by Adiieeee, MIT license. See [`LICENSE`](LICENSE).
-- Bundled fonts: Space Grotesk, NDOT 47 (inspired by Nothing) and Material
-  Symbols Rounded, each under its own license.
+- Bundled icon font: Material Symbols Rounded by Google, Apache License 2.0.

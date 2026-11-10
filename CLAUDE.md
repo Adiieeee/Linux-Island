@@ -34,7 +34,7 @@ If you change the popup's size, Plasma keeps the old one in `popupHeight`/`popup
 **Entry:** `contents/ui/main.qml` (`PlasmoidItem`). `compactRepresentation` is a `Row` of `CompactPill` (system info) and `MusicPill` (shown only while media plays). `fullRepresentation` is `ExpandedPanel`. Its min, preferred and max height are all pinned to `implicitHeight`, which comes from the real content height (`mainColumn.implicitHeight`), not a fixed number.
 
 **Singletons** (registered in `contents/ui/qmldir`, imported with `import "."`). These hold all state and data access. The views only bind to them.
-- `Theme`: every design token (colors, type scale, shapes, motion curves, island sizes). The user picks 4 colors plus a text color. The intermediate greys come from `mezcla()`, which blends them. The header comment lists the visual rules (strict monochrome, red only for critical states, no gradients or shadows). Fonts load with `FontLoader` from `contents/fonts/`, never by system name.
+- `Theme`: every design token (colors, type scale, shapes, motion curves, island sizes). The user picks 4 colors plus a text color. The intermediate greys come from `mezcla()`, which blends them. The header comment lists the visual rules (strict monochrome, red only for critical states, no gradients or shadows). Text uses the system font (`Qt.application.font`) unless overridden in settings. Only the Material Symbols icon font is bundled, and it loads with `FontLoader` from `contents/fonts/`, never by system name.
 - `Cfg`: user settings plus the i18n dictionary. **Singletons can't see `Plasmoid.configuration`**, so `main.qml` copies each key into `Cfg` with a `Binding`.
 - `Exec`: fire-and-forget shell commands (`Exec.run(cmd)`).
 - Data services: `SysInfo` (/proc, hwmon, nvidia-smi every 3 s), `Net` (nmcli + bluetoothctl every 8 s), `Audio` (wpctl every 1 s, pactl device lists), `Weather` (wttr.in via XHR), `Notifs` (reads Plasma's notification history via `org.kde.notificationmanager`; it is not the notification server), `Recorder` (spectacle), `Icons` (Material Symbols ligature names).
@@ -66,7 +66,7 @@ The applet runs **inside plasmashell**, so a crash takes down the whole desktop.
 5. **`DataSource` already runs commands in a shell.** Don't wrap them in `sh -c "…"`. The outer shell eats `$var` and `$(…)`, and the command fails silently.
 6. **Hover color animations:** if the resting color is opaque, the hover color must be opaque too (`surfaceAlt` → `surfaceHigh` → `surfaceTop`). If the resting color is transparent, use `Qt.alpha(Theme.fg, 0)`, not `"transparent"`. Mixing the two produces a grey flash mid-animation.
 7. Don't put an `anchors.fill` child inside a `Row`, because it collapses the Row. Wrap the Row in an `Item` instead. Invisible items still take part in anchoring.
-8. The icon font (Material Symbols ligatures) must not be user-configurable. NDOT 47 digits are not fixed-width, so reserve width with a `TextMetrics` on an all-zeros template.
+8. The icon font (Material Symbols ligatures) must not be user-configurable. Every number text uses `font.family: Theme.fontDots` plus `font.features: Theme.numFeatures` (tabular figures), so digits don't change width. Ticking clocks also reserve width with a `TextMetrics` on an all-zeros template.
 
 Spectacle specifics (`Recorder.qml`): the mode flag is the short letter (`--record=s`). To stop, call the same record command again with the **same `--output`**, guarded by `pgrep -x spectacle`. SIGINT, SIGTERM or DBus `quit` leave a corrupt mp4 or no file at all.
 

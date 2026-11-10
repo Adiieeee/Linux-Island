@@ -175,7 +175,8 @@ Item {
                         }
 
                         // hora y segundos separados, un solo Text no deja mezclar tamaños
-                        // ancho fijo con dígitos en cero: en Doto no miden igual y el reloj bailaba
+                        // fixed width from an all-zeros template: tnum makes digits equal in fonts
+                        // that support it, this covers user-picked fonts that don't
                         Row {
                             id: bigClock
                             anchors.left: parent.left
@@ -195,6 +196,7 @@ Item {
                                 text: Qt.formatDateTime(panelClock.now, Cfg.fmtHora)
                                 color: Theme.fg
                                 font.family: Theme.fontDots
+                                font.features: Theme.numFeatures
                                 font.pixelSize: Theme.displayLarge
                                 font.weight: Font.Bold
                             }
@@ -213,6 +215,7 @@ Item {
                                 text: Qt.formatDateTime(panelClock.now, "ss")
                                 color: Theme.fgDim
                                 font.family: Theme.fontDots
+                                font.features: Theme.numFeatures
                                 font.pixelSize: Theme.displaySmall
                                 font.weight: Font.Bold
                             }
@@ -373,6 +376,7 @@ Item {
                                     text: Recorder.elapsedText
                                     color: Recorder.recording ? Theme.fg : Theme.fgFaint
                                     font.family: Theme.fontDots
+                                    font.features: Theme.numFeatures
                                     font.pixelSize: 18
                                     font.weight: Font.Bold
                                     elide: Text.ElideRight

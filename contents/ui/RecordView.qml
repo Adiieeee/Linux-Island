@@ -137,6 +137,7 @@ Item {
                 text: cp.label
                 color: cp.active ? Theme.invertedFg : Theme.fgDim
                 font.family: Theme.fontDots
+                font.features: Theme.numFeatures
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }

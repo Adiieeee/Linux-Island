@@ -6,7 +6,7 @@ import "."
 // estilo nothing os, no romper estas reglas:
 //   1. monocromo estricto: negro, blanco, dos grises. nada más
 //   2. rojo solo para estados críticos (temp alta, errores), nunca decorativo
-//   3. números en doto (puntos), texto de ui en grotesk mayúscula con letterspacing
+//   3. all text in the system font; labels uppercase with letterspacing
 //   4. sin gradientes/sombras/tintes, el contraste hace todo
 //   5. pares invertidos (tarjeta blanca+negra) para dar ritmo
 QtObject {
@@ -58,21 +58,21 @@ QtObject {
     readonly property color primaryContainerFg: fg
 
     // ── tipografía ──
-    // van adentro del widget: en otra máquina no están instaladas en el sistema
-    // y sin ellas los iconos salían como texto ("skip_previous") y los números
-    // como cuadros vacíos
-    readonly property FontLoader cargaUi: FontLoader {
-        source: Qt.resolvedUrl("../fonts/SpaceGrotesk.ttf")
-    }
-    readonly property FontLoader cargaNumeros: FontLoader {
-        source: Qt.resolvedUrl("../fonts/ndot-47-inspired-by-nothing.otf")
-    }
+    // text follows Plasma's general font (System Settings → Fonts) unless the
+    // user picks another one in the widget settings. only the icon font ships
+    // inside the widget: without it the icons show up as text ("skip_previous")
     readonly property FontLoader cargaIconos: FontLoader {
         source: Qt.resolvedUrl("../fonts/MaterialSymbolsRounded.ttf")
     }
 
-    readonly property string font: Cfg.fuenteUi || cargaUi.name              // interfaz
-    readonly property string fontDots: Cfg.fuenteNumeros || cargaNumeros.name  // cifras y display
+    readonly property string font: Cfg.fuenteUi || Qt.application.font.family  // interface
+    readonly property string fontDots: Cfg.fuenteNumeros || font                // numbers (clock, %, times)
+
+    // tabular figures: every digit is equally wide, so numbers don't jiggle as
+    // they change. set it on every Text that uses fontDots
+    readonly property var numFeatures: ({
+            "tnum": 1
+        })
 
     // esta no se cambia: los iconos son ligaduras de material symbols, con
     // cualquier otra fuente vuelve el nombre en texto

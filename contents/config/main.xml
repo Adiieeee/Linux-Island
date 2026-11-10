@@ -66,7 +66,7 @@
       <default>#D71921</default>
     </entry>
 
-    <!-- Tipografías; vacío usa la que viene empaquetada con el widget -->
+    <!-- Fonts; empty = system font (numbers: the interface font) -->
     <entry name="fuenteUi" type="String">
       <default></default>
     </entry>

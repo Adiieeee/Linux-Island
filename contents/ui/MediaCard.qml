@@ -495,6 +495,7 @@ Item {
             text: root.fmt(root.position)
             color: Theme.fgDim
             font.family: Theme.fontDots
+            font.features: Theme.numFeatures
             font.pixelSize: 13
             font.weight: Font.Bold
         }
@@ -507,6 +508,7 @@ Item {
             text: root.fmt(root.length)
             color: Theme.fgDim
             font.family: Theme.fontDots
+            font.features: Theme.numFeatures
             font.pixelSize: 13
             font.weight: Font.Bold
         }

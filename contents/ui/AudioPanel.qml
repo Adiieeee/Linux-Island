@@ -117,6 +117,7 @@ Item {
                 text: volCard.muted ? "0" : Math.round(volCard.vol * 100)
                 color: volCard.vol > 1 && !volCard.muted ? Theme.alert : Theme.fg
                 font.family: Theme.fontDots
+                font.features: Theme.numFeatures
                 font.pixelSize: 17
                 font.weight: Font.Bold
             }

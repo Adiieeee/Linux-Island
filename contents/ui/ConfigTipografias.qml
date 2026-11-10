@@ -28,7 +28,8 @@ Kirigami.FormLayout {
     // de los dos combos
     readonly property var familias: Qt.fontFamilies()
 
-    // el índice 0 de cada combo es la fuente empaquetada, guardada como texto vacío
+    // index 0 of each combo is the default, stored as an empty string: the
+    // system font for the interface, and the interface font for numbers
     function indiceDe(familia) {
         return page.familias.indexOf(familia) + 1;
     }
@@ -48,7 +49,7 @@ Kirigami.FormLayout {
     QQC2.ComboBox {
         id: uiBox
         Kirigami.FormData.label: page.esp ? "Interfaz:" : "Interface:"
-        model: [page.esp ? "La que viene (Space Grotesk)" : "Bundled (Space Grotesk)"].concat(page.familias)
+        model: [(page.esp ? "La del sistema (" : "System font (") + Qt.application.font.family + ")"].concat(page.familias)
 
         Component.onCompleted: currentIndex = page.indiceDe(page.cfg_fuenteUi)
         onActivated: page.cfg_fuenteUi = currentIndex === 0 ? "" : page.familias[currentIndex - 1]
@@ -65,7 +66,7 @@ Kirigami.FormLayout {
     QQC2.ComboBox {
         id: numerosBox
         Kirigami.FormData.label: page.esp ? "Números:" : "Numbers:"
-        model: [page.esp ? "La que viene (NDOT 47)" : "Bundled (NDOT 47)"].concat(page.familias)
+        model: [page.esp ? "La misma de la interfaz" : "Same as the interface"].concat(page.familias)
 
         Component.onCompleted: currentIndex = page.indiceDe(page.cfg_fuenteNumeros)
         onActivated: page.cfg_fuenteNumeros = currentIndex === 0 ? "" : page.familias[currentIndex - 1]
