@@ -1,437 +1,468 @@
-# Isla — versión Plasma
+# Linux Island
 
-> **Linux Island** is a personal fork of **Nothing Dynamic Island** by Omar
-> (applet id `org.omar.nothingisland`, MIT). This fork uses the applet id
-> `linuxisland` and shows up as **Linux Island** in "Add Widgets". To install
-> it, clone this repo into `~/.local/share/plasma/plasmoids/linuxisland` and
-> restart plasmashell. The notes below come from the original project and are
-> written in Spanish.
+A Nothing OS-style dynamic island for KDE Plasma 6. It sits in the middle of
+your panel and works as a control center: clock, weather, media, network,
+Bluetooth, sound, system meters, notifications, screen recording and power
+actions.
 
-Port de la isla de Quickshell (`~/.config/quickshell/`) a un widget de KDE
-Plasma. Mismo estilo Nothing OS, mismas animaciones, mismo contenido.
+Linux Island is a personal fork of **Nothing Dynamic Island** by Omar
+(applet id `org.omar.nothingisland`, MIT license). The original is itself a
+port of a Quickshell island from Hyprland to a Plasma widget, with the same
+Nothing OS style, animations and content. This fork uses its own applet id,
+`linuxisland`, so it can be installed next to the original.
 
-## Instalar
+## What this fork changes
 
-Ya está copiado en `~/.local/share/plasma/plasmoids/org.omar.nothingisland/`.
-Para que Plasma lo vea:
+- The applet id is `linuxisland` and the widget name is **Linux Island**, so
+  it installs alongside the original instead of replacing it.
+
+## Install
 
 ```bash
+git clone https://github.com/Adiieeee/linuxisland.git \
+    ~/.local/share/plasma/plasmoids/linuxisland
 kquitapp6 plasmashell && kstart plasmashell
 ```
 
-Después: clic derecho en el escritorio o en un panel → "Añadir widgets" →
-buscar **Nothing Dynamic Island**.
+Then right-click the desktop or a panel → **Add Widgets…** → search for
+**Linux Island**.
 
-## En su propio panel (recomendado)
+To update, run `git pull` in that folder and restart plasmashell again.
 
-Metida en un panel compartido, la isla queda apretada entre los demás
-widgets. Mejor darle un panel para ella sola:
+### Requirements
 
-Clic derecho en el escritorio → **Añadir panel** → **Isla**.
+The widget calls a few command-line tools. Without one of them, the matching
+section stays empty, but the rest of the island keeps working:
 
-Eso usa la plantilla de
-`~/.local/share/plasma/layout-templates/org.omar.island.panel/`, que crea
-un panel normal de Plasma con tres ajustes que lo vuelven invisible:
-
-| Ajuste | Para qué |
+| Section | Uses |
 | --- | --- |
-| `backgroundHints = 4` | Apaga el fondo. No se ve el marco gris de Plasma. |
-| `lengthMode = "fit"` | El panel mide lo que mide la isla, nada más. |
-| `alignment = "center"` | Queda centrado arriba. |
+| Network, Wi-Fi | `nmcli` (NetworkManager) |
+| Bluetooth | `bluetoothctl` |
+| Sound | `wpctl`, `pactl` (PipeWire) |
+| GPU meter | `nvidia-smi` (hidden if missing) |
+| Screen recording | `spectacle` |
+| Coffee mode | `python3` with PyGObject (`gi`) |
+| App launcher | `python3` |
+| Weather | internet access to `wttr.in` |
 
-Es la misma receta del panel de wavetask. **Ojo con `lengthMode`**: va como
-texto (`"fit"`), no como número. Con `1` la propiedad no toma y el panel se
-queda cruzando toda la pantalla.
+## In its own panel (recommended)
 
-Después de crearlo conviene sacar la isla del panel donde estuviera antes,
-o van a quedar dos.
+Inside a shared panel, the island gets squeezed between the other widgets.
+It looks better in a panel of its own.
 
-## Crecer en el lugar: probado y no salió
+The original author used a Plasma layout template
+(`org.omar.island.panel`) that creates a normal Plasma panel with three
+settings that make it invisible. **That template is not included in this
+repo.** These are the settings it applies:
 
-`Island.qml` es el intento: una sola superficie que anima su propio ancho y
-alto, igual que en Hyprland, y le pide a plasmashell agrandar el panel al
-abrirse. **Funciona fuera de Plasma** (se probó con `qml-qt6` y se ve
-exactamente como la isla de Hyprland), pero adentro de un panel se pelea
-con tres cosas del propio Plasma:
-
-1. **El panel reserva la altura.** Al crecer de 44 a 460, todas las
-   ventanas se corren hacia abajo. Los únicos modos que evitan reservar son
-   `autohide` y `dodgewindows`, y los dos esconden la isla, que es peor.
-   `windowsgobelow` no existe en Plasma 6: se acepta el valor y queda en
-   `none`.
-2. **El panel centra el widget a lo alto.** Con el panel en 460 la píldora
-   queda flotando en el medio, no arriba, así que la isla no crece hacia
-   abajo: crece para los dos lados.
-3. **El panel dibuja su fondo igual.** Con `backgroundHints = 4` sigue
-   pintando `panel-background.svg`, que es negro opaco. Al crecer aparece un
-   bloque negro de 460 px en vez de una isla flotando.
-
-El ancho **sí** funciona solo: con `lengthMode = "fit"` el panel se estira y
-se encoge detrás de la isla sin que nadie haga nada.
-
-Por eso quedó el popup de Plasma. `Island.qml` sigue en el repo, sin usar,
-para retomarlo si algún día Plasma deja fijar la alineación del widget y
-saltarse el fondo del panel.
-
-## Qué cambia respecto de la versión de Hyprland
-
-| Cosa | Cómo quedó |
+| Setting | Purpose |
 | --- | --- |
-| Forma | Píldora en el panel + panel emergente al hacer clic. Plasma no deja una ventana flotante libre como layer-shell. |
-| Bandeja del sistema | Se quitó. La bandeja la maneja `plasmashell` y no se puede reimplementar dentro de un widget. |
-| Workspaces | Escritorios virtuales de KWin en vez de los de Hyprland. |
-| Notificaciones | Se lee el historial de Plasma; el widget no es el servidor. "Silenciar" activa el No Molestar de Plasma. |
-| Modo café | Lo hace `contents/code/coffee.py`, ver abajo. |
-| Bloquear | `org.freedesktop.ScreenSaver` en vez de `hyprlock`. |
-| Grabación | `spectacle --record=s` en vez de `wf-recorder`, que solo anda en wlroots. No se elige monitor ni FPS desde acá. |
-| Carátulas | Plasma ya entrega la URL resuelta; se fue el servicio `Cover`. |
-| Sonido | `wpctl` + `pactl` cada segundo. El módulo nativo de Plasma lista los dispositivos pero no expone desde QML cuál está activo. |
-| Dock y Configuración | Sacados a pedido. |
+| `backgroundHints = 4` | Turns off the background, so Plasma's grey frame doesn't show. |
+| `lengthMode = "fit"` | The panel is exactly as wide as the island, nothing more. |
+| `alignment = "center"` | Keeps it centered at the top. |
 
-## Qué se mantiene igual
+**Careful with `lengthMode`**: it takes a string (`"fit"`), not a number.
+With `1` the property doesn't apply and the panel stays stretched across the
+whole screen.
 
-Reloj, clima, red, bluetooth, volumen con techo real de 150 % y barra roja
-de boost, batería, reproductor con carátula y onda, medidores de CPU / RAM /
-GPU con el fuego rojo, grabación, modo café, franja de notificación, y los
-paneles internos de wifi, bluetooth, sonido, notificaciones y grabación.
+After moving the island into its own panel, remove it from the panel it was
+in before, or you'll end up with two.
 
-Todos los tokens de diseño siguen en `Theme.qml`, sin tocar.
+## Growing in place: tried, didn't work
 
-## Preferencias del widget
+`Island.qml` is the attempt: a single surface that animates its own width and
+height, like on Hyprland, and asks plasmashell to enlarge the panel when it
+opens. **It works outside Plasma** (tested with `qml-qt6`, and it looks
+exactly like the Hyprland island), but inside a panel it fights three things
+in Plasma itself:
 
-Clic derecho en la isla → "Configurar Isla…". Lo que hay:
+1. **The panel reserves its height.** When it grows from 44 to 460, every
+   window gets pushed down. The only modes that avoid reserving space are
+   `autohide` and `dodgewindows`, and both hide the island, which is worse.
+   `windowsgobelow` doesn't exist in Plasma 6: the value is accepted and
+   silently becomes `none`.
+2. **The panel centers the widget vertically.** With the panel at 460 the
+   pill floats in the middle, not at the top, so the island doesn't grow
+   downwards: it grows in both directions.
+3. **The panel draws its background anyway.** With `backgroundHints = 4` it
+   still paints `panel-background.svg`, which is opaque black. When it grows,
+   a 460 px black block appears instead of a floating island.
 
-- **Idioma**: automático (el del sistema), español o inglés. Cambia solo los
-  textos de la isla, no el escritorio.
-- **Hora**: 24 horas o 12 con AM/PM.
-- **Medidores**: la RAM en porcentaje (por defecto) o cuánta se está usando
-  sobre el total, "7.8/31".
-- **Mostrar en la isla chica**: escritorios, clima, reloj, red, volumen,
-  batería.
-- **Reproductor**: mostrar o no el minireproductor mientras suena algo.
+Width **does** work on its own: with `lengthMode = "fit"` the panel
+stretches and shrinks behind the island with no extra work.
 
-Los valores viven en `contents/config/main.xml`. Para agregar uno nuevo hay
-que tocar cuatro archivos: ese, `ConfigGeneral.qml` (la casilla),
-`main.qml` (el `Binding` que lo copia) y `Cfg.qml` (donde lo lee el resto).
-Los singletons de QML no ven `Plasmoid.configuration`, por eso el rodeo.
+That's why the island uses Plasma's popup. `Island.qml` stays in the repo,
+unused, to pick up again if Plasma ever allows fixing the widget's alignment
+and skipping the panel background. It still hardcodes the original applet id
+`org.omar.nothingisland`.
 
-### Colores y tipografías
+## What changed from the Hyprland version
 
-Dos páginas más en las preferencias, `ConfigColores.qml` y
-`ConfigTipografias.qml`. Se eligen cuatro colores —fondo, tarjetas,
-"encendido" (la tarjeta invertida) y alerta—, las dos tipografías y el
-color del texto. Cada página tiene su botón de restablecer, que se apaga
-solo cuando ya está todo como vino de fábrica.
+| Thing | How it ended up |
+| --- | --- |
+| Shape | Pill in the panel plus a popup on click. Plasma doesn't allow a free floating window like layer-shell does. |
+| System tray | Removed. The tray belongs to `plasmashell` and can't be reimplemented inside a widget. |
+| Workspaces | KWin virtual desktops instead of Hyprland workspaces. |
+| Notifications | Reads Plasma's notification history; the widget is not the notification server. "Mute" turns on Plasma's Do Not Disturb. |
+| Coffee mode | Handled by `contents/code/coffee.py`, see below. |
+| Lock | `org.freedesktop.ScreenSaver` instead of `hyprlock`. |
+| Recording | `spectacle --record=s` instead of `wf-recorder`, which only works on wlroots. Monitor and FPS can't be chosen from here. |
+| Album art | Plasma already provides the resolved URL, so the `Cover` service is gone. |
+| Sound | `wpctl` + `pactl` every second. Plasma's native module lists devices but doesn't expose to QML which one is active. |
+| Dock and Settings | Removed on request. |
 
-Plasma guarda los valores en `plasma-org.kde.plasma.desktop-appletsrc`, así
-que sobreviven al reinicio sin que el widget haga nada.
+## What stayed the same
 
-Tres detalles del diseño:
+Clock, weather, network, Bluetooth, volume with a real 150% ceiling and a red
+boost bar, battery, media player with album art and waveform, CPU / RAM / GPU
+meters with the red flame, screen recording, coffee mode, the notification
+strip, and the inner panels for Wi-Fi, Bluetooth, sound, notifications and
+recording.
 
-- **Se piden cuatro colores, no doce.** `Theme.qml` saca los escalones
-  intermedios (`surfaceAlt`, `surfaceHigh`, `surfaceTop`, `fgDim`,
-  `fgFaint`, `outline`) mezclando los elegidos con el color del texto o con
-  el fondo, en proporciones fijas. Con los valores de fábrica dan
-  exactamente los grises de antes, comprobado token por token; y si el
-  usuario pone un fondo claro la rampa se acomoda sola, porque es una
-  interpolación y no depende de que el fondo sea oscuro.
-- **El texto de la tarjeta invertida se decide por brillo**, no está fijo en
-  negro: si alguien deja esa tarjeta oscura, el texto pasa a blanco solo.
-- **Los valores de fábrica no se repiten en el código.** Se declaran las
-  propiedades `cfg_<clave>Default` vacías en la página y Plasma las rellena
-  desde `main.xml`. Es lo mismo que hace el fondo de pantalla de KDE en
+All design tokens live in `Theme.qml`.
+
+## Widget settings
+
+Right-click the island → **Configure Linux Island…**. Options:
+
+- **Language**: automatic (the system's), Spanish or English. It only changes
+  the island's texts, not the desktop.
+- **Time**: 24-hour, or 12-hour with AM/PM.
+- **Meters**: RAM as a percentage (default), or used over total, "7.8/31".
+- **Show in the small island**: desktops, weather, clock, network, volume,
+  battery.
+- **Player**: show or hide the mini player while something is playing.
+- **Weather city**: leave it empty to detect it from your IP.
+
+The values live in `contents/config/main.xml`. Adding a new one means
+touching four files: that one, `ConfigGeneral.qml` (the control), `main.qml`
+(the `Binding` that copies it) and `Cfg.qml` (where the rest of the code
+reads it). QML singletons can't see `Plasmoid.configuration`, hence the
+detour.
+
+### Colours and fonts
+
+Two more settings pages, `ConfigColores.qml` and `ConfigTipografias.qml`. You
+pick four colours (background, cards, "on" i.e. the inverted card, and
+alert), the two fonts, and the text colour. Each page has its own reset
+button, which disables itself when everything is already at the defaults.
+
+Plasma stores the values in `plasma-org.kde.plasma.desktop-appletsrc`, so
+they survive restarts without the widget doing anything.
+
+Three design details:
+
+- **It asks for four colours, not twelve.** `Theme.qml` derives the
+  intermediate steps (`surfaceAlt`, `surfaceHigh`, `surfaceTop`, `fgDim`,
+  `fgFaint`, `outline`) by mixing the chosen colours with the text colour or
+  the background in fixed proportions. With the default values they give
+  exactly the previous greys, checked token by token. If the user picks a
+  light background the ramp adjusts on its own, because it's an
+  interpolation and doesn't assume a dark background.
+- **The inverted card's text colour is chosen by brightness**, not fixed to
+  black. If someone makes that card dark, the text switches to white
+  automatically.
+- **Defaults are not repeated in the code.** The page declares empty
+  `cfg_<key>Default` properties and Plasma fills them from `main.xml`. KDE's
+  slideshow wallpaper does the same in
   `/usr/share/plasma/wallpapers/org.kde.slideshow/contents/ui/config.qml`.
 
-**Ojo con el reset**: al elegir un color o una fuente, el `ColorButton` y el
-`ComboBox` se escriben su propio valor y eso deja sin efecto el binding que
-los ataba a la configuración. Por eso `restablecer()` les devuelve el valor
-a mano además de escribir la clave; si no, el reset cambiaba lo guardado
-pero el control seguía mostrando lo viejo.
+**Careful with reset**: when you pick a colour or a font, the `ColorButton`
+and the `ComboBox` write their own value, and that breaks the binding that
+tied them to the configuration. That's why `restablecer()` (reset) sets each
+control's value by hand on top of writing the key. Otherwise the reset
+changed the stored value but the control kept showing the old one.
 
-La fuente de los iconos **no** se puede cambiar, a propósito: son ligaduras
-de Material Symbols y con cualquier otra fuente los iconos vuelven a salir
-como el nombre en texto.
+The icon font **can't** be changed, on purpose: the icons are Material
+Symbols ligatures, and with any other font they show up as their names in
+plain text.
 
-**Cambiar el idioma no traducía estas dos páginas al toque.** `Cfg.esp` es
-el idioma ya aplicado —lo pisa el `Binding` de `main.qml`, que solo corre
-después de Aceptar—, no el que se está por elegir en el combo de la página
-General. `ConfigGeneral.qml` ya resolvía esto con su propio `page.esp` en
-vivo; a Colores y Tipografías se les había quedado colgado el de `Cfg`, así
-que cambiar el idioma y saltar de pestaña sin aceptar las dejaba en el
-idioma viejo. Se arregla igual: cada página declara su propio
-`cfg_lang`, que Plasma conecta al mismo `KConfigPropertyMap` en vivo que
-usa la página General (confirmado en el comentario `// type:
-KConfigPropertyMap` de
+**Changing the language didn't translate these two pages right away.**
+`Cfg.esp` is the language already applied. The `Binding` in `main.qml`
+overwrites it, and that only runs after you press OK. It is not the language
+currently being chosen in the General page's combo box. `ConfigGeneral.qml`
+already handled this with its own live `page.esp`, but Colours and Fonts were
+still reading the one from `Cfg`, so changing the language and switching tabs
+without accepting left them in the old language. The fix is the same: each
+page declares its own `cfg_lang`, which Plasma connects to the same live
+`KConfigPropertyMap` the General page uses (confirmed by the
+`// type: KConfigPropertyMap` comment in
 `/usr/share/plasma/shells/org.kde.plasma.desktop/contents/configuration/AppletConfiguration.qml`),
-y calcula `esp` de ese valor en vez de importar el singleton.
+and computes `esp` from that value instead of importing the singleton.
 
-## Las tipografías van adentro del widget
+## Fonts ship inside the widget
 
-`contents/fonts/` lleva las tres: `SpaceGrotesk.ttf`,
-`ndot-47-inspired-by-nothing.otf` y `MaterialSymbolsRounded.ttf`.
-`Theme.qml` las carga con `FontLoader` y usa el nombre que devuelve, en vez
-de pedirlas por nombre al sistema.
+`contents/fonts/` contains all three: `SpaceGrotesk.ttf`,
+`ndot-47-inspired-by-nothing.otf` and `MaterialSymbolsRounded.ttf`.
+`Theme.qml` loads them with `FontLoader` and uses the name it returns,
+instead of asking the system for them by name.
 
-Esto fue el primer informe de fallos de la KDE Store: pedidas por nombre,
-en una máquina donde no estaban instaladas los iconos salían como texto
-(`skip_previous`, `local_fire_department`), los números como cuadros vacíos,
-y esos cuadros son los "bordes negros" que se veían.
+This came from the original widget's first bug report on the KDE Store.
+Requested by name on a machine where they weren't installed, the icons
+showed up as text (`skip_previous`, `local_fire_department`) and the digits
+as empty boxes. Those boxes were the "black borders" people saw.
 
-Un detalle que podría haber salido mal y no: `SpaceGrotesk.ttf` es una
-fuente variable cuya familia heredada es `Space Grotesk Light`. Si
-`FontLoader` hubiera devuelto ese nombre, todo el texto habría quedado más
-fino que antes. Devuelve `Space Grotesk`, comprobado.
+A detail that could have gone wrong but didn't: `SpaceGrotesk.ttf` is a
+variable font whose legacy family name is `Space Grotesk Light`. If
+`FontLoader` had returned that name, all the text would have been thinner
+than before. It returns `Space Grotesk`, checked.
 
-## Cuidado al tocar esto (tumbó plasmashell una vez)
+## Be careful when touching this (it crashed plasmashell)
 
-El widget corre **dentro** de plasmashell: un error acá se lleva puesto todo
-el escritorio. Dos reglas que salieron de una tanda de cinco caídas seguidas
-(SIGSEGV en el recolector de basura de QML, `QV4::MarkStack::drain`):
+The widget runs **inside** plasmashell: a bug here takes down the whole
+desktop. These rules came out of a run of five crashes in a row (SIGSEGV in
+the QML garbage collector, `QV4::MarkStack::drain`):
 
-1. **Nunca `property var` para guardar un objeto creado ahí mismo.** Con
-   `var`, el objeto queda en manos del recolector de JS y lo puede liberar
-   mientras C++ todavía lo usa. Va tipado:
+1. **Never use `property var` to hold an object created in place.** With
+   `var`, the object belongs to the JS garbage collector, which can free it
+   while C++ is still using it. Type it:
    `readonly property P5Support.DataSource source: P5Support.DataSource {…}`.
-2. **No guardar callbacks que crucen a C++ y vuelvan.** El `Exec` original
-   guardaba funciones en un diccionario y las llamaba desde `onNewData`.
-   Ahora `Exec.run` solo dispara y olvida; el que necesita leer la salida
-   se arma su propio `DataSource` y reparte por nombre de comando.
+2. **Don't store callbacks that cross into C++ and back.** The original
+   `Exec` kept functions in a dictionary and called them from `onNewData`.
+   Now `Exec.run` is fire-and-forget. Anything that needs to read the output
+   builds its own `DataSource` and dispatches by command string.
+3. **No `MultiEffect` on a layer, here either.** `ExpandedPanel` used to blur
+   its content with `layer.enabled` + blur when a panel opened (Wi-Fi,
+   Bluetooth, calendar…). That's the same recipe that crashes the process,
+   just in the file next door. It's gone. Now the content dims and shrinks
+   slightly, and a black veil covers the whole island. This also removed a
+   visible box 14 px from the edge: the layer and the veil only covered the
+   inner area, so the frame around it stayed undimmed.
 
-3. **Nada de `MultiEffect` sobre una capa, tampoco acá.** El
-   `ExpandedPanel` desenfocaba el contenido con `layer.enabled` + blur
-   cuando se abría un panel (wifi, bluetooth, calendario…): la misma
-   receta que revienta el proceso, puesta en el archivo de al lado. Ya no
-   está. Ahora el contenido se apaga y se achica un poquito, y el velo
-   negro tapa la isla entera. De paso se fue el cuadro que se veía marcado
-   a 14 px del borde: la capa y el velo cubrían solo el recuadro interior,
-   y el marco de alrededor quedaba sin oscurecer.
+And an important one: **don't poll often**. At one point it launched five
+processes per second from inside plasmashell. Now volume is checked every
+1 s (one command), system stats every 3 s, network every 8 s, and the long
+lists (nearby networks, audio and Bluetooth devices) only while their panel
+is open, tracked with `watchers`.
 
-Y una de peso: **no sondear seguido**. Se llegó a lanzar cinco procesos por
-segundo desde adentro de plasmashell. Ahora el volumen se mira cada 1 s (un
-comando), el sistema cada 3 s, la red cada 8 s, y las listas largas (redes
-cercanas, aparatos de audio y bluetooth) solo mientras el panel está
-abierto, contando con `watchers`.
+## Power panel
 
-## Panel de apagado
+The button with the power icon, in the bottom row of the island, opens a
+panel with: lock, log out, sleep, hibernate, restart and shut down. Sleep and
+hibernate only show up if the machine supports them (checked with
+`CanSuspend` and `CanHibernate` on `org.freedesktop.PowerManagement`).
 
-El botón con el icono de encendido, en la fila de abajo de la isla, abre un
-panel con: bloquear, cerrar sesión, suspender, hibernar, reiniciar y apagar.
-Suspender e hibernar solo aparecen si el equipo puede (se le pregunta a
-`org.freedesktop.PowerManagement` con `CanSuspend` y `CanHibernate`).
+The four heavy options (log out, hibernate, restart and shut down) **ask for
+confirmation in the same row**: the row expands downwards and you have to tap
+"YES". One stray click on a small island shouldn't be able to take the
+machine down.
 
-Las cuatro opciones de peso —cerrar sesión, hibernar, reiniciar y apagar—
-**piden confirmación en la misma fila**: se abre hacia abajo y hay que
-tocar "SÍ". Un clic de más en una isla chica no puede tirar la máquina
-abajo.
+Nothing uses `systemctl`. Everything goes through Plasma over DBus:
+`org.kde.Shutdown` for log out, restart and shut down,
+`org.freedesktop.PowerManagement` for sleep and hibernate, and
+`org.freedesktop.ScreenSaver` for lock. That's what KDE's own power menu
+does, so programs get a chance to save and the session closes in order
+instead of everything being killed at once.
 
-Nada se hace con `systemctl`: se le pide a Plasma por DBus
-(`org.kde.Shutdown` para sesión/reinicio/apagado,
-`org.freedesktop.PowerManagement` para suspender e hibernar,
-`org.freedesktop.ScreenSaver` para bloquear). Es lo mismo que hace el menú
-de apagado de KDE, así que avisa a los programas para que guarden y cierra
-la sesión ordenada en vez de matar todo de golpe.
+## The hover flash on buttons
 
-## El fogonazo de los botones al pasar el mouse
+The round buttons (lock, bell, power) and the panel rows lit up all at once
+on hover and **then** faded down to a dim grey. It wasn't the animation: it
+was mixing colour types.
 
-Los botones redondos (candado, campana, apagado) y las filas de los paneles
-se encendían de golpe y **después** bajaban a un gris tenue. No era la
-animación: era mezclar tipos de color.
+The resting colour was an opaque grey (`#161616`) and the hover colour a
+translucent white (`rgba(255,255,255,0.10)`). Animating from one to the
+other, the halfway point is `rgba(128,128,128,0.55)`, a light grey, and that's
+the flash.
 
-El reposo era un gris opaco (`#161616`) y el hover un blanco translúcido
-(`rgba(255,255,255,0.10)`). Al animar de uno al otro, la mitad del camino
-es `rgba(128,128,128,0.55)` —un gris claro— y eso es el fogonazo.
+Two rules to avoid it:
 
-Dos reglas para no repetirlo:
+- If the resting colour is **opaque**, the hover colour must be opaque too:
+  `surfaceAlt` → `surfaceHigh` → `surfaceTop`.
+- If the resting colour is **transparent**, use `Qt.alpha(Theme.fg, 0)`
+  instead of `"transparent"`. That way both ends are the same white and only
+  the opacity moves.
 
-- Si el reposo es **opaco**, el hover también: `surfaceAlt` → `surfaceHigh`
-  → `surfaceTop`.
-- Si el reposo es **transparente**, se usa `Qt.alpha(Theme.fg, 0)` en vez de
-  `"transparent"`: así los dos extremos son el mismo blanco y lo único que
-  se mueve es la transparencia.
+## Other gotchas
 
-## Otros gotchas
+- **`Plasma5Support.DataSource` already runs the command in a shell.**
+  Wrapping it yourself in `sh -c "…"` runs it through TWO shells: the outer
+  one eats `$h`, `$n` and `$(…)` before the inner one sees them, and the
+  command fails silently (the CPU meter always showed 0% and 0°). Pass the
+  bare script, without `sh -c` or extra quotes.
+- **`VirtualDesktopInfo` is read-only.** It has no method to switch
+  desktops. Switching goes through DBus, writing KWin's `current` property
+  directly: `qdbus org.kde.KWin /VirtualDesktopManager
+  org.kde.KWin.VirtualDesktopManager.current "<uuid>"`. The ids returned by
+  `VirtualDesktopInfo.desktopIds` are those same UUIDs.
+- **`ExpandedPanel`'s height can't be a fixed number like on Hyprland.**
+  There the island grows with a hand-made spring. Here Plasma draws the popup
+  at whatever size it's asked for. With a fixed `Theme.expandedHeight` (meant
+  for the version with an app tray, which doesn't exist in this port) there
+  was a leftover black strip at the bottom. Now the height comes from
+  `mainColumn.implicitHeight`, the real content height, and `main.qml` pins
+  `Layout.maximumHeight` to the minimum so Plasma doesn't stretch it.
+- **Plasma remembers the popup size** in `popupHeight` / `popupWidth`, under
+  `[Containments][N][Applets][M][Configuration]` in
+  `~/.config/plasma-org.kde.plasma.desktop-appletsrc`. That value wins over a
+  new `implicitHeight`. If you change the island's height, **stop
+  plasmashell, delete those two keys and start it again**, or the old size
+  keeps winning (and the black strip comes back even though the code is
+  right).
+- **A child with `anchors.fill` inside a `Row` breaks the Row**: all its
+  content disappears. It happened when the scroll-wheel `MouseArea` was put
+  inside `Workspaces`, which was a `Row`, and the desktop dots vanished. Now
+  the root is an `Item` with the `Row` inside and the `MouseArea` next to it.
+- **To round an image, use `Kirigami.ShadowedImage`, not
+  `Rectangle { radius; clip: true }`.** `clip` clips to the rectangle, not to
+  the rounded shape, so the album art covered the corners and looked square,
+  in both the player card and the mini player. `ShadowedImage` really rounds
+  it, is the primitive Plasma itself uses, and has nothing to do with the
+  `MultiEffect` that crashes the process.
+- **An invisible item still takes up space for anchoring.** In `Meters`, the
+  number was anchored to `tempRow.left` with a margin of 8 only when there
+  was a temperature, and 0 otherwise. The RAM row has no temperature, but
+  `tempRow` is still anchored to the right with its width, so the RAM number
+  sat 8 px off and its bar was 8 px longer than the other two. The margin is
+  now always the same. For the same reason, the width of the number column
+  is decided once in the parent `Column` (`anchoValor`), not per row.
+  Otherwise, with RAM in "7.8/31" mode that row widens on its own and the
+  bars end up different lengths again.
+- **In NDOT 47 the `1` is 888 units wide and every other digit is 1333.**
+  It's not a monospaced font, so the clock changed width every second and the
+  calendar button, which sits right next to it, moved around. Both clock
+  texts reserve their width with a `TextMetrics` whose template is the same
+  text with every digit set to zero (`0` is one of the wide digits).
 
-- **`Plasma5Support.DataSource` ya corre el comando dentro de un shell.**
-  Envolverlo uno mismo en `sh -c "…"` lo pasa por DOS shells: el de afuera
-  se come los `$h`, `$n` y `$(…)` antes de que llegue el de adentro, y el
-  comando revienta en silencio (el CPU mostraba siempre 0 % y 0°). Se pasa
-  el script pelado, sin `sh -c` ni comillas de más.
-- **`VirtualDesktopInfo` es de solo lectura.** No tiene método para cambiar
-  de escritorio. Se cambia por DBus, escribiendo la propiedad `current` de
-  KWin directo: `qdbus org.kde.KWin /VirtualDesktopManager
-  org.kde.KWin.VirtualDesktopManager.current "<uuid>"`. Los ids que devuelve
-  `VirtualDesktopInfo.desktopIds` son esos mismos UUID.
-- **La altura de `ExpandedPanel` no puede ser un número fijo como en
-  Hyprland.** Ahí la isla crece con resorte a mano; acá Plasma dibuja el
-  popup del tamaño que se le pida. Con `Theme.expandedHeight` fijo (pensado
-  para la versión con bandeja de apps, que no existe en este port) sobraba
-  una franja negra abajo. Ahora sale de `mainColumn.implicitHeight`, el
-  alto real del contenido, y `main.qml` fija `Layout.maximumHeight` igual
-  al mínimo para que Plasma no lo estire.
-- **Plasma recuerda el tamaño del popup** en `popupHeight` / `popupWidth`,
-  dentro de `[Containments][N][Applets][M][Configuration]` en
-  `~/.config/plasma-org.kde.plasma.desktop-appletsrc`. Ese valor le gana al
-  `implicitHeight` nuevo: si se cambia el alto de la isla hay que **parar
-  plasmashell, borrar esas dos claves y volver a arrancarlo**, o el tamaño
-  viejo sigue mandando (y la franja negra vuelve aunque el código esté bien).
-- **Un hijo con `anchors.fill` adentro de un `Row` deja el Row sin
-  funcionar** — desaparece todo su contenido. Pasó al meter el `MouseArea`
-  de la rueda dentro de `Workspaces`, que era un `Row`: se fueron los
-  puntos de escritorio. Ahora la raíz es un `Item` con el `Row` adentro y
-  el `MouseArea` al lado.
-- **Para redondear una imagen va `Kirigami.ShadowedImage`, no
-  `Rectangle { radius; clip: true }`.** `clip` recorta al rectángulo, no a
-  la forma redondeada, así que la carátula tapaba las esquinas y se veía
-  cuadrada tanto en la tarjeta del reproductor como en el minireproductor.
-  `ShadowedImage` redondea de verdad, es la primitiva que usa el propio
-  Plasma y no tiene nada que ver con el `MultiEffect` que revienta el
-  proceso.
-- **Un elemento invisible sigue ocupando su lugar para los anclajes.** En
-  `Meters`, el número se anclaba a `tempRow.left` con margen 8 solo si
-  había temperatura, y 0 si no: como la fila de la RAM no tiene
-  temperatura pero `tempRow` sigue anclada a la derecha con su ancho, el
-  número de la RAM quedaba 8 px corrido y su barra 8 px más larga que las
-  otras dos. El margen va siempre igual. Por lo mismo, el ancho de la
-  columna del número se decide una sola vez en el `Column` de arriba
-  (`anchoValor`) y no fila por fila: si no, con la RAM en modo "7.8/31"
-  esa fila se ensancha sola y las barras vuelven a medir distinto.
-- **En NDOT 47 el `1` mide 888 y todos los demás dígitos 1333.** No es una
-  fuente de ancho fijo, así que el reloj cambiaba de ancho cada segundo y
-  el botón del calendario, que va pegado a su derecha, se movía solo. Los
-  dos textos del reloj reservan ancho con un `TextMetrics` cuyo molde es el
-  mismo texto con todos los dígitos en cero (el `0` es de los anchos).
+## Things that were broken and aren't anymore
 
-## Cosas que estaban rotas y ya no
+Four things had been ported wrong. All of them were found by checking which
+API Plasma really exposes, not which API Quickshell had.
 
-Cuatro cosas se habían traído mal del port. Todas encontradas revisando qué
-API expone Plasma de verdad, no qué API tenía Quickshell.
+### The player couldn't seek
 
-### El reproductor no dejaba adelantar
+`MediaCard` called `SetPosition(trackId, …)`. **Plasma's MPRIS has neither
+of those**: the player only exposes `Seek(offset)`, which moves by an amount
+*relative* to the current position, in microseconds. Now it computes the
+difference between the clicked point and the current position and sends
+that.
 
-`MediaCard` llamaba a `SetPosition(trackId, …)`. **En el MPRIS de Plasma no
-existe ninguno de los dos**: el reproductor solo expone `Seek(offset)`, que
-mueve una cantidad *relativa* a donde está sonando, en microsegundos. Ahora
-se calcula la diferencia entre el punto donde se hizo clic y la posición
-actual, y se manda esa resta.
+### Coffee mode didn't inhibit anything
 
-### El modo café no inhibía nada
+Two chained problems:
 
-Dos problemas encadenados:
+1. `systemd-inhibit --what=idle` registers a **logind** inhibitor, and
+   PowerDevil ignores it when turning off the screen: it uses its own idle
+   timer. It stopped the machine from suspending, but not the screen from
+   turning off.
+2. Switching to a `qdbus` call wasn't enough either: **KDE ties each
+   inhibition to the DBus connection of whoever requested it, and releases
+   it as soon as that process exits**. A `qdbus` call lasts milliseconds, so
+   the inhibition lasted less than the command. The cookie came back fine and
+   still nothing happened.
 
-1. `systemd-inhibit --what=idle` registra un inhibidor de **logind**, y
-   PowerDevil no lo mira para apagar la pantalla: usa su propio contador de
-   inactividad. Servía para que no se suspendiera, no para que no se
-   apagara la pantalla.
-2. Cambiarlo por un `qdbus` tampoco alcanzaba: **KDE ata cada inhibición a
-   la conexión de DBus de quien la pidió y la suelta apenas ese proceso
-   termina**. Un `qdbus` dura milisegundos, así que la inhibición duraba
-   menos que el comando. El cookie volvía bien y aun así no pasaba nada.
+Now `contents/code/coffee.py` handles it. It requests three inhibitions
+(`ScreenSaver`, `PowerManagement` and PowerDevil's `PolicyAgent`) and stays
+alive with the connection open. On = launch it, off = kill it. When the
+widget starts, it kills any leftover instance so the toggle and reality
+match.
 
-Ahora lo hace `contents/code/coffee.py`, que pide tres inhibiciones
-(`ScreenSaver`, `PowerManagement` y el `PolicyAgent` de PowerDevil) y se
-queda vivo con la conexión abierta. Encender = lanzarlo, apagar = matarlo.
-Al arrancar el widget mata cualquiera que haya quedado suelto, para que el
-interruptor y la realidad coincidan.
+### Recording didn't start
 
-### La grabación no arrancaba
+`spectacle --record=screen`. The mode takes the **short letter**: `s` for
+screen, `r` for region, `w` for window. With the full word Spectacle doesn't
+recognise it and exits without recording.
 
-`spectacle --record=screen`. El modo va con la **letra corta**: `s` para
-pantalla, `r` para región, `w` para ventana. Con la palabra entera
-Spectacle no lo reconoce y sale sin grabar.
+### The recorded video came out corrupt
 
-### El video de la grabación salía corrupto
+It was stopped with `pkill -INT -x spectacle`, copied from the Hyprland
+version, where `wf-recorder` does finalize the file on SIGINT. Spectacle does
+nothing with that signal: it dies on the spot and the mp4 ends up **without
+the index that goes at the end** (the "moov atom"), the table that says where
+each frame starts. The file had the data (half a megabyte of video) but no
+player could open it. `ffprobe` said it plainly: `moov atom not found`.
 
-Se detenía con `pkill -INT -x spectacle`, copiado de la versión de
-Hyprland, donde `wf-recorder` sí cierra el archivo al recibir SIGINT.
-Spectacle no hace nada con esa señal: se muere en el acto y el mp4 queda
-**sin el índice que va al final** (el "moov atom"), la tabla que dice
-dónde empieza cada cuadro. El archivo tenía los datos —medio mega de
-video— pero ningún reproductor lo podía abrir. `ffprobe` lo decía sin
-vueltas: `moov atom not found`.
+Spectacle has no DBus method to stop recording (checked with
+`busctl introspect`: only `RecordScreen`, `RecordRegion`, `RecordWindow`).
+It doesn't handle SIGTERM either, and `quit` over DBus throws the recording
+away. The right way, the same one the red dot in the tray and repeating the
+keyboard shortcut use, is **to ask it to record again**: the second request
+stops the current recording and finalizes the file properly.
 
-Spectacle no tiene ningún método de DBus para detener (se revisó con
-`busctl introspect`: solo `RecordScreen`, `RecordRegion`, `RecordWindow`),
-ni entiende SIGTERM, y `quit` por DBus tira la grabación sin guardar nada.
-La forma buena —la misma que usan el punto rojo de la bandeja y repetir el
-atajo de teclado— es **volver a pedirle que grabe**: el segundo pedido
-apaga la grabación en curso y ahí sí cierra el archivo bien.
+Two details that were hard to find:
 
-Dos detalles que costaron encontrar:
+- **You have to repeat the same `--output`.** Without the path it also
+  stops, but discards the recording: no file shows up, neither in the chosen
+  folder nor in Spectacle's. That's why `stop()` uses `root.lastFile`.
+- **It's guarded by a `pgrep -x spectacle`.** If the recording was already
+  stopped some other way, the second request would start a new recording
+  instead of doing nothing.
 
-- **Hay que repetirle el mismo `--output`.** Sin la ruta también corta,
-  pero tira la grabación: no aparece ningún archivo, ni en la carpeta
-  elegida ni en la de Spectacle. Por eso `stop()` usa `root.lastFile`.
-- **Va con un `pgrep -x spectacle` adelante.** Si la grabación ya se cortó
-  por otro lado, el segundo pedido arrancaría una grabación nueva en vez
-  de no hacer nada.
+Tested end to end with the island's exact commands: 17 s recorded, and
+`ffprobe` reads the duration and codec (h264 1920x1080) without complaint.
 
-Probado punta a punta con los comandos exactos de la isla: 17 s grabados,
-`ffprobe` lee duración y códec (h264 1920x1080) sin una queja.
+Separately: **starting a recording occasionally fails on its own**.
+Spectacle exits immediately, with no file and nothing in the journal. That's
+Spectacle, not the island (the command is identical both times). Pressing
+again starts it.
 
-Aparte: **arrancar la grabación falla sola de vez en cuando**. Spectacle
-sale al instante, sin archivo y sin decir nada en el journal. Es cosa de
-Spectacle, no de la isla —el comando es idéntico las dos veces—; volviendo
-a apretar, arranca.
+### The FPS row wrote into nothing
 
-### La fila de FPS escribía en la nada
+It was left over from the Hyprland version, where `wf-recorder` does accept
+an FPS value. Spectacle doesn't, so the property had been removed from the
+service but the row still tried to write it. It's hidden now.
 
-Quedó de la versión de Hyprland, donde `wf-recorder` sí acepta FPS.
-Spectacle no, así que la propiedad se había sacado del servicio pero la
-fila seguía intentando escribirla. Está oculta.
+## The player's liquid background
 
-## El fondo líquido del reproductor
+Three blobs in the album art's colours move behind the player. Things that
+took effort:
 
-Detrás del reproductor se mueven tres manchas con los colores de la
-carátula. Dos cosas que costaron:
+- **No `MultiEffect` on a layer.** It was the obvious way to blur
+  (`layer.enabled` + blur), and it **crashes the process** after 10–25
+  seconds with a segmentation fault. Reproducible, two out of two. Inside
+  plasmashell that takes the whole desktop down, so don't even try it. The
+  first replacement drew each blob as 14 concentric circles with very low
+  opacity, which gives the same soft look without any shader. With few layers
+  and high opacity you see the rings one by one; with many and low opacity
+  they blend.
+- **`Kirigami.ImageColors` doesn't download URLs.** Given the URL, it
+  returns grey. Point it at the `Image` that already loaded the album art
+  (`source: artImg`), and then it extracts the colours.
+- **The colours come from `palette`, not `highlight` or `average`.** Those
+  two are *computed* colours: `highlight` looks for the most vivid one and
+  sometimes invents a colour that isn't on the cover, and `average` is the
+  mix of all of them, a mud that isn't there either. That's why the
+  background sometimes showed colours that weren't from the cover.
+  `paleta.palette` is the real count of the image's colours, sorted by how
+  much area each one covers. The first three are used.
+- **Stacked concentric circles = visible lines.** The blob became 34
+  circles, one inside the other, each slightly more opaque. Each circle has
+  its own edge, and with any colourful cover you could see them: concentric
+  lines across the background. Now each blob is **a radial gradient painted
+  with `Canvas`**, which has no steps. Still no shader involved, which is the
+  rule in here.
+- **The gradient is painted at 220 px and stretched to its real size**
+  (about 780). Painting the full 780 costs thirteen times more, and scaling a
+  small one up lets the GPU's smoothing erase any leftover banding. It needs
+  `smooth: true`, otherwise Qt scales it up crudely.
+- **The opacity curve has to be wide.** It's `1 - e^(-1.15·(1-t²))`, which
+  is exactly what the 34 circles added up to: it fills almost the whole blob
+  and only fades to nothing at the edge. A faster falloff (`(1-t)^2.4`) was
+  tried: the colour stays stuck in the centre and the card looks almost
+  black.
+- **The blobs are 1.4 times the card's width and move by their centre**,
+  not their corner. Moving the corner keeps the dense centre always out of
+  frame, so only the faded edge is visible.
+- **When the song changes, the colour jumps instead of crossfading.** There
+  used to be a 900 ms `Behavior on color`. With `Canvas` that would mean
+  repainting three gradients every frame for a second, which is extra work
+  inside plasmashell. The cover changes instantly anyway, so it isn't
+  noticeable.
 
-- **Nada de `MultiEffect` sobre una capa.** Era la forma obvia de
-  desenfocar (`layer.enabled` + blur), y **revienta el proceso** a los
-  10-25 segundos con violación de segmento. Reproducible, dos de dos. Acá
-  adentro eso se lleva plasmashell entero, así que ni probarlo. Cada mancha
-  se dibuja como 14 círculos concéntricos con opacidad muy baja: da la
-  misma difuminación sin tocar ningún shader. Con pocas capas y mucha
-  opacidad se ven los aros uno por uno; con muchas y poca, se funden.
-- **`Kirigami.ImageColors` no descarga direcciones de internet.** Pasándole
-  la URL devuelve gris. Hay que apuntarle al `Image` que ya cargó la
-  carátula (`source: artImg`), y ahí sí saca los colores.
-- **Los tonos salen de `palette`, no de `highlight` ni de `average`.** Esos
-  dos son colores *calculados*: `highlight` busca el más vivo y a veces
-  inventa uno que en la tapa no está, y `average` es la mezcla de todos,
-  o sea un barro que tampoco está. Por eso el fondo aparecía a veces con
-  colores que no eran de la carátula. `paleta.palette` es el recuento real
-  de la imagen ordenado por cuánto lugar ocupa cada color; se usan los tres
-  primeros.
-- **Círculos concéntricos apilados = líneas visibles.** La mancha eran 34
-  círculos, uno adentro del otro, cada uno un poco más opaco. Cada círculo
-  tiene su borde, y con cualquier carátula de color se veían: líneas
-  concéntricas atravesando el fondo. Ahora cada mancha es **un degradado
-  radial pintado con `Canvas`**, que no tiene escalones. Sigue sin haber
-  ningún shader de por medio, que es la condición acá adentro.
-- **El degradado se pinta en 220 px y se estira al tamaño real** (unos
-  780). Pintar los 780 cuesta trece veces más, y al agrandar uno chico el
-  suavizado de la tarjeta gráfica termina de borrar cualquier resto de
-  escalón. Necesita `smooth: true`, si no Qt lo agranda a lo bruto.
-- **La curva de opacidad tiene que ser ancha.** Es
-  `1 - e^(-1,15·(1-t²))`, que es exactamente lo que sumaban los 34
-  círculos: llena casi toda la mancha y recién sobre el borde se va a
-  nada. Se probó bajarla más rápido (`(1-t)^2,4`): el color queda pegado
-  al centro y la tarjeta se ve casi negra.
-- **Las manchas miden 1,4 veces el ancho de la tarjeta y se mueven por su
-  centro**, no por su esquina: moviendo la esquina, el centro denso queda
-  siempre fuera de cuadro y solo se ve el borde desvanecido.
-- **Al cambiar de canción el color salta, no se cruza.** Antes había un
-  `Behavior on color` de 900 ms; con `Canvas` eso significaría repintar
-  tres degradados cuadro a cuadro durante un segundo, trabajo de más
-  adentro de plasmashell. La tapa cambia de golpe igual, así que no se
-  nota.
+## Why videos don't show a thumbnail
 
-## Por qué los videos no muestran miniatura
+Firefox doesn't publish `mpris:artUrl`, so there's no image to show. This was
+confirmed by reading the browser's DBus output: it only sends the title.
+Spotify does send it. To make the browser publish it too, install the
+**Plasma Integration** browser extension (the `plasma-browser-integration`
+package alone isn't enough; the extension is needed in the browser).
 
-Firefox no publica `mpris:artUrl`, así que no hay imagen que mostrar. Se
-comprobó leyendo el DBus del navegador: solo manda el título. Spotify sí la
-manda. Para que el navegador también la publique hay que instalarle la
-extensión **Plasma Integration** (el paquete `plasma-browser-integration`
-ya está, falta la extensión en el navegador).
+Without album art, the island shows the icon of the app that's playing
+instead of a generic music note.
 
-Mientras tanto, sin carátula se muestra el icono de la aplicación que está
-sonando, en vez de la nota musical genérica.
+## Credits and license
+
+- Original widget: **Nothing Dynamic Island** by Omar, MIT license.
+- Fork: **Linux Island** by Adiieeee, MIT license. See [`LICENSE`](LICENSE).
+- Bundled fonts: Space Grotesk, NDOT 47 (inspired by Nothing) and Material
+  Symbols Rounded, each under its own license.
