@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Omar"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Nothing OS-style dynamic island: clock, media, network, sound and system.",
+        "Description[es]": "Isla dinámica estilo Nothing OS: reloj, medios, red, sonido y sistema.",
+        "Icon": "preferences-system-windows-effect-squash",
+        "Id": "org.omar.nothingisland",
+        "License": "MIT",
+        "Name": "Nothing Dynamic Island",
+        "Version": "1.2"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

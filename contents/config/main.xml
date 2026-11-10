@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+
+  <kcfgfile name=""/>
+
+  <group name="General">
+
+    <!-- Idioma de los textos de la isla: auto, es, en -->
+    <entry name="lang" type="String">
+      <default>auto</default>
+    </entry>
+
+    <!-- Reloj de 24 horas; apagado = 12 horas con AM/PM -->
+    <entry name="clock24" type="Bool">
+      <default>true</default>
+    </entry>
+
+    <!-- RAM como cantidad usada (7.8/31) en vez de porcentaje -->
+    <entry name="ramUsage" type="Bool">
+      <default>false</default>
+    </entry>
+
+    <!-- Qué se ve en la píldora chica -->
+    <entry name="showWorkspaces" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showWeather" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showClock" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showNetwork" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showVolume" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showBattery" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showMini" type="Bool">
+      <default>true</default>
+    </entry>
+
+    <!-- Ciudad para el clima; vacío = detectar sola por IP -->
+    <entry name="weatherCity" type="String">
+      <default></default>
+    </entry>
+
+    <!-- Colores. Los de fábrica son el estilo Nothing; Theme.qml saca de
+         estos los escalones intermedios (grises, bordes, texto apagado) -->
+    <entry name="colorFondo" type="Color">
+      <default>#000000</default>
+    </entry>
+    <entry name="colorTarjeta" type="Color">
+      <default>#0B0B0B</default>
+    </entry>
+    <entry name="colorInvertida" type="Color">
+      <default>#FFFFFF</default>
+    </entry>
+    <entry name="colorAlerta" type="Color">
+      <default>#D71921</default>
+    </entry>
+
+    <!-- Tipografías; vacío usa la que viene empaquetada con el widget -->
+    <entry name="fuenteUi" type="String">
+      <default></default>
+    </entry>
+    <entry name="fuenteNumeros" type="String">
+      <default></default>
+    </entry>
+    <entry name="colorTexto" type="Color">
+      <default>#FFFFFF</default>
+    </entry>
+
+  </group>
+</kcfg>
