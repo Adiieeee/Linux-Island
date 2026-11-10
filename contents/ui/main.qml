@@ -48,11 +48,6 @@ PlasmoidItem {
     }
     Binding {
         target: Cfg
-        property: "showVolume"
-        value: Plasmoid.configuration.showVolume
-    }
-    Binding {
-        target: Cfg
         property: "showBattery"
         value: Plasmoid.configuration.showBattery
     }

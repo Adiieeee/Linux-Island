@@ -19,6 +19,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   like Ethernet. In the original, the percentage was only read while the Wi-Fi
   panel was open, so the card showed 0% or a stale value. Signal strength per
   network is still listed in the Wi-Fi panel.
+- The small island in the panel no longer shows the volume icon and
+  percentage, and the "Volume" option under "Show in the small island" is
+  gone. Volume lives in the expanded island.
 - Text uses your system font (Plasma's general font) instead of the bundled
   Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
   Numbers use tabular figures so they don't jiggle as they change.
@@ -150,8 +153,7 @@ Right-click the island → **Configure Linux Island…**. Options:
   the island's texts, not the desktop.
 - **Time**: 24-hour, or 12-hour with AM/PM.
 - **Meters**: RAM as a percentage (default), or used over total, "7.8/31".
-- **Show in the small island**: desktops, weather, clock, network, volume,
-  battery.
+- **Show in the small island**: desktops, weather, clock, network, battery.
 - **Player**: show or hide the mini player while something is playing.
 - **Weather city**: leave it empty to detect it from your IP.
 

@@ -39,7 +39,6 @@ QtObject {
     property bool showWeather: true
     property bool showClock: true
     property bool showNetwork: true
-    property bool showVolume: true
     property bool showBattery: true
     property bool showMini: true
 

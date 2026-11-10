@@ -36,9 +36,6 @@
     <entry name="showNetwork" type="Bool">
       <default>true</default>
     </entry>
-    <entry name="showVolume" type="Bool">
-      <default>true</default>
-    </entry>
     <entry name="showBattery" type="Bool">
       <default>true</default>
     </entry>

@@ -35,34 +35,5 @@ Item {
             anchors.centerIn: parent
             visible: Cfg.showClock
         }
-
-        // grupo derecho: red, volumen, batería. rueda del mouse sube/baja volumen en todo el grupo
-        Item {
-            id: rightGroup
-            anchors.right: parent.right
-            anchors.rightMargin: 6
-            anchors.verticalCenter: parent.verticalCenter
-            width: rightRow.width
-            height: rightRow.height
-
-            MouseArea {
-                anchors.fill: parent
-                anchors.margins: -6
-                acceptedButtons: Qt.NoButton
-                onWheel: wheel => Audio.step(wheel.angleDelta.y > 0 ? 0.05 : -0.05)
-            }
-
-            Row {
-                id: rightRow
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 6
-
-                Volume {
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Cfg.showVolume
-                }
-            }
-        }
     }
 }
