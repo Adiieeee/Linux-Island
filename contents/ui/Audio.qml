@@ -96,9 +96,12 @@ QtObject {
 
     function setVolume(v) {
         const clamped = Math.max(0, Math.min(root.maxVolume, v));
+        // set-volume doesn't touch the mute flag, so unmute explicitly or the
+        // next poll reads [MUTED] again and the slider snaps back to dimmed
+        const unmute = root.muted ? "wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; " : "";
         root.volume = clamped;
         root.muted = false;
-        Exec.run(`wpctl set-volume -l ${root.maxVolume} @DEFAULT_AUDIO_SINK@ ${clamped.toFixed(2)}`);
+        Exec.run(`${unmute}wpctl set-volume -l ${root.maxVolume} @DEFAULT_AUDIO_SINK@ ${clamped.toFixed(2)}`);
     }
 
     function step(delta) {

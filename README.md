@@ -27,7 +27,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   knob shows the level, and a tick marks 100%. Past 100% the bar continues in
   red up to the real 150% ceiling. Click the icon to mute, right-click for
   the output/input panel. Wi-Fi and Bluetooth now share the row at half
-  width each.
+  width each. Changing the volume while muted now also unmutes. Before, the
+  slider snapped back to muted.
 - New brightness sliders in the same card, one per display, like Plasma's
   own brightness applet. With a single display the row is labelled
   **SCREEN**. With several, the built-in panel is **LAPTOP** and external
