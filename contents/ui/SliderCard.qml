@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import org.kde.plasma.private.brightnesscontrolplugin as BC
 import org.kde.plasma.private.volume as PA
 import "."
@@ -33,8 +34,54 @@ Rectangle {
     radius: Theme.shapeLg
     color: Theme.containerHigh
 
-    // which dropdown is open: "", "sound"
+    // which dropdown is open: "", "sound", "screens"
     property string menu: ""
+
+    // ── which display is "main": the one the island is on ──
+    // the popup window sits on the panel's screen. the built-in panel is
+    // eDP/LVDS/DSI; an external monitor matches by model, which Qt and
+    // PowerDevil report the same way ("24G2W1G3-")
+    readonly property bool hereInternal: /^(eDP|LVDS|DSI)/.test(Screen.name)
+    readonly property string hereModel: Screen.model
+
+    // bumped whenever probe gains or loses a row, so mainScreen re-evaluates
+    property int screensRev: 0
+
+    // displayName of the row shown up front: the island's screen, else the
+    // built-in panel, else the first one. the others go in the dropdown
+    readonly property string mainScreen: {
+        root.screensRev;
+        let here = "", internal = "", first = "";
+        for (let i = 0; i < probe.count; i++) {
+            const d = probe.itemAt(i);
+            if (!d)
+                continue;
+            if (!first)
+                first = d.key;
+            if (d.internal && !internal)
+                internal = d.key;
+            if (!here && (root.hereInternal ? d.internal : d.label === root.hereModel))
+                here = d.key;
+        }
+        return here || internal || first;
+    }
+
+    function setScreenLevel(key, value) {
+        screens.setBrightness(key, value);
+    }
+
+    // invisible copy of the display list, only to pick mainScreen
+    Repeater {
+        id: probe
+        model: screens.isBrightnessAvailable ? screens.displays : null
+        delegate: Item {
+            readonly property string key: model.displayName
+            readonly property string label: model.label
+            readonly property bool internal: model.isInternal
+        }
+        onItemAdded: root.screensRev++
+        onItemRemoved: root.screensRev++
+    }
 
     function toggle(name) {
         root.menu = root.menu === name ? "" : name;
@@ -349,6 +396,40 @@ Rectangle {
         }
     }
 
+    // brightness of one display. the model only updates after PowerDevil
+    // confirms (slower over DDC for external monitors), so the row shows the
+    // requested level while dragging and for a moment after, or the knob
+    // would bounce back
+    component ScreenRow: SliderRow {
+        id: sr
+
+        property string key
+        property int brightness
+        property int maxBrightness
+        readonly property real level: sr.maxBrightness > 0 ? sr.brightness / sr.maxBrightness : 0
+        property real wanted: 0
+
+        function request(f) {
+            // never fully black: 0 switches some backlights off
+            sr.wanted = Math.max(0.01, Math.min(1, f));
+            settle.restart();
+            root.setScreenLevel(sr.key, Math.round(sr.wanted * sr.maxBrightness));
+        }
+
+        Timer {
+            id: settle
+            interval: 1000
+        }
+
+        icon: "light_mode"
+        iconClickable: false
+        value: sr.pressed || settle.running ? sr.wanted : sr.level
+        valueText: Math.round(sr.value * 100) + "%"
+
+        onMoved: f => sr.request(f)
+        onStepped: d => sr.request(sr.value + d * 0.05)
+    }
+
     // small uppercase heading inside a dropdown
     component SectionLabel: Text {
         width: parent ? parent.width : 0
@@ -527,42 +608,38 @@ Rectangle {
             }
         }
 
-        // ── brightness: one row per display, like Plasma's own applet ──
+        // ── brightness: the island's own screen up front ──
         Repeater {
-            id: screenRows
             model: screens.isBrightnessAvailable ? screens.displays : null
 
-            delegate: SliderRow {
-                id: screenRow
+            delegate: ScreenRow {
+                visible: key === root.mainScreen
+                key: model.displayName
+                brightness: model.brightness
+                maxBrightness: model.maxBrightness
+                label: Cfg.t("BRILLO")
+                labelClickable: probe.count > 1
+                expanded: root.menu === "screens"
+                onLabelClicked: root.toggle("screens")
+            }
+        }
 
-                readonly property real level: model.maxBrightness > 0 ? model.brightness / model.maxBrightness : 0
+        // ── brightness dropdown: every other screen ──
+        Column {
+            width: parent.width
+            visible: root.menu === "screens"
+            bottomPadding: 4
 
-                // the model only updates after PowerDevil confirms (slower over
-                // DDC for external monitors), so show the requested level while
-                // dragging and for a moment after, or the knob would bounce back
-                property real wanted: 0
+            Repeater {
+                model: screens.isBrightnessAvailable ? screens.displays : null
 
-                function request(f) {
-                    // never fully black: 0 switches some backlights off
-                    screenRow.wanted = Math.max(0.01, Math.min(1, f));
-                    settle.restart();
-                    screens.setBrightness(model.displayName, Math.round(screenRow.wanted * model.maxBrightness));
+                delegate: ScreenRow {
+                    visible: key !== root.mainScreen
+                    key: model.displayName
+                    brightness: model.brightness
+                    maxBrightness: model.maxBrightness
+                    label: model.isInternal ? Cfg.t("PORTÁTIL") : model.label.replace(/[-\s]+$/, "").toUpperCase()
                 }
-
-                Timer {
-                    id: settle
-                    interval: 1000
-                }
-
-                icon: "light_mode"
-                iconClickable: false
-                // one display: just "screen". several: which one
-                label: screenRows.count === 1 ? Cfg.t("PANTALLA") : model.isInternal ? Cfg.t("PORTÁTIL") : model.label.replace(/[-\s]+$/, "").toUpperCase()
-                value: screenRow.pressed || settle.running ? screenRow.wanted : screenRow.level
-                valueText: Math.round(screenRow.value * 100) + "%"
-
-                onMoved: f => screenRow.request(f)
-                onStepped: d => screenRow.request(screenRow.value + d * 0.05)
             }
         }
     }

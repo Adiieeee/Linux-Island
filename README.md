@@ -43,11 +43,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   connected) and the inputs, with a level slider for the default microphone
   (click its icon to mute it). Virtual devices such as Easy Effects only show
   when they're the default, and outputs whose port is unplugged are hidden.
-- New brightness sliders in the same card, one per display, like Plasma's
-  own brightness applet. With a single display the row is labelled
-  **SCREEN**. With several, the built-in panel is **LAPTOP** and external
-  monitors show their model name. Drag or scroll to adjust. The slider never
-  goes below 1%, because 0 switches some backlights off completely.
+- New **BRIGHTNESS** slider in the same card, for the screen the island is on.
+  If the brightness of that screen can't be controlled, it falls back to the
+  built-in panel. With more than one screen, click **BRIGHTNESS** to show the
+  others: the built-in panel as **LAPTOP**, external monitors by model name.
+  Drag or scroll to adjust. The slider never goes below 1%, because 0 switches
+  some backlights off completely.
 
 ## Install
 

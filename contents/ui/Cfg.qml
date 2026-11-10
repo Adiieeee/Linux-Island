@@ -112,7 +112,7 @@ QtObject {
             "MIC": ["MIC", "MIC"],
 
             // brightness
-            "PANTALLA": ["PANTALLA", "SCREEN"],
+            "BRILLO": ["BRILLO", "BRIGHTNESS"],
             "PORTÁTIL": ["PORTÁTIL", "LAPTOP"],
             "Sin entradas": ["Sin entradas", "No inputs"],
 
