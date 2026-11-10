@@ -38,11 +38,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the output/input panel. Wi-Fi and Bluetooth now share the row at half
   width each. Changing the volume while muted now also unmutes. Before, the
   slider snapped back to muted.
-- Click **SOUND** to open a dropdown, like KDE's own audio applet. It lists the
-  output devices (click one to switch, e.g. to your earbuds once they're
-  connected) and the inputs, with a level slider for the default microphone
-  (click its icon to mute it). Virtual devices such as Easy Effects only show
-  when they're the default, and outputs whose port is unplugged are hidden.
+- Click **SOUND** to open a dropdown, like KDE's own audio applet. Every output
+  (laptop speakers, earbuds once they're connected, monitor speakers) and every
+  input has its own level slider. Click a device's name to make it the default
+  (a check marks the current one), click its icon to mute it. Outputs go up to
+  150%, inputs to 100%. Lines above and below set the dropdown apart from the
+  rows around it. Virtual devices such as Easy Effects only show when they're
+  the default, and devices whose port is unplugged are hidden.
 - New **BRIGHTNESS** slider in the same card, for the screen the island is on.
   If the brightness of that screen can't be controlled, it falls back to the
   built-in panel. With more than one screen, click **BRIGHTNESS** to show the

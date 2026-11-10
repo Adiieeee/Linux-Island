@@ -168,13 +168,19 @@ Rectangle {
         // thin tick on the track at boostFrom, so 100% is easy to find
         property bool showMark: false
         property bool iconClickable: true
-        // a clickable label gets a chevron and opens a dropdown
+        // a clickable label lights up on hover. by default it gets a chevron
+        // and opens a dropdown; device rows use a check for the selected one
         property bool labelClickable: false
         property bool expanded: false
+        property bool selected: false
+        property string labelIcon: row.labelClickable ? "expand_more" : ""
+        // keep room for the icon even while it's hidden, so widths don't jump
+        property bool reserveLabelIcon: row.labelIcon !== ""
+        readonly property int labelIconSpace: 18
 
         // left button only: a right-click opens a panel, it doesn't drag
         readonly property bool pressed: dragArea.pressed && (dragArea.pressedButtons & Qt.LeftButton) !== 0
-        readonly property real labelImplicitWidth: labelText.implicitWidth + (row.labelClickable ? chevron.implicitWidth + 2 : 0)
+        readonly property real labelImplicitWidth: labelText.implicitWidth + (row.reserveLabelIcon ? row.labelIconSpace : 0)
 
         signal moved(real fraction)
         signal stepped(int direction)
@@ -218,15 +224,15 @@ Rectangle {
             anchors.bottom: parent.bottom
             width: root.labelWidth
 
-            readonly property bool lit: row.expanded || labelMa.containsMouse
+            readonly property bool lit: row.selected || (row.labelClickable && (row.expanded || labelMa.containsMouse))
 
             Text {
                 id: labelText
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                width: Math.min(implicitWidth, parent.width - (row.labelClickable ? chevron.implicitWidth + 2 : 0))
+                width: Math.min(implicitWidth, parent.width - (row.reserveLabelIcon ? row.labelIconSpace : 0))
                 text: row.label
-                color: row.labelClickable && labelBox.lit ? Theme.fg : Theme.fgDim
+                color: labelBox.lit ? Theme.fg : Theme.fgDim
                 font.family: Theme.font
                 font.pixelSize: Theme.labelSmall
                 font.letterSpacing: Theme.labelSpacing
@@ -244,12 +250,12 @@ Rectangle {
                 anchors.left: labelText.right
                 anchors.leftMargin: 2
                 anchors.verticalCenter: parent.verticalCenter
-                visible: row.labelClickable
-                text: "expand_more"
+                visible: row.labelIcon !== ""
+                text: row.labelIcon
                 color: labelText.color
                 font.family: Theme.fontIcons
                 font.pixelSize: 16
-                rotation: row.expanded ? 180 : 0
+                rotation: row.expanded && row.labelIcon === "expand_more" ? 180 : 0
 
                 Behavior on rotation {
                     NumberAnimation {
@@ -433,7 +439,7 @@ Rectangle {
     // small uppercase heading inside a dropdown
     component SectionLabel: Text {
         width: parent ? parent.width : 0
-        topPadding: 6
+        topPadding: 2
         bottomPadding: 2
         color: Theme.fgFaint
         font.family: Theme.font
@@ -441,78 +447,59 @@ Rectangle {
         font.letterSpacing: Theme.labelSpacing
     }
 
-    // one pickable device in a dropdown: icon · name · check when selected
-    component DeviceRow: Item {
-        id: dr
-
-        property string icon
-        property string name
-        property bool selected: false
-
-        signal picked
-
+    // thin line that sets a dropdown apart from the rows around it
+    component Divider: Item {
         width: parent ? parent.width : 0
-        height: 30
+        height: 11
 
-        // transparent at rest: same colour at both ends, only alpha moves (README: hover flash)
         Rectangle {
-            anchors.fill: parent
-            anchors.leftMargin: -6
-            anchors.rightMargin: -6
-            radius: Theme.shapeSm
-            color: Qt.alpha(Theme.fg, drMa.containsMouse ? Theme.stateHover * 0.6 : 0)
-
-            Behavior on color {
-                ColorAnimation {
-                    duration: Theme.durShort
-                }
-            }
-        }
-
-        Text {
-            id: drIcon
-            anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            width: 20
-            horizontalAlignment: Text.AlignHCenter
-            text: dr.icon
-            color: dr.selected ? Theme.fg : Theme.fgDim
-            font.family: Theme.fontIcons
-            font.pixelSize: 18
+            width: parent.width
+            height: 1
+            color: Theme.outline
+        }
+    }
+
+    // one audio device with its own level, like KDE's audio applet.
+    // click the name to make it the default (a check marks the current one),
+    // click the icon to mute it. dev is owned by plasma-pa's model, not by JS
+    component DeviceSlider: SliderRow {
+        id: ds
+
+        property QtObject dev
+        property bool isInput: false
+        // outputs go to 150% like the main row, inputs stop at 100%
+        property real maxLevel: ds.isInput ? 1 : 1.5
+
+        readonly property bool devMuted: ds.dev ? ds.dev.muted : false
+        readonly property real level: ds.dev ? ds.dev.volume / PA.PulseAudio.NormalVolume : 0
+
+        function setLevel(v) {
+            if (!ds.dev)
+                return;
+            if (ds.dev.muted)
+                ds.dev.muted = false;
+            ds.dev.volume = Math.round(Math.max(0, Math.min(ds.maxLevel, v)) * PA.PulseAudio.NormalVolume);
         }
 
-        Text {
-            anchors.left: drIcon.right
-            anchors.leftMargin: 10
-            anchors.right: drCheck.left
-            anchors.rightMargin: 8
-            anchors.verticalCenter: parent.verticalCenter
-            text: dr.name
-            color: dr.selected ? Theme.fg : Theme.fgDim
-            font.family: Theme.font
-            font.pixelSize: Theme.bodySmall
-            font.weight: dr.selected ? Font.Medium : Font.Normal
-            elide: Text.ElideRight
-        }
+        icon: root.deviceIcon(ds.dev, ds.isInput)
+        iconColor: ds.devMuted ? Theme.outline : ds.level > 1 ? Theme.alert : ds.selected ? Theme.fg : Theme.fgVariant
+        label: root.deviceName(ds.dev).toUpperCase()
+        selected: ds.dev ? ds.dev.default : false
+        labelClickable: !ds.selected
+        labelIcon: ds.selected ? "check" : ""
+        reserveLabelIcon: true
+        value: ds.level / ds.maxLevel
+        boostFrom: 1 / ds.maxLevel
+        showMark: ds.maxLevel > 1
+        fillColor: ds.devMuted ? Theme.outline : Theme.fg
+        valueText: Math.round(ds.level * 100) + "%"
+        valueColor: ds.devMuted ? Theme.outline : ds.level > 1 ? Theme.alert : Theme.fg
 
-        Text {
-            id: drCheck
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            visible: dr.selected
-            text: "check"
-            color: Theme.fg
-            font.family: Theme.fontIcons
-            font.pixelSize: 18
-        }
-
-        MouseArea {
-            id: drMa
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: dr.selected ? Qt.ArrowCursor : Qt.PointingHandCursor
-            onClicked: dr.picked()
-        }
+        onMoved: f => ds.setLevel(f * ds.maxLevel)
+        onStepped: d => ds.setLevel(ds.level + d * 0.05)
+        onIconClicked: ds.dev.muted = !ds.devMuted
+        onLabelClicked: ds.dev.default = true
     }
 
     Column {
@@ -548,11 +535,12 @@ Rectangle {
             onRightClicked: root.requestPanel("audio")
         }
 
-        // ── sound dropdown: outputs, then the mic level and inputs ──
+        // ── sound dropdown: every output and input with its own level ──
         Column {
             width: parent.width
             visible: root.menu === "sound"
-            bottomPadding: 4
+
+            Divider {}
 
             SectionLabel {
                 text: Cfg.t("SALIDA")
@@ -560,52 +548,28 @@ Rectangle {
 
             Repeater {
                 model: paSinks
-                delegate: DeviceRow {
+                delegate: DeviceSlider {
                     visible: root.usable(model.PulseObject)
-                    icon: root.deviceIcon(model.PulseObject, false)
-                    name: root.deviceName(model.PulseObject)
-                    selected: model.Default
-                    onPicked: model.PulseObject.default = true
+                    dev: model.PulseObject
                 }
             }
 
             SectionLabel {
+                topPadding: 6
                 text: Cfg.t("ENTRADA")
-            }
-
-            // level of the default microphone
-            SliderRow {
-                readonly property bool hasMic: PA.PreferredDevice.source !== null
-                readonly property bool micMuted: hasMic && PA.PreferredDevice.source.muted
-
-                visible: hasMic
-                icon: micMuted ? "mic_off" : "mic"
-                iconColor: micMuted ? Theme.outline : Theme.fgVariant
-                label: Cfg.t("MIC")
-                value: hasMic ? PA.PreferredDevice.source.volume / PA.PulseAudio.NormalVolume : 0
-                fillColor: micMuted ? Theme.outline : Theme.fg
-                valueText: Math.round(value * 100) + "%"
-                valueColor: micMuted ? Theme.outline : Theme.fg
-
-                function setLevel(f) {
-                    PA.PreferredDevice.source.volume = Math.round(Math.max(0, Math.min(1, f)) * PA.PulseAudio.NormalVolume);
-                }
-
-                onMoved: f => setLevel(f)
-                onStepped: d => setLevel(value + d * 0.05)
-                onIconClicked: PA.PreferredDevice.source.muted = !micMuted
             }
 
             Repeater {
                 model: paSources
-                delegate: DeviceRow {
+                delegate: DeviceSlider {
                     visible: root.usable(model.PulseObject)
-                    icon: root.deviceIcon(model.PulseObject, true)
-                    name: root.deviceName(model.PulseObject)
-                    selected: model.Default
-                    onPicked: model.PulseObject.default = true
+                    dev: model.PulseObject
+                    isInput: true
                 }
             }
+
+            // sets the dropdown apart from the brightness row below
+            Divider {}
         }
 
         // ── brightness: the island's own screen up front ──
