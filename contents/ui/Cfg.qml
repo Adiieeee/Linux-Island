@@ -110,6 +110,10 @@ QtObject {
             "SALIDA": ["SALIDA", "OUTPUT"],
             "ENTRADA": ["ENTRADA", "INPUT"],
             "Sin salidas": ["Sin salidas", "No outputs"],
+
+            // brightness
+            "PANTALLA": ["PANTALLA", "SCREEN"],
+            "PORTÁTIL": ["PORTÁTIL", "LAPTOP"],
             "Sin entradas": ["Sin entradas", "No inputs"],
 
             // notificaciones

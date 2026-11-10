@@ -28,6 +28,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   red up to the real 150% ceiling. Click the icon to mute, right-click for
   the output/input panel. Wi-Fi and Bluetooth now share the row at half
   width each.
+- New brightness sliders in the same card, one per display, like Plasma's
+  own brightness applet. With a single display the row is labelled
+  **SCREEN**. With several, the built-in panel is **LAPTOP** and external
+  monitors show their model name. Drag or scroll to adjust. The slider never
+  goes below 1%, because 0 switches some backlights off completely.
 
 ## Install
 
@@ -52,6 +57,7 @@ section stays empty, but the rest of the island keeps working:
 | Network, Wi-Fi | `nmcli` (NetworkManager) |
 | Bluetooth | `bluetoothctl` |
 | Sound | `wpctl`, `pactl` (PipeWire) |
+| Brightness | Plasma's PowerDevil (built in). External monitors need DDC/CI support |
 | GPU meter | `nvidia-smi` (hidden if missing) |
 | Screen recording | `spectacle` |
 | Coffee mode | `python3` with PyGObject (`gi`) |

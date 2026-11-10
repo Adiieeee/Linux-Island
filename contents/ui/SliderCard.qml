@@ -1,13 +1,22 @@
 import QtQuick
+import org.kde.plasma.private.brightnesscontrolplugin as BC
 import "."
 
-// full-width sliders for sound (and brightness). a long track is easier to
+// full-width sliders for sound and brightness. a long track is easier to
 // drag precisely than the small bar the sound card used to have
 Rectangle {
     id: root
 
     // the island listens to this to open the matching overlay
     signal requestPanel(string mode)
+
+    // same backend as Plasma's brightness applet: talks to PowerDevil over
+    // DBus in-process and updates live, so nothing gets polled.
+    // isSilent: no brightness OSD while dragging, the slider already shows it
+    BC.ScreenBrightnessControl {
+        id: screens
+        isSilent: true
+    }
 
     implicitHeight: rows.implicitHeight + 20
     radius: Theme.shapeLg
@@ -50,8 +59,10 @@ Rectangle {
         property color fillColor: Theme.fg
         // thin tick on the track at boostFrom, so 100% is easy to find
         property bool showMark: false
+        property bool iconClickable: true
 
-        readonly property bool pressed: dragArea.pressed
+        // left button only: a right-click opens a panel, it doesn't drag
+        readonly property bool pressed: dragArea.pressed && (dragArea.pressedButtons & Qt.LeftButton) !== 0
         readonly property real labelImplicitWidth: labelText.implicitWidth
 
         signal moved(real fraction)
@@ -76,7 +87,7 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 anchors.margins: -5
-                cursorShape: Qt.PointingHandCursor
+                cursorShape: row.iconClickable ? Qt.PointingHandCursor : Qt.ArrowCursor
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 onClicked: mouse => {
                     if (mouse.button === Qt.RightButton)
@@ -255,6 +266,45 @@ Rectangle {
             onStepped: d => Audio.step(d * 0.05)
             onIconClicked: Audio.toggleMute()
             onRightClicked: root.requestPanel("audio")
+        }
+
+        // ── brightness: one row per display, like Plasma's own applet ──
+        Repeater {
+            id: screenRows
+            model: screens.isBrightnessAvailable ? screens.displays : null
+
+            delegate: SliderRow {
+                id: screenRow
+
+                readonly property real level: model.maxBrightness > 0 ? model.brightness / model.maxBrightness : 0
+
+                // the model only updates after PowerDevil confirms (slower over
+                // DDC for external monitors), so show the requested level while
+                // dragging and for a moment after, or the knob would bounce back
+                property real wanted: 0
+
+                function request(f) {
+                    // never fully black: 0 switches some backlights off
+                    screenRow.wanted = Math.max(0.01, Math.min(1, f));
+                    settle.restart();
+                    screens.setBrightness(model.displayName, Math.round(screenRow.wanted * model.maxBrightness));
+                }
+
+                Timer {
+                    id: settle
+                    interval: 1000
+                }
+
+                icon: "light_mode"
+                iconClickable: false
+                // one display: just "screen". several: which one
+                label: screenRows.count === 1 ? Cfg.t("PANTALLA") : model.isInternal ? Cfg.t("PORTÁTIL") : model.label.replace(/[-\s]+$/, "").toUpperCase()
+                value: screenRow.pressed || settle.running ? screenRow.wanted : screenRow.level
+                valueText: Math.round(screenRow.value * 100) + "%"
+
+                onMoved: f => screenRow.request(f)
+                onStepped: d => screenRow.request(screenRow.value + d * 0.05)
+            }
         }
     }
 }
