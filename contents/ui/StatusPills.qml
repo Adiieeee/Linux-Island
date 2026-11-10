@@ -1,12 +1,12 @@
 import QtQuick
 import "."
 
-// fila de tarjetas de estado: red, bluetooth, sonido
+// status cards row: network and bluetooth (sound lives in SliderCard)
 Row {
     id: root
     spacing: 8
 
-    property real pillWidth: (width - spacing * 2) / 3
+    property real pillWidth: (width - spacing) / 2
 
     // la isla escucha esto para abrir el panel correspondiente
     signal requestPanel(string mode)
@@ -204,146 +204,6 @@ Row {
                     return;
                 }
                 Net.toggleBt();
-            }
-        }
-    }
-
-    // ── sonido: nombre del dispositivo + barra arrastrable ──
-    Rectangle {
-        width: root.pillWidth
-        height: 52
-        radius: Theme.shapeLg
-        color: Theme.containerHigh
-
-        // clic derecho abre el panel de salida/entrada, declarado primero para quedar debajo
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.RightButton
-            onClicked: root.requestPanel("audio")
-        }
-
-        Text {
-            id: soundLabel
-            anchors.left: parent.left
-            anchors.leftMargin: 12
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            text: Cfg.t("SONIDO")
-            color: Theme.fg
-            font.letterSpacing: Theme.labelSpacing
-            font.family: Theme.font
-            font.pixelSize: Theme.bodySmall
-            font.weight: Font.Medium
-        }
-
-        Text {
-            anchors.right: parent.right
-            anchors.rightMargin: 12
-            anchors.verticalCenter: soundLabel.verticalCenter
-            width: parent.width - soundLabel.width - 32
-            horizontalAlignment: Text.AlignRight
-            text: Audio.description
-            color: Theme.outline
-            font.family: Theme.font
-            font.pixelSize: Theme.labelSmall
-            elide: Text.ElideLeft
-        }
-
-        Text {
-            id: volIcon
-            anchors.left: parent.left
-            anchors.leftMargin: 12
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 9
-            text: Audio.muted ? "volume_off" : "volume_up"
-            color: Audio.muted ? Theme.outline : Audio.boosted ? Theme.alert : Theme.fgVariant
-            font.family: Theme.fontIcons
-            font.pixelSize: 16
-
-            MouseArea {
-                anchors.fill: parent
-                anchors.margins: -4
-                cursorShape: Qt.PointingHandCursor
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
-                onClicked: mouse => {
-                    if (mouse.button === Qt.RightButton) {
-                        root.requestPanel("audio");
-                        return;
-                    }
-                    Audio.toggleMute();
-                }
-            }
-        }
-
-        // techo real 150%: 0-100 llena en blanco, 100-150 (boost) suma una barra roja desde la derecha
-        Rectangle {
-            id: volTrack
-            readonly property real maxVolume: 1.5
-            anchors.left: volIcon.right
-            anchors.leftMargin: 8
-            anchors.right: parent.right
-            anchors.rightMargin: 12
-            anchors.verticalCenter: volIcon.verticalCenter
-            height: 6
-            radius: 3
-            color: Theme.containerHighest
-
-            Rectangle {
-                width: volTrack.width * (Audio.muted ? 0 : Math.min(Audio.volume, 1) / volTrack.maxVolume)
-                height: parent.height
-                radius: parent.radius
-                color: Theme.fg
-
-                Behavior on width {
-                    NumberAnimation {
-                        duration: Theme.durShort
-                        easing.type: Easing.Bezier
-                        easing.bezierCurve: Theme.emphasized
-                    }
-                }
-            }
-
-            Rectangle {
-                anchors.right: parent.right
-                width: volTrack.width * (Audio.muted ? 0 : Math.max(Audio.volume - 1, 0) / volTrack.maxVolume)
-                height: parent.height
-                radius: parent.radius
-                color: Theme.alert
-
-                Behavior on width {
-                    NumberAnimation {
-                        duration: Theme.durShort
-                        easing.type: Easing.Bezier
-                        easing.bezierCurve: Theme.emphasized
-                    }
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                anchors.margins: -6
-                cursorShape: Qt.PointingHandCursor
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-                function apply(mx) {
-                    Audio.setVolume((mx / volTrack.width) * volTrack.maxVolume);
-                }
-
-                onClicked: mouse => {
-                    if (mouse.button === Qt.RightButton)
-                        root.requestPanel("audio");
-                }
-                onPressed: mouse => {
-                    if (mouse.button !== Qt.LeftButton)
-                        return;
-                    Audio.holding = true;
-                    apply(mouse.x);
-                }
-                onReleased: Audio.holding = false
-                onPositionChanged: mouse => {
-                    if (pressed)
-                        apply(mouse.x);
-                }
             }
         }
     }

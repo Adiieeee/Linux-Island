@@ -271,8 +271,14 @@ Item {
                         }
                     }
 
-                    // ── red · bluetooth · sonido ──
+                    // ── red · bluetooth ──
                     StatusPills {
+                        width: parent.width
+                        onRequestPanel: mode => root.openOverlay(mode)
+                    }
+
+                    // ── sound (and brightness): full-width sliders ──
+                    SliderCard {
                         width: parent.width
                         onRequestPanel: mode => root.openOverlay(mode)
                     }

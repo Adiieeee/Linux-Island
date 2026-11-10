@@ -21,6 +21,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - Text uses your system font (Plasma's general font) instead of the bundled
   Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
   Numbers use tabular figures so they don't jiggle as they change.
+- Sound moved from a small third card next to Wi-Fi and Bluetooth to a
+  full-width slider card below them (`SliderCard.qml`), so it's easier to
+  adjust. The whole row height can be dragged, the mouse wheel steps 5%, a
+  knob shows the level, and a tick marks 100%. Past 100% the bar continues in
+  red up to the real 150% ceiling. Click the icon to mute, right-click for
+  the output/input panel. Wi-Fi and Bluetooth now share the row at half
+  width each.
 
 ## Install
 
