@@ -98,9 +98,7 @@ Row {
                 text: {
                     if (!root.device)
                         return Cfg.t("SIN RED");
-                    if (root.isEthernet)
-                        return Cfg.t("CONECTADO");
-                    return Net.signal_ + "%";
+                    return Cfg.t("CONECTADO");
                 }
                 color: root.device ? Theme.invertedFg : Theme.fgDim
                 font.letterSpacing: Theme.labelSpacing
