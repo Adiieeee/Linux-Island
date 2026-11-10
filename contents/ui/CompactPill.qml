@@ -2,38 +2,37 @@ import QtQuick
 import "."
 
 // píldora colapsada, la parte que vive dentro del panel de plasma
+// as wide as its content, so main.qml can reserve exactly what is drawn,
+// and as tall as whatever height main.qml gives it (the panel thickness)
 Item {
     id: root
 
-    implicitWidth: 150  // Change this number to your preferred compact width
+    readonly property int padding: 12
+
+    implicitWidth: content.implicitWidth + root.padding * 2
     implicitHeight: Theme.collapsedHeight
 
-    // en un panel grueso no se estira, se queda centrada con su alto de diseño
     Rectangle {
         id: pill
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-        width: 150      // Matches root implicitWidth
-        height: 27
+        anchors.fill: parent
         radius: height / 2
         color: Theme.surface
-        clip: true      // Crops any overflowing widgets so it stays a neat pill
+        clip: true
 
         Row {
-            anchors.left: parent.left
-            anchors.leftMargin: 6
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 8
+            id: content
+            anchors.centerIn: parent
+            spacing: 10
 
             Workspaces {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Cfg.showWorkspaces
             }
-        }
 
-        Clock {
-            anchors.centerIn: parent
-            visible: Cfg.showClock
+            Clock {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: Cfg.showClock
+            }
         }
     }
 }

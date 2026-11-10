@@ -22,6 +22,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The small island in the panel no longer shows the volume icon and
   percentage, and the "Volume" option under "Show in the small island" is
   gone. Volume lives in the expanded island.
+- The small island fits its panel. It's as wide as its content (desktop dots
+  and clock), the panel reserves exactly that width plus the mini player, and
+  both pills are as tall as the panel. Before, the panel reserved 130 px for a
+  pill drawn 150 px wide, so it spilled into the neighbouring widgets, and the
+  pill was a fixed 27 px tall.
 - Text uses your system font (Plasma's general font) instead of the bundled
   Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
   Numbers use tabular figures so they don't jiggle as they change.

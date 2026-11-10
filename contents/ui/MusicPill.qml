@@ -45,6 +45,8 @@ Item {
             id: mini
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
+            // same height as the system pill (the panel thickness)
+            height: parent.height
         }
     }
 }

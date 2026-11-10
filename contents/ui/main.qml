@@ -110,8 +110,10 @@ PlasmoidItem {
         readonly property bool horizontal: Plasmoid.formFactor !== PlasmaCore.Types.Vertical
 
         readonly property bool musicActive: Cfg.showMini && musicPill.active
-        // 130 for system pill + 6px gap + music pill width when active
-        readonly property real targetWidth: 130 + (musicActive ? musicPill.implicitWidth + 6 : 0)
+        // reserve exactly what is drawn: the pill, plus the 6 px gap and the
+        // music pill while something plays. a hardcoded width here made the
+        // pill spill past its slot into the neighbouring widgets
+        readonly property real targetWidth: compactPill.implicitWidth + (musicActive ? musicPill.implicitWidth + 6 : 0)
 
         Layout.minimumWidth: horizontal ? targetWidth : -1
         Layout.preferredWidth: horizontal ? targetWidth : -1
@@ -128,13 +130,17 @@ PlasmoidItem {
             anchors.centerIn: parent
             spacing: 6
 
+            // both pills take the full panel thickness
             CompactPill {
+                id: compactPill
                 anchors.verticalCenter: parent.verticalCenter
+                height: compact.height
             }
 
             MusicPill {
                 id: musicPill
                 anchors.verticalCenter: parent.verticalCenter
+                height: compact.height
             }
         }
     }
