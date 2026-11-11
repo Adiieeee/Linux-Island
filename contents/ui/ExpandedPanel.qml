@@ -58,7 +58,24 @@ Item {
 
     // opening: finalHeight jumps up at once. closing: restHeight keeps the
     // window at its old height until the animation ends
-    implicitHeight: Math.max(finalHeight, Math.round(restHeight)) + nudge
+    readonly property real wantedHeight: Math.max(finalHeight, Math.round(restHeight)) + nudge
+
+    // every change of implicitHeight resizes the popup window right away, and
+    // inside one frame the wanted height can pass through wrong values: when
+    // an animation ends the two Bindings above wake up one after the other
+    // (710 -> 524 -> 710 in the same instant), and a Column catches up only
+    // in the polish pass. so it's applied on the next event loop turn, once
+    // the frame has settled, and only the last value reaches Plasma
+    property real appliedHeight: 0
+    onWantedHeightChanged: applyHeight.restart()
+    Timer {
+        id: applyHeight
+        interval: 0
+        onTriggered: root.appliedHeight = root.wantedHeight
+    }
+    Component.onCompleted: appliedHeight = wantedHeight
+
+    implicitHeight: appliedHeight
 
     // Plasma restores the size saved at the last hide (popupHeight) when it
     // creates the popup, and only enforces our min/max height when those
