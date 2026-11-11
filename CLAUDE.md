@@ -18,14 +18,17 @@ A KDE Plasma 6 applet (plasmoid), "Linux Island": a Nothing OS-style dynamic isl
 # Reload after editing: the applet runs inside plasmashell, so restart it
 kquitapp6 plasmashell && kstart plasmashell
 
-# Static check (resolves the Plasma imports and passes clean today)
-qmllint contents/ui/*.qml
+# Static check with Qt 6's qmllint. /usr/bin/qmllint is Qt 5's (qt5-declarative):
+# it can't parse this code and exits 255 with no output. The Qt 6 one resolves the
+# Plasma imports but isn't clean: older files carry warnings (mostly unqualified
+# access), so compare against the files you touched, not zero
+/usr/lib/qt6/bin/qmllint contents/ui/*.qml
 
 # Install/upgrade as a package (when working from a copy outside ~/.local/share/plasma/plasmoids)
 kpackagetool6 -t Plasma/Applet -u .
 ```
 
-`plasmoidviewer` (plasma-sdk) is not installed. To test a QML piece outside Plasma, `qml-qt6` works for files that don't need `Plasmoid`. The code is **not** `qmlformat`-clean, so don't run it over whole files; that would rewrite every file.
+`plasmoidviewer` (plasma-sdk) is not installed. To test a QML piece outside Plasma, `/usr/lib/qt6/bin/qml` works for files that don't need `Plasmoid` (import the folder with `import "file:///…/contents/ui"`). Add `QT_QPA_PLATFORM=offscreen` to skip the window, and `QT_FORCE_STDERR_LOGGING=1` to see `console.log`, which otherwise goes to the journal. The code is **not** `qmlformat`-clean, so don't run it over whole files; that would rewrite every file.
 
 If you change the popup's size, Plasma keeps the old one in `popupHeight`/`popupWidth` under the applet's `[Configuration]` group in `~/.config/plasma-org.kde.plasma.desktop-appletsrc`. Stop plasmashell, delete those keys, then start it again.
 
