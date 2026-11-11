@@ -446,7 +446,7 @@ Item {
                                 spacing: 8
 
                                 Text {
-                                    text: Recorder.mode === "w" ? "web_asset" : "desktop_windows"
+                                    text: Recorder.mode === "w" ? "select_window" : "desktop_windows"
                                     color: Theme.fgDim
                                     font.family: Theme.fontIcons
                                     font.pixelSize: 15
