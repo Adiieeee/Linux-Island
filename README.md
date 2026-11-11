@@ -38,6 +38,15 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   applet by its theme's margins (4 px above and below with Ant-Dark), and the
   capsule reaches past its slot by that much (`CompactPill.reach`, capped at
   the theme margin so a floating panel isn't overshot).
+- With more than one player (Spotify and a browser tab with YouTube, say),
+  the panel island always shows the one that's playing. It used to stick to
+  whichever player happened to be first: Plasma's MPRIS model lists a
+  "multiplexer" row (its own pick: the player that's playing, else the last
+  active one) next to one row per player, and when the player rows arrived
+  before the multiplexer row, the model's `currentIndex` stayed on a player,
+  so the island showed a paused YouTube while Spotify played. A single
+  `Media` singleton now owns the MPRIS model and reads the multiplexer row's
+  player directly (`Media.active`); the island and the media card use it.
 - Text uses your system font (Plasma's general font) instead of the bundled
   Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
   Numbers use tabular figures so they don't jiggle as they change.

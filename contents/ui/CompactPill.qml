@@ -17,12 +17,10 @@ Item {
     property bool horizontal: true
 
     // ── media ──
-    // no buttons here: previous/play/next live in the control center
-    Mpris.Mpris2Model {
-        id: mpris
-    }
-
-    readonly property var player: mpris.currentPlayer
+    // no buttons here: previous/play/next live in the control center.
+    // always the active player (the one playing), whatever the media card
+    // in the control center is set to (see Media.qml)
+    readonly property var player: Media.active
     readonly property int playback: player?.playbackStatus ?? Mpris.PlaybackStatus.Stopped
     readonly property bool isPlaying: playback === Mpris.PlaybackStatus.Playing
     // playing or paused, not stopped

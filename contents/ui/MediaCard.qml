@@ -8,12 +8,8 @@ import "."
 Item {
     id: root
 
-    // plasma junta todos los mpris, este es el que suena o el último
-    Mpris.Mpris2Model {
-        id: mpris
-    }
-
-    readonly property var player: mpris.currentPlayer
+    // the active player, the one playing (see Media.qml)
+    readonly property var player: Media.cardPlayer
     readonly property bool active: player !== null
 
     readonly property bool isPlaying: (player?.playbackStatus ?? 0) === Mpris.PlaybackStatus.Playing
@@ -247,6 +243,7 @@ Item {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.margins: 10
+            anchors.leftMargin: 10
             width: 46
             height: 46
 
