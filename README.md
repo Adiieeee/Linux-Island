@@ -76,8 +76,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   it's filled white (the inverted pair, like coffee mode) while on. The app
   launcher wasn't used, so nothing opens it any more; `AppLauncher.qml` and
   `apps.py` stay in the repo.
-- When a song starts playing, the small island shows its title (bold) over
-  its artist (grey) for 4.5 seconds at the lyrics' width, then the lyrics or
+- When a song starts playing, the small island shows its title (12 px bold)
+  over its artist (10 px, grey) for 4.5 seconds at the lyrics' width, then the lyrics or
   the clock. Every song gets this once, with or without lyrics: a track
   change, the first song after plasmashell starts, another player taking
   over, or a song that was paused when found, once it plays. Pausing

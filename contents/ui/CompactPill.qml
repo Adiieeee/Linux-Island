@@ -257,7 +257,9 @@ Item {
                         text: Lyrics.track
                         running: peekLayer.visible
                         scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
-                        font.pixelSize: Theme.labelMedium
+                        // a size above the artist and bold, so the two lines
+                        // read as title and byline at a glance
+                        font.pixelSize: Theme.bodySmall
                         font.weight: Font.Bold
                     }
                     MarqueeText {
