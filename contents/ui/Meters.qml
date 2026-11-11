@@ -115,10 +115,11 @@ Column {
             }
         }
 
-        // margen siempre igual, tenga temperatura o no (tempRow invisible igual ocupa lugar)
+        // same margin whether there is a temperature or not: the right-hand
+        // column (lado) is always there, even on the RAM row
         Text {
             id: pct
-            anchors.right: tempRow.left
+            anchors.right: lado.left
             anchors.rightMargin: 8
             anchors.verticalCenter: parent.verticalCenter
             width: m.valorAncho
@@ -131,45 +132,54 @@ Column {
             font.weight: Font.Bold
         }
 
-        // temperatura a la derecha, para que las tres queden en columna
-        Row {
-            id: tempRow
+        // right-hand column, same width on every row (ladoAncho). its content,
+        // the temperature or the RAM used, is right-aligned so the numbers
+        // end at the same edge
+        Item {
+            id: lado
             anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 1
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             width: m.ladoAncho
-            visible: m.temp >= 0
 
-            Text {
+            // temperatura a la derecha, para que las tres queden en columna
+            Row {
+                anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                text: "local_fire_department"
-                color: Theme.alert
-                font.family: Theme.fontIcons
-                font.pixelSize: 12
+                spacing: 1
+                visible: m.temp >= 0
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "local_fire_department"
+                    color: Theme.alert
+                    font.family: Theme.fontIcons
+                    font.pixelSize: 12
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: m.temp + "°"
+                    color: m.hot ? Theme.alert : Theme.fgDim
+                    font.family: Theme.fontDots
+                    font.features: Theme.numFeatures
+                    font.pixelSize: 13
+                    font.weight: Font.Bold
+                }
             }
 
+            // RAM used, in the same column as the temperature
             Text {
+                anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                text: m.temp + "°"
-                color: m.hot ? Theme.alert : Theme.fgDim
+                visible: m.temp < 0 && m.extra !== ""
+                text: m.extra
+                color: Theme.fgDim
                 font.family: Theme.fontDots
                 font.features: Theme.numFeatures
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }
-        }
-
-        // RAM used, in the same column as the temperature
-        Text {
-            anchors.left: tempRow.left
-            anchors.verticalCenter: parent.verticalCenter
-            visible: m.temp < 0 && m.extra !== ""
-            text: m.extra
-            color: Theme.fgDim
-            font.family: Theme.fontDots
-            font.features: Theme.numFeatures
-            font.pixelSize: 13
-            font.weight: Font.Bold
         }
     }
 

@@ -80,7 +80,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   "68%  10.4", in the column where CPU and GPU show their temperature, so
   the three bars stay the same length. The number is in GiB (1024³ bytes),
   because `/proc/meminfo` counts in KiB. The unit isn't printed, to keep the
-  row short. The setting that
+  row short. Temperatures and the RAM number are right-aligned. The setting that
   used to swap the percentage for used/total ("7.8/31") now turns this extra
   number on or off, and is on by default.
 - Screen recordings go to `~/Videos/Screen Record` by default (created on
@@ -444,7 +444,8 @@ Two rules to avoid it:
   now always the same. For the same reason, the widths of the percentage
   column and of the right-hand column (temperature, or RAM used) are
   decided once in the parent `Column` (`anchoValor`, `anchoLado`), not per
-  row. Otherwise the RAM row widens on its own when it shows "10.4" and
+  row. That column (`lado`) is an always-visible `Item`, and its content is
+  right-aligned, so temperatures and the RAM number end at the same edge. Otherwise the RAM row widens on its own when it shows "10.4" and
   the bars end up different lengths again.
 - **Plasma's audio models do say which device is the default, just not right
   away.** `Audio.qml` still polls `wpctl` because the original author found
