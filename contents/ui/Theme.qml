@@ -85,7 +85,7 @@ QtObject {
     readonly property string fontIcons: cargaIconos.name
 
     readonly property int displayLarge: 40   // reloj del panel
-    readonly property int islandClock: 15    // the panel island's clock (17 looked too big)
+    readonly property int islandClock: 13    // the panel island's clock (17 and 15 looked too big)
     readonly property int displaySmall: 22
     readonly property int titleMedium: 16
     readonly property int titleSmall: 14

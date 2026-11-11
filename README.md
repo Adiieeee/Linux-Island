@@ -48,8 +48,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the two plus a 12 px gap, so the notch and the popup under it stay in the
   middle of the screen.
 - The clock moved out of the notch to its right, on the panel, in white
-  (`Clock.qml`). It's always 24-hour with a leading zero (`HH:mm`), 15 px
-  (`Theme.islandClock`), and as wide as "00:00" whatever the digits, so the
+  (`Clock.qml`). It's always 24-hour with a leading zero (`HH:mm`), 13 px
+  bold (`Theme.islandClock`; 17 and 15 looked too big), and as wide as "00:00" whatever the digits, so the
   notch never shifts as it ticks. The **Time** setting now only sets the
   control center's big clock. Inside the notch, today's date takes the
   clock's old place: "11 November 2026" when the notch holds nothing else,
