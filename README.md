@@ -44,7 +44,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   (a check marks the current one), click its icon to mute it. Outputs go up to
   150%, inputs to 100%. Lines above and below set the dropdown apart from the
   rows around it. Virtual devices such as Easy Effects only show when they're
-  the default, and devices whose port is unplugged are hidden.
+  the default, and devices whose port is unplugged are hidden. The dropdown
+  opens and closes with an animated height and a fade (the `Dropdown`
+  component in `SliderCard.qml`), and so does the brightness one. The island's
+  height follows the animation, so Plasma resizes the popup window on every
+  frame of it.
 - New **BRIGHTNESS** slider in the same card, for the screen the island is on.
   If the brightness of that screen can't be controlled, it falls back to the
   built-in panel. With more than one screen, click **BRIGHTNESS** to show the

@@ -447,6 +447,39 @@ Rectangle {
         font.letterSpacing: Theme.labelSpacing
     }
 
+    // a dropdown that opens and closes with an animated height and a fade.
+    // the island's height follows it, so the popup grows and shrinks along
+    // with the animation. clip, never layer.enabled (hard rule 3)
+    component Dropdown: Item {
+        id: dd
+        property bool open: false
+        default property alias content: inner.data
+
+        width: parent ? parent.width : 0
+        height: dd.open ? inner.implicitHeight : 0
+        visible: height > 0
+        clip: true
+        opacity: dd.open ? 1 : 0
+
+        Behavior on height {
+            NumberAnimation {
+                duration: Theme.durMedium
+                easing.type: Easing.Bezier
+                easing.bezierCurve: Theme.emphasized
+            }
+        }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Theme.durShort
+            }
+        }
+
+        Column {
+            id: inner
+            width: parent.width
+        }
+    }
+
     // thin line that sets a dropdown apart from the rows around it
     component Divider: Item {
         width: parent ? parent.width : 0
@@ -536,9 +569,8 @@ Rectangle {
         }
 
         // ── sound dropdown: every output and input with its own level ──
-        Column {
-            width: parent.width
-            visible: root.menu === "sound"
+        Dropdown {
+            open: root.menu === "sound"
 
             Divider {}
 
@@ -602,9 +634,8 @@ Rectangle {
         }
 
         // ── brightness dropdown: every other screen ──
-        Column {
-            width: parent.width
-            visible: root.menu === "screens"
+        Dropdown {
+            open: root.menu === "screens"
 
             // sets the island's own screen apart from the others
             Divider {}
