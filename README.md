@@ -42,14 +42,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   (laptop speakers, earbuds once they're connected, monitor speakers) and every
   input has its own level slider. Click a device's name to make it the default
   (a check marks the current one), click its icon to mute it. Outputs go up to
-  150%, inputs to 100%. Lines above and below set the dropdown apart from the
-  rows around it. Virtual devices such as Easy Effects only show when they're
-  the default, and devices whose port is unplugged are hidden. The dropdown
-  opens and closes with an animated height and a fade (the `Dropdown`
-  component in `SliderCard.qml`), and so does the brightness one. It uses the
-  same speed and curve as the island's other expansions (`durMedium`,
-  `emphasized`). See "Animating the island's height" below for why it doesn't
-  stutter, and why no glass shows under the island while it moves.
+  150%, inputs to 100%. Virtual devices such as Easy Effects only show when
+  they're the default, and devices whose port is unplugged are hidden. The
+  dropdown (and the brightness one) floats over the cards below instead of
+  pushing them down, and opens with a height reveal and a fade, the same
+  speed and curve as the island's other expansions (`durMedium`,
+  `emphasized`). A long list scrolls instead of running past the island's
+  bottom. A click anywhere else on the island closes it. See "Don't resize
+  the island for an animation" below for why it floats.
 - New **BRIGHTNESS** slider in the same card, for the screen the island is on.
   If the brightness of that screen can't be controlled, it falls back to the
   built-in panel. With more than one screen, click **BRIGHTNESS** to show the
@@ -406,55 +406,38 @@ Two rules to avoid it:
   directly: `busctl --user set-property org.kde.KWin /VirtualDesktopManager
   org.kde.KWin.VirtualDesktopManager current s "<uuid>"`. The ids returned by
   `VirtualDesktopInfo.desktopIds` are those same UUIDs.
-- **Animating the island's height: resize the window once, animate inside
-  it.** The first version of the dropdown animation let the popup follow
-  the content on every frame, and Plasma resizing the popup window ~17
-  times in 280 ms looked choppy. Now `ExpandedPanel` asks for the final
-  height at the start of an opening and keeps the old height until the end
-  of a closing (`finalHeight`, `restHeight`). The `island` fills the window
-  and only the cards inside it move, so its bottom edge jumps once (at the
-  start of an opening, at the end of a closing). A first try let the island
-  draw at the live height inside the taller window, for a moving edge, but
-  the popup isn't transparent there: Plasma's blurred frame showed as a big
-  pane of glass under the island for the length of the animation. Two traps
-  on the way:
-  - A `Column` updates its `implicitHeight` a frame late (in the polish
-    pass). Adding it to the dropdown's live height to predict the final
-    height gave a different number every frame. The rest height is taken
-    while nothing moves (a `Binding` with `when: !sliderCard.animating`) and
-    stays frozen during the animation.
-  - A hidden item doesn't get the `Column`'s spacing, so the 4 px gap above a
-    dropdown popped in and out at the ends of the animation. Each dropdown
-    now sits in a spacing-0 group with its row and carries that gap as
-    `topPadding` inside its animated height.
-  - **Every change of `implicitHeight` resizes the popup window right away,
-    even one that's undone in the same instant.** When an opening ended,
-    two rest-height `Binding`s woke up one after the other and the height
-    went 710 → 524 → 710 at once, which Plasma showed as a flicker.
-    Sampling every 16 ms never caught it; logging every
-    `implicitHeightChanged` did. Now only one number is taken at rest
-    (`restBase`, everything but the dropdowns), and only once "settled": no
-    dropdown moving, plus one event loop turn so the `Column`s have caught
-    up. The window grows at once (`appliedHeight`) and shrinks only once
-    settled. A first fix delayed growing by a 0 ms `Timer` too. That drew the
-    first frame of an opening in the old, shorter window, and closing a
-    dropdown halfway through its opening shrank the window under it: 32 of
-    220 frames had the content taller than the window, by up to 138 px.
+- **Don't resize the island for an animation: every resize of Plasma's
+  popup window costs a frame.** Measured in plasmashell itself with a
+  temporary harness (open the popup, open and close the sound dropdown on a
+  timer, log every `frameSwapped`). Idle, frames come every 7 ms (144 Hz).
+  Resizing the window on every animation frame made 20 to 22 of ~65 frames
+  late (~14 ms, the window only got ~24 sizes in 280 ms): choppy. Resizing
+  once (grow at the start of an opening, shrink at the end of a closing) left
+  one late frame at exactly those moments, plus the island's bottom edge
+  jumping 184 px: a visible hitch. So the dropdowns float over the cards and
+  the island's height doesn't change at all: 0 late frames, max 8 to 12 ms,
+  also when a dropdown is closed halfway through opening.
+  Lessons from the versions in between, still true for any height change
+  (the notification strip):
+  - **Every change of `implicitHeight` reaches Plasma at once, even one that's
+    undone in the same instant.** Two `Binding`s waking up one after the
+    other made the height go 710 → 524 → 710 in one go, and Plasma resized
+    the window for each value. Sampling every 16 ms never caught it; logging
+    every `implicitHeightChanged` did.
+  - A `Column` updates its `implicitHeight` a frame late, in the polish pass,
+    so it can't be mixed with a value that moved in this frame.
   - **Plasma reacts to `Layout.minimumHeight`, `preferredHeight` and
     `maximumHeight` one by one** (`AppletPopup::updateMinSize`,
     `updateSize`, `updateMaxSize` on the popup window). As three bindings
-    to `implicitHeight` they updated min first, so every opening went
-    through min 710 / max 524, and the resize to 710 arrived while the
-    maximum was still 524. `main.qml` now sets the three by hand: growing
-    sets max, then preferred, then min; shrinking the other way round, so
-    min ≤ max at every step.
-  - How it's checked: a harness loads `ExpandedPanel` with `main.qml`'s
-    `Layout` code under `QT_QPA_PLATFORM=offscreen`, opens and closes the
-    sound dropdown (also closing it halfway through opening), logs every
-    `Layout` change and, on every `frameSwapped`, whether the content is
-    taller than the window. Now: one resize per opening, one per closing,
-    min never above max, 0 clipped frames. `console.warn` from the `qml`
-    tool lands in the journal (`journalctl --user`), not on stderr.
+    to `implicitHeight` they updated min first, so growing went through
+    min 710 / max 524, and the resize to 710 arrived while the maximum was
+    still 524. `main.qml` now sets the three by hand: growing sets max, then
+    preferred, then min; shrinking the other way round, so min ≤ max at
+    every step.
+  - Testing outside Plasma (`QT_QPA_PLATFORM=offscreen` with the `qml` tool)
+    shows layout bugs but not the cost of a real popup resize. The numbers
+    above come from plasmashell. `console.warn` from either lands in the
+    journal (`journalctl --user`), not on stderr.
 - **Don't call `qdbus` from the applet.** Plasma 6 systems ship it as
   `qdbus6` (or `/usr/lib/qt6/bin/qdbus`). Plain `qdbus` isn't on `PATH`, and
   `Exec.run` swallows the "command not found". Use `busctl --user`.

@@ -37,11 +37,12 @@ Rectangle {
     // which dropdown is open: "", "sound", "screens"
     property string menu: ""
 
-    // for ExpandedPanel: the dropdowns' heights now and once their animations
-    // end, and whether one is running
-    readonly property real dropdownsHeight: soundDd.height + screensDd.height
-    readonly property real dropdownsFinal: soundDd.finalHeight + screensDd.finalHeight
-    readonly property bool animating: soundDd.moving || screensDd.moving
+    // room below this card's top edge, down to the island's bottom margin
+    // (set by ExpandedPanel): a dropdown never grows past it, it scrolls
+    property real dropRoom: 300
+
+    // an open (or still closing) dropdown floats over the cards below
+    z: soundDd.visible || screensDd.visible ? 1 : 0
 
     // ── which display is "main": the one the island is on ──
     // the popup window sits on the panel's screen. the built-in panel is
@@ -95,7 +96,7 @@ Rectangle {
 
     // all label columns are as wide as the widest label, so the tracks line
     // up. walks into the dropdowns too, so opening one doesn't shift anything
-    readonly property real labelWidth: Math.min(root.widestLabel(rows), 110)
+    readonly property real labelWidth: Math.min(Math.max(root.widestLabel(rows), root.widestLabel(soundDd.column), root.widestLabel(screensDd.column)), 110)
 
     function widestLabel(item) {
         let w = 0;
@@ -453,25 +454,31 @@ Rectangle {
         font.letterSpacing: Theme.labelSpacing
     }
 
-    // a dropdown that opens and closes with an animated height and a fade,
-    // same curve and speed as the island's other expansions (durMedium,
-    // emphasized). ExpandedPanel resizes the popup window only once per
-    // animation using finalHeight/moving, see README. clip, never
-    // layer.enabled (hard rule 3)
-    component Dropdown: Item {
+    // a dropdown floats over the cards below this one instead of pushing them
+    // down: the island, and with it Plasma's popup window, never changes size.
+    // every resize of that window costs a frame in the compositor, which
+    // showed as a hitch at the start and end of the animation (see README).
+    // it opens with a height reveal and a fade, the island's usual curve and
+    // speed; past dropRoom it scrolls. clip, never layer.enabled (hard rule 3)
+    component Dropdown: Rectangle {
         id: dd
         property bool open: false
+        // tallest it may get, from its own top edge
+        property real room: 300
+        readonly property int pad: 8
+        readonly property alias column: inner
         default property alias content: inner.data
 
-        // where the height is headed, and whether it's still getting there
-        readonly property real finalHeight: dd.open ? inner.implicitHeight : 0
-        readonly property bool moving: dd.height !== dd.finalHeight
-
+        x: 0
         width: parent ? parent.width : 0
-        height: dd.finalHeight
+        height: dd.open ? Math.min(inner.implicitHeight + 2 * dd.pad, dd.room) : 0
         visible: height > 0
         clip: true
         opacity: dd.open ? 1 : 0
+        radius: Theme.shapeLg
+        color: Theme.surfaceHigh
+        border.width: 1
+        border.color: Theme.outline
 
         Behavior on height {
             NumberAnimation {
@@ -488,24 +495,26 @@ Rectangle {
             }
         }
 
-        Column {
-            id: inner
-            width: parent.width
-            // the gap the outer Column's spacing gave before, inside the animated height
-            topPadding: 4
+        // swallows clicks on the panel's padding, so they don't reach the
+        // close-on-click area behind it
+        MouseArea {
+            anchors.fill: parent
         }
-    }
 
-    // thin line that sets a dropdown apart from the rows around it
-    component Divider: Item {
-        width: parent ? parent.width : 0
-        height: 11
+        Flickable {
+            anchors.fill: parent
+            anchors.margins: dd.pad
+            anchors.leftMargin: 14
+            anchors.rightMargin: 14
+            contentHeight: inner.implicitHeight
+            interactive: contentHeight > height
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
 
-        Rectangle {
-            anchors.verticalCenter: parent.verticalCenter
-            width: parent.width
-            height: 1
-            color: Theme.outline
+            Column {
+                id: inner
+                width: parent.width
+            }
         }
     }
 
@@ -560,126 +569,125 @@ Rectangle {
         anchors.rightMargin: 14
         spacing: 4
 
-        // each dropdown sits in a spacing-0 group with its row, so the gap
-        // above it animates with it (Dropdown topPadding) instead of popping
-        Column {
-            width: parent.width
+        // ── sound: real ceiling 150%, past 100% the fill turns red ──
+        SliderRow {
+            id: soundRow
+            icon: Audio.muted ? "volume_off" : "volume_up"
+            iconColor: Audio.muted ? Theme.fgFaint : Audio.boosted ? Theme.alert : Theme.fgVariant
+            label: Cfg.t("SONIDO")
+            labelClickable: true
+            expanded: root.menu === "sound"
+            value: Audio.volume / Audio.maxVolume
+            boostFrom: 1 / Audio.maxVolume
+            showMark: true
+            // muted keeps the level visible, just dimmed
+            fillColor: Audio.muted ? Theme.outline : Theme.fg
+            valueText: Audio.percent + "%"
+            valueColor: Audio.muted ? Theme.fgFaint : Audio.boosted ? Theme.alert : Theme.fg
 
-            // ── sound: real ceiling 150%, past 100% the fill turns red ──
-            SliderRow {
-                icon: Audio.muted ? "volume_off" : "volume_up"
-                iconColor: Audio.muted ? Theme.fgFaint : Audio.boosted ? Theme.alert : Theme.fgVariant
-                label: Cfg.t("SONIDO")
-                labelClickable: true
-                expanded: root.menu === "sound"
-                value: Audio.volume / Audio.maxVolume
-                boostFrom: 1 / Audio.maxVolume
-                showMark: true
-                // muted keeps the level visible, just dimmed
-                fillColor: Audio.muted ? Theme.outline : Theme.fg
-                valueText: Audio.percent + "%"
-                valueColor: Audio.muted ? Theme.fgFaint : Audio.boosted ? Theme.alert : Theme.fg
+            // the 1 s poll would overwrite the value mid-drag and make it jump
+            onPressedChanged: Audio.holding = pressed
+            onMoved: f => Audio.setVolume(f * Audio.maxVolume)
+            onStepped: d => Audio.step(d * 0.05)
+            onIconClicked: Audio.toggleMute()
+            onLabelClicked: root.toggle("sound")
+            onRightClicked: root.requestPanel("audio")
+        }
 
-                // the 1 s poll would overwrite the value mid-drag and make it jump
-                onPressedChanged: Audio.holding = pressed
-                onMoved: f => Audio.setVolume(f * Audio.maxVolume)
-                onStepped: d => Audio.step(d * 0.05)
-                onIconClicked: Audio.toggleMute()
-                onLabelClicked: root.toggle("sound")
-                onRightClicked: root.requestPanel("audio")
-            }
+        // ── brightness: the island's own screen up front ──
+        Repeater {
+            model: screens.isBrightnessAvailable ? screens.displays : null
 
-            // ── sound dropdown: every output and input with its own level ──
-            Dropdown {
-                id: soundDd
-                open: root.menu === "sound"
-
-                Divider {}
-
-                SectionLabel {
-                    text: Cfg.t("SALIDA")
-                }
-
-                Repeater {
-                    model: paSinks
-                    delegate: DeviceSlider {
-                        visible: root.usable(model.PulseObject)
-                        dev: model.PulseObject
-                    }
-                }
-
-                SectionLabel {
-                    topPadding: 6
-                    text: Cfg.t("ENTRADA")
-                }
-
-                Repeater {
-                    model: paSources
-                    delegate: DeviceSlider {
-                        visible: root.usable(model.PulseObject)
-                        dev: model.PulseObject
-                        isInput: true
-                    }
-                }
-
-                // sets the dropdown apart from the brightness row below
-                Divider {}
+            delegate: ScreenRow {
+                visible: key === root.mainScreen
+                key: model.displayName
+                brightness: model.brightness
+                maxBrightness: model.maxBrightness
+                label: Cfg.t("BRILLO")
+                labelClickable: probe.count > 1
+                expanded: root.menu === "screens"
+                onLabelClicked: root.toggle("screens")
             }
         }
 
-        Column {
-            width: parent.width
-            // nothing to show on external-only setups without brightness
-            visible: implicitHeight > 0
+        // stand-in for the row above until PowerDevil answers, on a built-in
+        // panel only (external-only setups may have no brightness row at all).
+        // Plasma stores the popup's first height and keeps using it, so without
+        // this a slow PowerDevil left the bottom of the island cut off
+        SliderRow {
+            visible: root.hereInternal && root.mainScreen === ""
+            enabled: false
+            icon: "light_mode"
+            iconClickable: false
+            label: Cfg.t("BRILLO")
+            value: 0
+        }
+    }
 
-            // ── brightness: the island's own screen up front ──
-            Repeater {
-                model: screens.isBrightnessAvailable ? screens.displays : null
+    // a click anywhere else on the island closes an open dropdown. sized far
+    // past the card on purpose: the island clips input to itself. z -1 keeps
+    // it under this card's own rows (SOUND still toggles, sliders still drag)
+    // but, with the card raised, above the cards below
+    MouseArea {
+        x: -2000
+        y: -2000
+        width: 4000
+        height: 4000
+        z: -1
+        enabled: root.menu !== ""
+        onClicked: root.menu = ""
+    }
 
-                delegate: ScreenRow {
-                    visible: key === root.mainScreen
-                    key: model.displayName
-                    brightness: model.brightness
-                    maxBrightness: model.maxBrightness
-                    label: Cfg.t("BRILLO")
-                    labelClickable: probe.count > 1
-                    expanded: root.menu === "screens"
-                    onLabelClicked: root.toggle("screens")
-                }
+    // ── sound dropdown: every output and input with its own level ──
+    Dropdown {
+        id: soundDd
+        open: root.menu === "sound"
+        y: rows.y + soundRow.y + soundRow.height + 6
+        room: root.dropRoom - y
+
+        SectionLabel {
+            text: Cfg.t("SALIDA")
+        }
+
+        Repeater {
+            model: paSinks
+            delegate: DeviceSlider {
+                visible: root.usable(model.PulseObject)
+                dev: model.PulseObject
             }
+        }
 
-            // stand-in for the row above until PowerDevil answers, on a built-in
-            // panel only (external-only setups may have no brightness row at all).
-            // Plasma stores the popup's first height and keeps using it, so without
-            // this a slow PowerDevil left the bottom of the island cut off
-            SliderRow {
-                visible: root.hereInternal && root.mainScreen === ""
-                enabled: false
-                icon: "light_mode"
-                iconClickable: false
-                label: Cfg.t("BRILLO")
-                value: 0
+        SectionLabel {
+            topPadding: 6
+            text: Cfg.t("ENTRADA")
+        }
+
+        Repeater {
+            model: paSources
+            delegate: DeviceSlider {
+                visible: root.usable(model.PulseObject)
+                dev: model.PulseObject
+                isInput: true
             }
+        }
+    }
 
-            // ── brightness dropdown: every other screen ──
-            Dropdown {
-                id: screensDd
-                open: root.menu === "screens"
+    // ── brightness dropdown: every other screen ──
+    Dropdown {
+        id: screensDd
+        open: root.menu === "screens"
+        y: rows.y + rows.height + 6
+        room: root.dropRoom - y
 
-                // sets the island's own screen apart from the others
-                Divider {}
+        Repeater {
+            model: screens.isBrightnessAvailable ? screens.displays : null
 
-                Repeater {
-                    model: screens.isBrightnessAvailable ? screens.displays : null
-
-                    delegate: ScreenRow {
-                        visible: key !== root.mainScreen
-                        key: model.displayName
-                        brightness: model.brightness
-                        maxBrightness: model.maxBrightness
-                        label: model.isInternal ? Cfg.t("PORTÁTIL") : model.label.replace(/[-\s]+$/, "").toUpperCase()
-                    }
-                }
+            delegate: ScreenRow {
+                visible: key !== root.mainScreen
+                key: model.displayName
+                brightness: model.brightness
+                maxBrightness: model.maxBrightness
+                label: model.isInternal ? Cfg.t("PORTÁTIL") : model.label.replace(/[-\s]+$/, "").toUpperCase()
             }
         }
     }

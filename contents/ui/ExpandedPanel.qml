@@ -26,82 +26,16 @@ Item {
     implicitWidth: Theme.expandedWidth - reachLeft - reachRight
 
     // plasma dibuja el popup del tamaño que le pidamos, sale del alto real del contenido
-    // this item's height that fits the content as drawn right now (follows
-    // the dropdown animations); the island adds the reach back
+    // this item's height that fits the content; the island adds the reach back
     readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 + (root.notifying ? Theme.notifStrip : 0) - reachTop - reachBottom
 
-    // resizing the popup window on every animation frame stutters, so the
-    // window resizes once per dropdown animation: at the start of an opening,
-    // at the end of a closing. the island fills the window, and only the
-    // cards inside it move.
-    //
-    // every change of implicitHeight resizes the popup window right away
-    // (Plasma watches it), even one undone in the same instant, so the height
-    // must never pass through a wrong value:
-    // - a Column updates its implicitHeight only in the polish pass, a frame
-    //   after the dropdown height it sums. drawnHeight is only trusted while
-    //   "settled": no dropdown animating, and one event loop turn after the
-    //   last one ended, once the Columns have caught up
-    // - what's taken while settled is one number: everything but the
-    //   dropdowns (restBase). two numbers that both moved used to wake up one
-    //   after the other (710 -> 524 -> 710 at the end of an opening); restBase
-    //   doesn't change when only a dropdown did
-    // - the window grows at once and shrinks only once settled, so it never
-    //   cuts off a dropdown that's still closing (also when it's closed again
-    //   halfway through opening)
-    property bool settled: true
-    Connections {
-        target: sliderCard
-        function onAnimatingChanged() {
-            if (sliderCard.animating) {
-                settle.stop();
-                root.settled = false;
-            } else {
-                settle.restart();
-            }
-        }
-    }
-    Timer {
-        id: settle
-        interval: 0
-        onTriggered: root.settled = !sliderCard.animating
-    }
-    onSettledChanged: if (settled) shrink.restart()
-
-    property real restBase: 0
-    Binding {
-        target: root
-        property: "restBase"
-        value: root.drawnHeight - sliderCard.dropdownsHeight
-        when: root.settled
-        restoreMode: Binding.RestoreNone
-    }
-    // the height once the running animation is over
-    readonly property real finalHeight: Math.round(restBase + sliderCard.dropdownsFinal)
-
-    readonly property real wantedHeight: finalHeight + nudge
-
-    // growing goes through at once, so the window is tall enough before the
-    // first frame of an opening is drawn (a 0 ms delay here clipped the
-    // bottom row for a frame). shrinking waits until settled, plus one event
-    // loop turn, so only the value the frame settles on reaches Plasma
-    property real appliedHeight: 0
-    onWantedHeightChanged: {
-        if (wantedHeight > appliedHeight) {
-            shrink.stop();
-            appliedHeight = wantedHeight;
-        } else if (settled) {
-            shrink.restart();
-        }
-    }
-    Timer {
-        id: shrink
-        interval: 0
-        onTriggered: if (root.settled) root.appliedHeight = root.wantedHeight
-    }
-    Component.onCompleted: appliedHeight = wantedHeight
-
-    implicitHeight: appliedHeight
+    // the island's height only changes with its content (the notification
+    // strip, the brightness row); the SOUND/BRIGHTNESS dropdowns float over
+    // the cards and don't change it. every resize of Plasma's popup window
+    // costs a frame in the compositor, measured in plasmashell (see README).
+    // Plasma reacts to each change of implicitHeight at once, so main.qml sets
+    // the Layout heights in an order that never inverts min and max
+    implicitHeight: Math.round(drawnHeight) + nudge
 
     // Plasma restores the size saved at the last hide (popupHeight) when it
     // creates the popup, and only enforces our min/max height when those
@@ -472,6 +406,9 @@ Item {
                     SliderCard {
                         id: sliderCard
                         width: parent.width
+                        // down to the island's bottom margin (above the notification
+                        // strip), from this card's top
+                        dropRoom: panel.height - sliderCard.y
                         onRequestPanel: mode => root.openOverlay(mode)
                     }
 
