@@ -50,16 +50,29 @@ Item {
     // first song after plasmashell starts, another player taking over, or a
     // song found paused once it's resumed. the artist often arrives a moment
     // after the title; that is a new key and starts the peek over with it
+    // a function called on each change, not a "wantPeek" binding with a
+    // handler: the handler sets peekedKey, which the binding reads, and
+    // QML reported a binding loop
     property bool peeking: false
     property string peekedKey: ""
-    readonly property bool wantPeek: root.media && root.isPlaying && Lyrics.key !== "" && Lyrics.key !== root.peekedKey
 
-    onWantPeekChanged: {
-        if (!root.wantPeek)
+    function maybePeek(): void {
+        if (!root.media || !root.isPlaying || Lyrics.key === "" || Lyrics.key === root.peekedKey)
             return;
         root.peekedKey = Lyrics.key;
         root.peeking = true;
         peekTimer.restart();
+    }
+
+    onMediaChanged: root.maybePeek()
+    onIsPlayingChanged: root.maybePeek()
+    Component.onCompleted: root.maybePeek()
+
+    Connections {
+        target: Lyrics
+        function onKeyChanged() {
+            root.maybePeek();
+        }
     }
 
     Timer {
