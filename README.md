@@ -76,13 +76,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   GiB (1024³ bytes) because `/proc/meminfo` counts in KiB. The setting that
   used to swap the percentage for used/total ("7.8/31") now turns this extra
   number on or off, and is on by default.
-- Screen recordings go to `~/Videos/Screen Record` by default (created on
-  the first recording, or when you open the folder), instead of straight
-  into `~/Videos`. The folder you pick in the recording view is remembered
-  across restarts. Before, it went back to `~/Videos` every time plasmashell
-  started. The pick is stored in the `recFolder` config key, written by
-  `RecordView` through `Plasmoid.configuration` because the `Recorder`
-  singleton can't reach it; empty means the default.
+- Screen recordings always go to `~/Videos/Screen Record` (created on the
+  first recording, or when you open the folder), instead of straight into
+  `~/Videos`. The folder row in the recording view (`~/Videos`, `~/Pictures`,
+  `~/Desktop`, `~/`) is gone. Its pick wasn't saved anyway and went back to
+  `~/Videos` every time plasmashell started.
 
 ## Install
 

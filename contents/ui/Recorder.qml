@@ -13,10 +13,8 @@ QtObject {
     property int elapsed: 0
 
     // ajustes
-    // default: a "Screen Record" folder inside the user's Videos folder. a pick
-    // in the recording view is saved in the applet config, so it survives restarts
-    readonly property string defaultFolder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.MoviesLocation).toString().replace("file://", "") + "/Screen Record"
-    readonly property string folder: Cfg.recFolder !== "" ? Cfg.recFolder : defaultFolder
+    // always a "Screen Record" folder inside the user's Videos folder
+    readonly property string folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.MoviesLocation).toString().replace("file://", "") + "/Screen Record"
     property bool systemAudio: true
     property bool microphone: false
 

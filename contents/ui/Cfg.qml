@@ -45,9 +45,6 @@ QtObject {
     // ciudad para el clima; vacío = wttr.in detecta sola por ip
     property string weatherCity: ""
 
-    // recordings folder picked in the recording view; empty = Recorder.defaultFolder
-    property string recFolder: ""
-
     // ── aspecto ──
     // los valores de acá son solo el arranque, main.qml los pisa con lo guardado
     property color colorFondo: "#000000"
