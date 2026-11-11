@@ -143,8 +143,6 @@ QtObject {
     readonly property int noteSize: 9
     readonly property int noteWidth: 20
     readonly property int expandedWidth: 580
-    // se suma a la isla, no reemplaza, así lo de arriba sigue visible
-    readonly property int notifStrip: 62
     readonly property int expandedRadius: shapeXl
     // how much of Plasma's popup frame (the theme's translucent, blurred dialog
     // margin, 12 px with Ant-Dark) stays visible around the open island

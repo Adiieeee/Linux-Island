@@ -226,6 +226,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   window's picture is recorded. Sound is still the whole system's (Spectacle
   can't record one app's audio). The mode is saved in the `recMode` config
   key (`s` or `w`) and also applies to the round button on the main card.
+- The strip that showed a new notification at the bottom of the control
+  center for 5 seconds is gone. Plasma's own popups already show every
+  notification, and the strip, which grew the island by 62 px while it
+  showed, stacked badly. The bell in the bottom row still opens the
+  notification history, with its mute and clear buttons.
 - Texts that were still in Spanish with the widget in English are
   translated: the notification panel's count ("3 IN THE TRAY", hardcoded as
   "EN LA BANDEJA" in both languages), coffee mode's entry in Plasma's power
@@ -369,9 +374,8 @@ and skipping the panel background. It still hardcodes the original applet id
 
 Clock, weather, network, Bluetooth, volume with a real 150% ceiling and a red
 boost bar, battery, media player with album art and waveform, CPU / RAM / GPU
-meters with the red flame, screen recording, coffee mode, the notification
-strip, and the inner panels for Wi-Fi, Bluetooth, sound, notifications and
-recording.
+meters with the red flame, screen recording, coffee mode, and the inner
+panels for Wi-Fi, Bluetooth, sound, notifications and recording.
 
 All design tokens live in `Theme.qml`.
 
@@ -570,7 +574,7 @@ Two rules to avoid it:
   the island's height doesn't change at all: 0 late frames, max 8 to 12 ms,
   also when a dropdown is closed halfway through opening.
   Lessons from the versions in between, still true for any height change
-  (the notification strip):
+  (the brightness row):
   - **Every change of `implicitHeight` reaches Plasma at once, even one that's
     undone in the same instant.** Two `Binding`s waking up one after the
     other made the height go 710 → 524 → 710 in one go, and Plasma resized

@@ -27,10 +27,10 @@ Item {
 
     // plasma dibuja el popup del tamaño que le pidamos, sale del alto real del contenido
     // this item's height that fits the content; the island adds the reach back
-    readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 + (root.notifying ? Theme.notifStrip : 0) - reachTop - reachBottom
+    readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 - reachTop - reachBottom
 
-    // the island's height only changes with its content (the notification
-    // strip, the brightness row); the SOUND/BRIGHTNESS dropdowns float over
+    // the island's height only changes with its content (the brightness
+    // row); the SOUND/BRIGHTNESS dropdowns float over
     // the cards and don't change it. every resize of Plasma's popup window
     // costs a frame in the compositor, measured in plasmashell (see README).
     // Plasma reacts to each change of implicitHeight at once, so main.qml sets
@@ -62,8 +62,6 @@ Item {
 
     // vista activa: "", "wifi", "bt", "rec", "audio", "notif", "cal", "power"
     property string overlay: ""
-
-    readonly property bool notifying: Notifs.current !== null
 
     // the lyrics button in the bottom row: main.qml flips the showLyrics
     // config key (a view can't write Plasmoid.configuration through Cfg)
@@ -159,103 +157,12 @@ Item {
             z: -1
         }
 
-        // ── notificación entrante ──
-        // franja fija abajo, se suma al alto del panel sin tapar lo de arriba
-        Item {
-            id: notifView
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            height: Theme.notifStrip
-
-            opacity: root.notifying ? 1 : 0
-            visible: opacity > 0
-            z: 3
-
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: Theme.durShort
-                }
-            }
-
-            transform: Translate {
-                y: root.notifying ? 0 : 10
-                Behavior on y {
-                    NumberAnimation {
-                        duration: Theme.durMedium
-                        easing.type: Easing.Bezier
-                        easing.bezierCurve: Theme.emphasizedDecel
-                    }
-                }
-            }
-
-            Rectangle {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                height: 1
-                color: Theme.outline
-            }
-
-            Row {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: 1
-                spacing: 12
-
-                Kirigami.Icon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    source: Notifs.current?.icon ?? ""
-                    implicitWidth: 28
-                    implicitHeight: 28
-                    visible: (Notifs.current?.icon ?? "") !== ""
-                }
-
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width - 40
-                    spacing: 1
-
-                    Text {
-                        width: parent.width
-                        text: Notifs.current?.summary ?? ""
-                        color: Theme.fg
-                        font.family: Theme.font
-                        font.pixelSize: Theme.bodySmall
-                        font.weight: Font.Medium
-                        elide: Text.ElideRight
-                    }
-                    Text {
-                        width: parent.width
-                        text: Notifs.current?.body ?? ""
-                        color: Theme.fgDim
-                        font.family: Theme.font
-                        font.pixelSize: Theme.labelSmall
-                        elide: Text.ElideRight
-                    }
-                }
-            }
-        }
-
         // ── panel ──
         Item {
             id: panel
             anchors.fill: parent
             anchors.margins: 14
-            anchors.bottomMargin: 12 + (root.notifying ? Theme.notifStrip : 0)
-
-            Behavior on anchors.bottomMargin {
-                NumberAnimation {
-                    duration: Theme.durMedium
-                    easing.type: Easing.Bezier
-                    easing.bezierCurve: Theme.emphasized
-                }
-            }
+            anchors.bottomMargin: 12
 
             // se apaga y achica un poco cuando hay overlay encima
             // nada de layer.enabled + multieffect, revienta plasmashell (ver readme)
@@ -620,7 +527,7 @@ Item {
         Item {
             anchors.fill: parent
             anchors.margins: 14
-            anchors.bottomMargin: 12 + (root.notifying ? Theme.notifStrip : 0)
+            anchors.bottomMargin: 12
             z: 5
             visible: overlayBox.opacity > 0
 

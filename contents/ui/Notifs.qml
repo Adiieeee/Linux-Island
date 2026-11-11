@@ -22,32 +22,8 @@ QtObject {
 
     readonly property int count: model.count
 
-    // la franja de la isla muestra la más reciente unos segundos
-    property var current: null
-
-    function at(row, role) {
-        return root.model.data(root.model.index(row, 0), role);
-    }
-
-    readonly property Connections watch: Connections {
-        target: root.model
-
-        function onRowsInserted(parent, first) {
-            if (root.muted)
-                return;
-            root.current = {
-                summary: root.at(first, NM.Notifications.SummaryRole) ?? "",
-                body: root.at(first, NM.Notifications.BodyRole) ?? "",
-                icon: root.at(first, NM.Notifications.ApplicationIconNameRole) ?? ""
-            };
-            root.popupTimer.restart();
-        }
-    }
-
-    readonly property Timer popupTimer: Timer {
-        interval: 5000
-        onTriggered: root.current = null
-    }
+    // no strip of its own for a new notification any more: Plasma's own
+    // popups show it. the island only lists the history (NotifPanel)
 
     function dismissAt(row) {
         root.model.close(root.model.index(row, 0));
@@ -57,12 +33,9 @@ QtObject {
     function clearAll() {
         for (var i = root.model.count - 1; i >= 0; i--)
             root.model.close(root.model.index(i, 0));
-        root.current = null;
     }
 
     function toggleMute() {
         NM.Server.inhibited = !NM.Server.inhibited;
-        if (NM.Server.inhibited)
-            root.current = null;
     }
 }
