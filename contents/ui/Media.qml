@@ -13,7 +13,8 @@ import "."
 //   before the multiplexer row, currentIndex stayed on whichever player was
 //   row 0, and the island showed a paused YouTube while Spotify played
 // - cardPlayer: what the control center's media card shows. its arrows step
-//   through the players; with nothing picked it follows active
+//   through the players that have something loaded; with nothing picked it
+//   follows active
 QtObject {
     id: root
 
@@ -24,6 +25,13 @@ QtObject {
         required property int index
         required property bool isMultiplexer
         required property var container
+
+        // a player counts once it has a track and is playing or paused. a
+        // browser or Spotify open with nothing loaded (or stopped) still
+        // has an MPRIS row: counted, it showed the card's arrows next to a
+        // lone YouTube video, and they led to an empty "Nothing playing"
+        readonly property bool loaded: (container?.track ?? "") !== "" && (container?.playbackStatus ?? Mpris.PlaybackStatus.Stopped) !== Mpris.PlaybackStatus.Stopped
+        onLoadedChanged: Qt.callLater(root.rebuild)
     }
 
     readonly property Instantiator rows: Instantiator {
@@ -39,7 +47,8 @@ QtObject {
     }
 
     property RowInfo muxRow: null
-    // the players' containers, multiplexer excluded, in model order
+    // the players' containers, multiplexer excluded and only the loaded
+    // ones, in model order
     property var players: []
 
     function rebuild(): void {
@@ -51,7 +60,7 @@ QtObject {
                 continue;
             if (r.isMultiplexer)
                 mux = r;
-            else if (r.container)
+            else if (r.container && r.loaded)
                 list.push(r.container);
         }
         root.muxRow = mux;

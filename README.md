@@ -139,6 +139,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   player directly (`Media.active`); the island and the media card use it.
 - The media card in the control center has arrows at its left and right
   edges to switch between players, shown only when there's more than one.
+  Only players with something loaded count: a track, playing or paused. A
+  browser or Spotify left open with nothing in it (or stopped) still has an
+  MPRIS player, and counting it put arrows next to a lone YouTube video that
+  led to an empty "Nothing playing". The list is rebuilt whenever a
+  player's track or state changes, not only when players come and go.
   The card's content moves in to make room. Without a pick it follows the
   playing player; stepping back onto that player follows it again, and a
   picked player that closes goes back to following. The panel island keeps
