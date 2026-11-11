@@ -26,20 +26,28 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   reserves exactly that width. Before, the panel reserved 130 px for a pill
   drawn 150 px wide, so it spilled into the neighbouring widgets, and the
   pill was a fixed 27 px tall.
-- The small island is one black capsule instead of two pills: the album art
+- The small island is one black shape instead of two pills: the album art
   on the left (round), the clock (or the lyrics, see below) in the middle, and
   a waveform on the right. With nothing playing or
   paused it shrinks to the clock, with an animated width. The previous, play
   and next buttons are gone (the control center has them), and so is the
   capsule tinted with the album's colour, which turned white with light
   covers. The desktop dots are off for now (`Workspaces.qml` stays for a
-  later plan). The capsule is as tall as the panel: the panel insets every
+  later plan). The island is as tall as the panel: the panel insets every
   applet by its theme's margins (4 px above and below with Ant-Dark), and the
-  capsule reaches past its slot by that much (`CompactPill.reach`, capped at
-  the theme margin so a floating panel isn't overshot). The waveform sits
-  6 px further from the capsule's right end than from its top and bottom
-  (`CompactPill.edge`), so it doesn't crowd the curve; the album art stays
-  close to the left end.
+  island reaches past its slot by that much (`CompactPill.reach`, capped at
+  the theme margin so a floating panel isn't overshot). The album art sits
+  close to the left side; the waveform sits 6 px further in from the right
+  (`CompactPill.edge`).
+- The small island is shaped like a laptop's or an iPhone X's notch instead
+  of a capsule (`NotchShape.qml`): flat along the screen's top edge, round
+  bottom corners (`Theme.notchCorner`, 14 px), and a small concave flare at
+  each top corner that curves its sides out into the screen edge
+  (`Theme.notchEar`, 7 px each side). It's drawn with `Shape` and the
+  `CurveRenderer`, like the control center's outline, so it's antialiased
+  without a layer. On a panel at the bottom of the screen it hangs from the
+  bottom edge instead. It only looks attached to the edge on a panel that
+  isn't floating.
 - The small island's waveform follows the real audio. Five bars show the
   level of everything the speakers play: the newest level in the middle bar,
   older ones moving out to both sides, so a beat looks like a pulse leaving

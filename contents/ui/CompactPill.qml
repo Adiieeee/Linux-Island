@@ -7,8 +7,9 @@ import org.kde.plasma.private.mpris as Mpris
 import "."
 
 // píldora colapsada, la parte que vive dentro del panel de plasma
-// one black capsule: album art · middle · waveform while something plays or
-// is paused, just the clock otherwise. the middle is the clock, a new song's
+// one black notch hanging from the screen edge (NotchShape): album art ·
+// middle · waveform while something plays or is paused, just the clock
+// otherwise. the middle is the clock, a new song's
 // title and artist, or the lyric line being sung (both wider,
 // Theme.lyricsWidth). as wide as its content, so
 // main.qml can reserve exactly what is drawn, and as tall as the panel itself
@@ -17,6 +18,9 @@ Item {
 
     // set by main.qml; only a horizontal panel gets the reach below
     property bool horizontal: true
+    // set by main.qml: a panel on the screen's bottom edge hangs the notch
+    // from the bottom instead
+    property bool bottomEdge: false
 
     // ── media ──
     // no buttons here: previous/play/next live in the control center.
@@ -104,13 +108,15 @@ Item {
     }
     readonly property real capsuleHeight: root.height + 2 * root.reach
 
-    // art and waveform are squares inset from the capsule's edge, small
-    // enough to stay inside its round ends
+    // art and waveform are squares inset from the notch's body by the same
+    // amount on every side
     readonly property real inset: Math.round(capsuleHeight * 0.15)
     readonly property real tile: capsuleHeight - 2 * inset
-    // the waveform sits further from the right end than from the top and
-    // bottom: at the plain inset it crowded the round end. the art stays at
-    // the plain inset, close to the left end
+    // the notch's top flares take this much on each side of its body
+    readonly property real ear: Theme.notchEar
+    // the waveform sits 6 px further in from the right side than the art
+    // from the left (from the capsule this replaced, where the plain inset
+    // crowded its round end; kept because it looked right)
     readonly property real edge: inset + 6
     readonly property int gap: 16
     // sides when only the clock shows
@@ -118,8 +124,8 @@ Item {
 
     // what the art and the waveform take on each side, or the padding beside
     // a lone clock
-    readonly property real leftSide: root.media ? root.inset + root.tile + root.gap : root.padding
-    readonly property real rightSide: root.media ? root.edge + root.tile + root.gap : root.padding
+    readonly property real leftSide: root.ear + (root.media ? root.inset + root.tile + root.gap : root.padding)
+    readonly property real rightSide: root.ear + (root.media ? root.edge + root.tile + root.gap : root.padding)
 
     implicitWidth: root.leftSide + root.middleWidth + root.rightSide
     implicitHeight: Theme.collapsedHeight
@@ -171,17 +177,20 @@ Item {
         }
     }
 
-    Rectangle {
+    Item {
         id: capsule
         anchors.fill: parent
         anchors.topMargin: -root.reach
         anchors.bottomMargin: -root.reach
-        radius: height / 2
-        color: Theme.surface
+
+        NotchShape {
+            anchors.fill: parent
+            flipped: root.bottomEdge
+        }
 
         // ── album art, round ──
         MediaPart {
-            x: root.inset
+            x: root.ear + root.inset
             anchors.verticalCenter: parent.verticalCenter
             width: root.tile
             height: root.tile
@@ -283,7 +292,7 @@ Item {
         // ── waveform: the real level of what the speakers play ──
         MediaPart {
             anchors.right: parent.right
-            anchors.rightMargin: root.edge
+            anchors.rightMargin: root.ear + root.edge
             anchors.verticalCenter: parent.verticalCenter
             width: root.tile
             height: Math.round(root.tile * 0.75)

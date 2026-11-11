@@ -132,6 +132,10 @@ QtObject {
     // the panel island's middle while it shows a lyric line instead of the
     // clock; the same for every line, so the island doesn't resize on each
     readonly property int lyricsWidth: 320
+    // the panel island is a notch (NotchShape): its bottom corners' radius,
+    // and how far the concave flares at its top corners reach out sideways
+    readonly property int notchCorner: 14
+    readonly property int notchEar: 7
     readonly property int expandedWidth: 580
     // se suma a la isla, no reemplaza, así lo de arriba sigue visible
     readonly property int notifStrip: 62
