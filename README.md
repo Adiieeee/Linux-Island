@@ -111,7 +111,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   eighth note (♪). A song without lyrics (instrumental, not on LRCLIB, or
   with no title to look up) shows two eighth notes joined by one beam (♫),
   like the Windhawk island this follows. Both are drawn as vectors
-  (`NoteGlyph.qml`). Pausing changes nothing in the middle: the line, ♪ or
+  (`NoteGlyph.qml`). A video in the browser (YouTube) shows the date
+  ("11 NOV 2026") instead of a note: a video without lyrics isn't a song
+  without lyrics. Plasma's MPRIS module doesn't give QML the page's
+  address, so `Media.isBrowser()` goes by the app (Zen, Firefox, Chrome and
+  other browsers by their desktop entry or name). Its lyrics are still
+  looked up, so a music video with lyrics shows them. Pausing changes nothing in the middle: the line, ♪ or
   ♫ stays, and a sliding line holds where it is; the waveform resting dim
   shows the pause. Lyrics come from LRCLIB (lrclib.net). See "Lyrics in the
   panel island" below.

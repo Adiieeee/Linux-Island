@@ -77,6 +77,16 @@ QtObject {
     readonly property var cardPlayer: root.picked ?? root.active
     readonly property bool canStep: root.players.length > 1
 
+    // a web browser's player: YouTube and every other site. Plasma's MPRIS
+    // module doesn't give QML the page's address (xesam:url), so this goes
+    // by the app: its desktop entry and its name ("zen" / "Mozilla zen")
+    function isBrowser(player): bool {
+        if (!player)
+            return false;
+        const app = ((player.desktopEntry ?? "") + " " + (player.identity ?? "")).toLowerCase();
+        return /firefox|\bzen\b|librewolf|waterfox|floorp|chrom|brave|vivaldi|opera|microsoft-edge|epiphany|falkon|qutebrowser|plasma-browser-integration/.test(app);
+    }
+
     function step(direction: int): void {
         const n = root.players.length;
         if (n < 2)

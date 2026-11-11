@@ -36,6 +36,9 @@ Item {
     // playing or paused, not stopped
     readonly property bool media: Cfg.showMini && player !== null && playback !== Mpris.PlaybackStatus.Stopped
     readonly property string artUrl: player?.artUrl ?? ""
+    // a video in the browser (YouTube): the date where a music player shows ♪
+    // or ♫, since a video without lyrics isn't "a song without lyrics"
+    readonly property bool browser: Media.isBrowser(root.player)
 
     // ── the cover's colours, for the tint (as on the media card) ──
     // only with the tint turned on (Cfg.tintIsland, off by default: the
@@ -74,7 +77,8 @@ Item {
     // (intro, outro, a break of 4 s or more): one eighth note (♪). "nolyrics":
     // a song without lyrics, or with no title to look up: two beamed eighth
     // notes (♫). "blank": still looking the lyrics up (usually hidden by the
-    // peek). the notes follow the Windhawk island this is modelled on.
+    // peek). the notes follow the Windhawk island this is modelled on. a
+    // browser (YouTube) shows the date instead of ♪, ♫ or the blank.
     // pausing changes nothing here: the playhead stops, so Lyrics.wide and
     // the line on show stay as they are, and the waveform resting dim says
     // it's paused
@@ -83,8 +87,12 @@ Item {
             return "date";
         if (root.peeking)
             return "peek";
+        if (Lyrics.status === "found" && Lyrics.wide)
+            return "lyric";
+        if (root.browser)
+            return "date";
         if (Lyrics.status === "found")
-            return Lyrics.wide ? "lyric" : "gap";
+            return "gap";
         if (Lyrics.status === "loading")
             return "blank";
         return "nolyrics";
