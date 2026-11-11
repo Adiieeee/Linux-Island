@@ -22,11 +22,22 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The small island in the panel no longer shows the volume icon and
   percentage, and the "Volume" option under "Show in the small island" is
   gone. Volume lives in the expanded island.
-- The small island fits its panel. It's as wide as its content (desktop dots
-  and clock), the panel reserves exactly that width plus the mini player, and
-  both pills are as tall as the panel. Before, the panel reserved 130 px for a
-  pill drawn 150 px wide, so it spilled into the neighbouring widgets, and the
+- The small island fits its panel. It's as wide as its content and the panel
+  reserves exactly that width. Before, the panel reserved 130 px for a pill
+  drawn 150 px wide, so it spilled into the neighbouring widgets, and the
   pill was a fixed 27 px tall.
+- The small island is one black capsule instead of two pills: the album art
+  on the left (a rounded square, like Spotify's), the clock in the middle, and
+  a waveform on the right, four bars that move while something plays and rest
+  low and dim while it's paused (not real audio). With nothing playing or
+  paused it shrinks to the clock, with an animated width. The previous, play
+  and next buttons are gone (the control center has them), and so is the
+  capsule tinted with the album's colour, which turned white with light
+  covers. The desktop dots are off for now (`Workspaces.qml` stays for a
+  later plan). The capsule is as tall as the panel: the panel insets every
+  applet by its theme's margins (4 px above and below with Ant-Dark), and the
+  capsule reaches past its slot by that much (`CompactPill.reach`, capped at
+  the theme margin so a floating panel isn't overshot).
 - Text uses your system font (Plasma's general font) instead of the bundled
   Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
   Numbers use tabular figures so they don't jiggle as they change.
@@ -497,7 +508,7 @@ Two rules to avoid it:
 - **To round an image, use `Kirigami.ShadowedImage`, not
   `Rectangle { radius; clip: true }`.** `clip` clips to the rectangle, not to
   the rounded shape, so the album art covered the corners and looked square,
-  in both the player card and the mini player. `ShadowedImage` really rounds
+  in both the player card and the old mini player (the panel island does the same). `ShadowedImage` really rounds
   it, is the primitive Plasma itself uses, and has nothing to do with the
   `MultiEffect` that crashes the process.
 - **An invisible item still takes up space for anchoring.** In `Meters`, the

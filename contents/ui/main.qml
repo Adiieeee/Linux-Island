@@ -130,11 +130,9 @@ PlasmoidItem {
 
         readonly property bool horizontal: Plasmoid.formFactor !== PlasmaCore.Types.Vertical
 
-        readonly property bool musicActive: Cfg.showMini && musicPill.active
-        // reserve exactly what is drawn: the pill, plus the 6 px gap and the
-        // music pill while something plays. a hardcoded width here made the
-        // pill spill past its slot into the neighbouring widgets
-        readonly property real targetWidth: compactPill.implicitWidth + (musicActive ? musicPill.implicitWidth + 6 : 0)
+        // reserve exactly what is drawn. a hardcoded width here made the pill
+        // spill past its slot into the neighbouring widgets
+        readonly property real targetWidth: compactPill.implicitWidth
 
         Layout.minimumWidth: horizontal ? targetWidth : -1
         Layout.preferredWidth: horizontal ? targetWidth : -1
@@ -146,23 +144,14 @@ PlasmoidItem {
         implicitWidth: targetWidth
         implicitHeight: Theme.collapsedHeight
 
-        // Using a Row with a clean gap ensures they never overlap
-        Row {
+        // the whole island: album art · clock · waveform. it takes the slot's
+        // height and reaches past it to the panel's edges on its own
+        CompactPill {
+            id: compactPill
             anchors.centerIn: parent
-            spacing: 6
-
-            // both pills take the full panel thickness
-            CompactPill {
-                id: compactPill
-                anchors.verticalCenter: parent.verticalCenter
-                height: compact.height
-            }
-
-            MusicPill {
-                id: musicPill
-                anchors.verticalCenter: parent.verticalCenter
-                height: compact.height
-            }
+            width: implicitWidth
+            height: compact.height
+            horizontal: compact.horizontal
         }
     }
 

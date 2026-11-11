@@ -31,7 +31,7 @@ If you change the popup's size, Plasma keeps the old one in `popupHeight`/`popup
 
 ## Architecture
 
-**Entry:** `contents/ui/main.qml` (`PlasmoidItem`). `compactRepresentation` is a `Row` of `CompactPill` (system info) and `MusicPill` (shown only while media plays). `fullRepresentation` is `ExpandedPanel`. Its min, preferred and max height are all pinned to `implicitHeight`, which comes from the real content height (`mainColumn.implicitHeight`), not a fixed number.
+**Entry:** `contents/ui/main.qml` (`PlasmoidItem`). `compactRepresentation` is a single `CompactPill`: one black capsule with the album art, the clock and a waveform while media plays or is paused, only the clock otherwise. It reaches past its panel slot to the panel's edges (`reach`). `Workspaces.qml` (desktop dots) is unused for now. `fullRepresentation` is `ExpandedPanel`. Its min, preferred and max height are all pinned to `implicitHeight`, which comes from the real content height (`mainColumn.implicitHeight`), not a fixed number.
 
 **Singletons** (registered in `contents/ui/qmldir`, imported with `import "."`). These hold all state and data access. The views only bind to them.
 - `Theme`: every design token (colors, type scale, shapes, motion curves, island sizes). The user picks 4 colors plus a text color. The intermediate greys come from `mezcla()`, which blends them. The header comment lists the visual rules (strict monochrome, red only for critical states, no gradients or shadows). Text uses the system font (`Qt.application.font`) unless overridden in settings. Only the Material Symbols icon font is bundled, and it loads with `FontLoader` from `contents/fonts/`, never by system name.
