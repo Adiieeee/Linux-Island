@@ -256,8 +256,11 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Time**: 24-hour, or 12-hour with AM/PM.
 - **Meters**: RAM used in GiB ("7.8") next to the percentage (on by default).
   Turn it off to show the percentage alone.
-- **Show in the small island**: desktops, weather, clock, network, battery.
-- **Player**: show or hide the mini player while something is playing.
+- **Show in the small island**: weather, network, battery. (The desktops and
+  clock checkboxes are gone: the island has no desktop dots for now and
+  always shows the clock.)
+- **Player**: show or hide the album art and waveform around the clock while
+  something is playing or paused.
 - **Weather city**: leave it empty to detect it from your IP.
 
 The values live in `contents/config/main.xml`. Adding a new one means

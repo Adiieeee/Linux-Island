@@ -107,23 +107,13 @@ Kirigami.FormLayout {
         Kirigami.FormData.isSection: true
     }
 
+    // the desktop dots are off for now and the clock is always there, so
+    // their checkboxes are gone (showWorkspaces/showClock stay in main.xml)
     QQC2.CheckBox {
         Kirigami.FormData.label: page.esp ? "Mostrar en la isla chica:" : "Show in the small island:"
-        text: page.esp ? "Escritorios" : "Desktops"
-        checked: page.cfg_showWorkspaces
-        onToggled: page.cfg_showWorkspaces = checked
-    }
-
-    QQC2.CheckBox {
         text: page.esp ? "Clima" : "Weather"
         checked: page.cfg_showWeather
         onToggled: page.cfg_showWeather = checked
-    }
-
-    QQC2.CheckBox {
-        text: page.esp ? "Reloj" : "Clock"
-        checked: page.cfg_showClock
-        onToggled: page.cfg_showClock = checked
     }
 
     QQC2.CheckBox {
@@ -144,14 +134,14 @@ Kirigami.FormLayout {
 
     QQC2.CheckBox {
         Kirigami.FormData.label: page.esp ? "Reproductor:" : "Player:"
-        text: page.esp ? "Mostrar el minireproductor al sonar algo" : "Show the mini player while something plays"
+        text: page.esp ? "Mostrar la carátula y la onda al sonar algo" : "Show album art and waveform while something plays"
         checked: page.cfg_showMini
         onToggled: page.cfg_showMini = checked
     }
 
     QQC2.Label {
         Kirigami.FormData.label: ""
-        text: page.esp ? "Reemplaza al volumen y la batería mientras hay música o video." : "Replaces volume and battery while music or video is playing."
+        text: page.esp ? "A los lados del reloj, mientras hay música o video sonando o en pausa." : "On both sides of the clock, while music or video is playing or paused."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20

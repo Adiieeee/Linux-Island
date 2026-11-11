@@ -35,6 +35,8 @@ QtObject {
     property bool ramUsage: true
 
     // ── qué se ve en la píldora chica ──
+    // showWorkspaces and showClock are unused for now: the island has no
+    // desktop dots and always shows the clock
     property bool showWorkspaces: true
     property bool showWeather: true
     property bool showClock: true
