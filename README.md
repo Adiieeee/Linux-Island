@@ -53,8 +53,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   notch never shifts as it ticks. The **Time** setting now only sets the
   control center's big clock. Inside the notch, today's date takes the
   clock's old place: "11 November 2026" when the notch holds nothing else,
-  "11 NOV 2026" (in the labels' uppercase style) between the album art and
-  the waveform when the lyrics are turned off. The month follows the
+  "11 NOV 2026" between the album art and the waveform when the lyrics are
+  turned off. Both are 12 px bold in the clock's font with tabular digits,
+  so the date and the clock read as one style. The month follows the
   widget's language.
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so

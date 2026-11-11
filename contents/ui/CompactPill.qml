@@ -322,8 +322,10 @@ Item {
             height: parent.height
             clip: true
 
-            // "11 November 2026" alone in the notch, "11 NOV 2026" (in the
-            // labels' uppercase style) between art and waveform
+            // "11 November 2026" alone in the notch, "11 NOV 2026" between art
+            // and waveform. both in the clock's style (its font, bold,
+            // tabular digits): in the interface font at medium weight, with
+            // the short one letter-spaced, it looked like another font
             Layer {
                 on: root.mode === "date"
 
@@ -332,11 +334,10 @@ Item {
                     anchors.centerIn: parent
                     text: root.media ? Cfg.locale.toString(day.now, "d MMM yyyy").toUpperCase() : Cfg.locale.toString(day.now, "d MMMM yyyy")
                     color: Theme.fg
-                    font.family: Theme.font
+                    font.family: Theme.fontDots
                     font.features: Theme.numFeatures
-                    font.pixelSize: root.media ? Theme.labelMedium : Theme.bodySmall
-                    font.letterSpacing: root.media ? Theme.labelSpacing : 0
-                    font.weight: Font.Medium
+                    font.pixelSize: Theme.bodySmall
+                    font.weight: Font.Bold
                 }
             }
 
