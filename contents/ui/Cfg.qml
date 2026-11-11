@@ -91,7 +91,6 @@ QtObject {
             "Wi-Fi apagado": ["Wi-Fi apagado", "Wi-Fi off"],
             "Bluetooth apagado": ["Bluetooth apagado", "Bluetooth off"],
             "CALENDARIO": ["CALENDARIO", "CALENDAR"],
-            "LETRA": ["LETRA", "LYRICS"],
             "HOY": ["HOY", "TODAY"],
             "Semana": ["Semana", "Week"],
             "GRABACIÓN": ["GRABACIÓN", "RECORDING"],

@@ -14,8 +14,9 @@ Row {
     // …y esto para el panel de apagado
     signal requestPower
 
-    // …y esto para el lanzador de apps
-    signal requestLauncher
+    // …and this to turn the panel island's lyrics on or off (main.qml
+    // writes the config)
+    signal lyricsToggled
 
     // powerdevil ata la inhibición a la conexión de quien la pidió, un qdbus suelto no dura nada
     // por eso lo hace coffee.py, que se queda vivo. encender = lanzarlo, apagar = matarlo
@@ -141,13 +142,15 @@ Row {
         id: ab
         property string icon: ""
         property bool danger: false
+        // a toggle that's on: the inverted pair, like coffee mode
+        property bool on: false
         signal activated
 
         width: root.btnSize
         height: 44
         radius: Theme.shapeMd
         // los tres opacos, si no mezclar opaco+translúcido da un fogonazo gris al animar
-        color: abMa.pressed ? Theme.surfaceTop : abMa.containsMouse ? Theme.surfaceHigh : Theme.containerHigh
+        color: ab.on ? Theme.inverted : abMa.pressed ? Theme.surfaceTop : abMa.containsMouse ? Theme.surfaceHigh : Theme.containerHigh
 
         // empuja al hover, se hunde al apretar
         scale: abMa.pressed ? 0.98 : abMa.containsMouse ? 1.04 : 1.0
@@ -168,7 +171,7 @@ Row {
         Text {
             anchors.centerIn: parent
             text: ab.icon
-            color: ab.danger ? Theme.error : Theme.fgVariant
+            color: ab.danger ? Theme.error : ab.on ? Theme.invertedFg : Theme.fgVariant
             font.family: Theme.fontIcons
             font.pixelSize: 19
         }
@@ -182,9 +185,12 @@ Row {
         }
     }
 
+    // the panel island's lyrics (the "Show synced lyrics" setting). it took
+    // the app launcher's place, which wasn't used
     ActionButton {
-        icon: "apps"
-        onActivated: root.requestLauncher()
+        icon: Icons.lyrics
+        on: Cfg.showLyrics
+        onActivated: root.lyricsToggled()
     }
 
     ActionButton {

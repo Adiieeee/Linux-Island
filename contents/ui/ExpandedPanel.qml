@@ -65,8 +65,8 @@ Item {
 
     readonly property bool notifying: Notifs.current !== null
 
-    // the lyrics button in the header: main.qml flips the showLyrics config
-    // key (a view can't write Plasmoid.configuration through Cfg)
+    // the lyrics button in the bottom row: main.qml flips the showLyrics
+    // config key (a view can't write Plasmoid.configuration through Cfg)
     signal lyricsToggled
 
     function openOverlay(name) {
@@ -398,58 +398,6 @@ Item {
                                 onClicked: root.openOverlay("cal")
                             }
                         }
-
-                        // lyrics in the panel island on or off (the "Show synced
-                        // lyrics" setting). on is the inverted pair, like a
-                        // connected Wi-Fi or Bluetooth card
-                        Rectangle {
-                            id: lyricsBtn
-                            readonly property bool on: Cfg.showLyrics
-
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: lyricsRow.implicitWidth + 28
-                            height: 42
-                            radius: Theme.shapeMd
-                            color: on ? Theme.inverted : lyricsMa.containsMouse ? Theme.surfaceHigh : Theme.surfaceAlt
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: Theme.durShort
-                                }
-                            }
-
-                            Row {
-                                id: lyricsRow
-                                anchors.centerIn: parent
-                                spacing: 6
-
-                                Text {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: Icons.lyrics
-                                    color: lyricsBtn.on ? Theme.invertedFg : Theme.fgDim
-                                    font.family: Theme.fontIcons
-                                    font.pixelSize: 18
-                                }
-
-                                Text {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: Cfg.t("LETRA")
-                                    color: lyricsBtn.on ? Theme.invertedFg : Theme.fgDim
-                                    font.family: Theme.font
-                                    font.pixelSize: Theme.labelMedium
-                                    font.letterSpacing: Theme.labelSpacing
-                                }
-                            }
-
-                            MouseArea {
-                                id: lyricsMa
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: root.lyricsToggled()
-                            }
-                        }
                     }
 
                     // ── red · bluetooth ──
@@ -639,7 +587,7 @@ Item {
                         width: parent.width
                         onRequestNotifs: root.openOverlay("notif")
                         onRequestPower: root.openOverlay("power")
-                        onRequestLauncher: root.openOverlay("apps")
+                        onLyricsToggled: root.lyricsToggled()
                     }
                 }
             }

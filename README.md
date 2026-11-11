@@ -60,10 +60,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   clock. So does a song without lyrics, and a paused one. Lyrics come from
   LRCLIB (lrclib.net). See "Lyrics in the panel island" below. Hiding the
   clock while lyrics show is an experiment.
-- A **LYRICS** button at the right of the control center's header (next to
-  the clock and the date) turns the small island's lyrics on and off. It's
-  the same switch as **Show synced lyrics** in the settings, and it's filled
-  white (the inverted pair, like a connected Wi-Fi card) while on.
+- The control center's bottom row has a lyrics button (the `lyrics` icon)
+  where the app launcher's button was. It turns the small island's lyrics on
+  and off, the same switch as **Show synced lyrics** in the settings, and
+  it's filled white (the inverted pair, like coffee mode) while on. The app
+  launcher wasn't used, so nothing opens it any more; `AppLauncher.qml` and
+  `apps.py` stay in the repo.
 - When a song starts playing, the small island shows its title (bold) over
   its artist (grey) for 4.5 seconds at the lyrics' width, then the lyrics or
   the clock. Every song gets this once, with or without lyrics: a track
@@ -220,7 +222,7 @@ section stays empty, but the rest of the island keeps working:
 | GPU meter | `nvidia-smi` (hidden if missing) |
 | Screen recording | `spectacle` |
 | Coffee mode | `python3` with PyGObject (`gi`) |
-| App launcher | `python3` |
+| App launcher (no button opens it at the moment) | `python3` |
 | Weather | internet access to `wttr.in` |
 
 ## In its own panel (recommended)
@@ -314,7 +316,7 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Player**: show or hide the album art, waveform and lyrics around the
   clock while something is playing or paused.
 - **Show synced lyrics** (on by default): the lyric lines in the small
-  island. The **LYRICS** button in the control center's header flips the
+  island. The lyrics button in the control center's bottom row flips the
   same setting. Off, nothing is sent to lrclib.net, and the middle shows the clock
   after the title and artist of a new song.
 - **Weather city**: leave it empty to detect it from your IP.
