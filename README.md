@@ -63,7 +63,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   …), "Searching…", empty-list messages, the app search placeholder, the
   expand arrows, the notification count and muted volume icons used to be
   drawn in the border grey (`#2A2A2A`) and were close to invisible. They now
-  use the faint text grey.
+  use the faint text grey. The media card is left as it was: its artist line,
+  times and placeholder icon use their own `Theme.mediaDim` token, which keeps
+  the original `#9A9A9A`.
 
 ## Install
 

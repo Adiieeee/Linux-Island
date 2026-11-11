@@ -295,7 +295,7 @@ Item {
                 anchors.centerIn: parent
                 visible: artImg.status !== Image.Ready && root.appIcon === ""
                 text: Icons.music
-                color: Theme.fgVariant
+                color: Theme.mediaDim
                 font.family: Theme.fontIcons
                 font.pixelSize: 22
             }
@@ -322,7 +322,7 @@ Item {
             Text {
                 width: parent.width
                 text: root.player?.artist ?? ""
-                color: Theme.fgVariant
+                color: Theme.mediaDim
                 font.family: Theme.font
                 font.pixelSize: Theme.bodySmall
                 elide: Text.ElideRight
@@ -493,7 +493,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
             text: root.fmt(root.position)
-            color: Theme.fgDim
+            color: Theme.mediaDim
             font.family: Theme.fontDots
             font.features: Theme.numFeatures
             font.pixelSize: 13
@@ -506,7 +506,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
             text: root.fmt(root.length)
-            color: Theme.fgDim
+            color: Theme.mediaDim
             font.family: Theme.fontDots
             font.features: Theme.numFeatures
             font.pixelSize: 13

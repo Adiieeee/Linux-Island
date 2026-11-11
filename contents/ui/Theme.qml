@@ -32,6 +32,9 @@ QtObject {
     readonly property color fgDim: mezcla(fg, bg, 0.3)
     readonly property color fgFaint: mezcla(fg, bg, 0.5)
     readonly property color outline: mezcla(bg, fg, 0.165)
+    // the media card keeps the original dim grey (#9A9A9A with the defaults);
+    // the brighter text greys above are not meant for it
+    readonly property color mediaDim: mezcla(fg, bg, 0.396)
 
     // único color del sistema, solo estados críticos
     readonly property color alert: Cfg.colorAlerta
