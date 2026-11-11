@@ -93,6 +93,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The bottom of the island is no longer cut off after a restart where
   PowerDevil answered late (see "So the island's height must not depend on
   data that arrives late" below).
+- When Spectacle stops recording on its own (it failed to start, or it was
+  stopped from its tray icon), the island notices and goes back to idle
+  instead of counting forever.
 
 ## Install
 
@@ -527,6 +530,23 @@ right before launching Spectacle. Side effects worth knowing:
   config it loaded and ignores the new values.
 - MP4 can carry audio. Only GIF and WebP can't, and the island always records
   to `.mp4`.
+
+### The island kept "recording" after Spectacle had stopped
+
+`start()` fired Spectacle with `Exec.run` and set `recording = true`. If
+Spectacle quit on its own (the random start failure above, a stop from its
+tray icon, and with window mode a cancelled window pick), the island kept
+counting with nothing being recorded.
+
+Spectacle stays alive for as long as it records, so `Recorder` now launches
+it through its own `DataSource`, which answers when the process exits. The
+command ends with `pgrep -x spectacle`. If a Spectacle window was already
+open, the request goes to that window and the new process exits right
+away. The `pgrep` then finds the open one and the island keeps showing
+"recording". Otherwise the exit means the recording is over, and the island
+goes back to idle. A stop from the island itself doesn't need this:
+`stop()` already sets the state, and the late answer is ignored. So is the
+answer for an older recording, matched by its command string (hard rule 2).
 
 ## The player's liquid background
 

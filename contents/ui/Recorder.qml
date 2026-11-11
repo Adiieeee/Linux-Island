@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import "."
 import Qt.labs.platform as Platform
+import org.kde.plasma.plasma5support as P5Support
 
 // grabación con spectacle, wf-recorder no anda en kwin
 // sin elegir monitor desde acá (spectacle pregunta), sin mezclar mic y audio del sistema
@@ -19,6 +20,28 @@ QtObject {
     property bool microphone: false
 
     property string lastFile: ""
+
+    // the command that launched the current recording. spectacle stays alive
+    // while it records, so this DataSource answers when the recording ends
+    property string startCmd: ""
+
+    readonly property P5Support.DataSource proc: P5Support.DataSource {
+        engine: "executable"
+        connectedSources: []
+
+        // the command ends with "pgrep -x spectacle": exit 0 means another
+        // spectacle (an open window that took the request) is still recording,
+        // so keep the state. otherwise the recording ended on its own:
+        // cancelled window pick, spectacle failing to start, or a stop from
+        // spectacle's own tray icon
+        onNewData: (cmd, data) => {
+            disconnectSource(cmd);
+            if (cmd !== root.startCmd || !root.recording)
+                return;
+            if ((data["exit code"] ?? 1) !== 0)
+                root.recording = false;
+        }
+    }
 
     readonly property string elapsedText: {
         const m = Math.floor(elapsed / 60);
@@ -44,8 +67,9 @@ QtObject {
         // island's toggles there first (this overwrites spectacle's own setting)
         const audio = `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordSystemAudio --type bool ${root.systemAudio}; ` + `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordMicrophone --type bool ${root.microphone}; `;
         // "s" = pantalla, la palabra entera "screen" spectacle no la reconoce
-        Exec.run(`${audio}mkdir -p '${root.folder}'; spectacle --background --record=s --output='${file}'`);
+        root.startCmd = `${audio}mkdir -p '${root.folder}'; spectacle --background --record=s --output='${file}'; pgrep -x spectacle >/dev/null`;
         recording = true;
+        root.proc.connectSource(root.startCmd);
     }
 
     // no se mata el proceso: sigint deja el mp4 sin moov atom (corrupto)
