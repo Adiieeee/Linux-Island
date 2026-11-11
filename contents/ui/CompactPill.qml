@@ -22,6 +22,9 @@ Item {
     // from the bottom instead
     property bool bottomEdge: false
 
+    // a click on the notch (not on the sides): main.qml opens the popup
+    signal activated
+
     // ── media ──
     // no buttons here: previous/play/next live in the control center.
     // always the active player (the one playing), whatever the media card
@@ -153,15 +156,33 @@ Item {
     readonly property real leftSide: root.ear + (root.media ? root.inset + root.tile + root.gap : root.padding)
     readonly property real rightSide: root.ear + (root.media ? root.edge + root.tile + root.gap : root.padding)
 
-    implicitWidth: root.leftSide + root.middleWidth + root.rightSide
-    implicitHeight: Theme.collapsedHeight
+    // the notch itself, animated as its content changes
+    property real notchWidth: root.leftSide + root.middleWidth + root.rightSide
 
-    Behavior on implicitWidth {
+    Behavior on notchWidth {
         NumberAnimation {
             duration: Theme.durLong
             easing.type: Easing.Bezier
             easing.bezierCurve: Theme.emphasizedDecel
         }
+    }
+
+    // ── outside the notch ──
+    // the desktop dots on its left, on the panel itself. both sides are as
+    // wide as the wider of the two (the narrower one gets empty space at its
+    // outer end), so the notch, and the popup that opens under the whole
+    // widget, stay in the middle of the screen
+    readonly property int sideGap: 12
+    readonly property real sideWidth: dots.implicitWidth + root.sideGap
+
+    implicitWidth: 2 * root.sideWidth + root.notchWidth
+    implicitHeight: Theme.collapsedHeight
+
+    Workspaces {
+        id: dots
+        anchors.right: capsule.left
+        anchors.rightMargin: root.sideGap
+        anchors.verticalCenter: parent.verticalCenter
     }
 
     // art and waveform come in and out together with the width
@@ -205,7 +226,10 @@ Item {
 
     Item {
         id: capsule
-        anchors.fill: parent
+        x: root.sideWidth
+        width: root.notchWidth
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         anchors.topMargin: -root.reach
         anchors.bottomMargin: -root.reach
 
@@ -333,6 +357,13 @@ Item {
                 anchors.fill: parent
                 live: root.media && root.isPlaying
             }
+        }
+
+        // only the notch opens the popup; the dots and the empty sides don't
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.activated()
         }
     }
 }

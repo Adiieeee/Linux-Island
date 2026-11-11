@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import org.kde.taskmanager as TaskManager
 import "."
@@ -7,6 +9,11 @@ import "."
 // raíz es Item y no Row: un hijo con anchors adentro de un Row rompe el Row
 Item {
     id: root
+
+    // clicking a dot switches to that desktop and the wheel steps through
+    // them. off for now: the island's left side shows the dots only, and
+    // the author has other plans for clicking them
+    property bool interactive: false
 
     implicitWidth: dots.implicitWidth
     implicitHeight: dots.implicitHeight
@@ -66,11 +73,17 @@ Item {
                 readonly property bool focused: desktops.currentDesktop === modelData
                 readonly property bool occupied: root.occupied[modelData] === true
 
+                // all in the text colour, since they sit on the panel and
+                // not on the island: greys got lost on a light wallpaper. the
+                // shape tells them apart instead: the current desktop is a
+                // long pill, one with windows a filled dot, an empty one a ring
                 width: focused ? 22 : 8
                 height: 8
                 radius: height / 2
                 anchors.verticalCenter: parent.verticalCenter
-                color: focused ? Theme.primary : occupied ? Theme.fgVariant : Theme.containerHighest
+                color: focused || occupied ? Theme.fg : Qt.alpha(Theme.fg, 0)
+                border.width: 1.5
+                border.color: Theme.fg
 
                 Behavior on width {
                     NumberAnimation {
@@ -88,6 +101,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     anchors.margins: -4
+                    enabled: root.interactive
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.activate(parent.modelData)
                 }
@@ -99,6 +113,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         anchors.margins: -4
+        enabled: root.interactive
         acceptedButtons: Qt.NoButton
         onWheel: wheel => root.step(wheel.angleDelta.y > 0 ? -1 : 1)
     }

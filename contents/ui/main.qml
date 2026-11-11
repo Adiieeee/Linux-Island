@@ -123,10 +123,10 @@ PlasmoidItem {
     toolTipMainText: Qt.formatDateTime(new Date(), "HH:mm")
     toolTipSubText: Weather.ready ? Weather.temp + " · " + Weather.desc : ""
 
-    compactRepresentation: MouseArea {
+    // an Item, not a MouseArea: only the notch takes clicks (CompactPill),
+    // not the desktop dots or the empty space beside it
+    compactRepresentation: Item {
         id: compact
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.expanded = !root.expanded
 
         readonly property bool horizontal: Plasmoid.formFactor !== PlasmaCore.Types.Vertical
 
@@ -144,8 +144,9 @@ PlasmoidItem {
         implicitWidth: targetWidth
         implicitHeight: Theme.collapsedHeight
 
-        // the whole island: album art · clock · waveform. it takes the slot's
-        // height and reaches past it to the panel's edges on its own
+        // the whole island: desktop dots · notch · (room for the clock). it
+        // takes the slot's height and the notch reaches past it to the
+        // panel's edges on its own
         CompactPill {
             id: compactPill
             anchors.centerIn: parent
@@ -153,6 +154,7 @@ PlasmoidItem {
             height: compact.height
             horizontal: compact.horizontal
             bottomEdge: Plasmoid.location === PlasmaCore.Types.BottomEdge
+            onActivated: root.expanded = !root.expanded
         }
     }
 
