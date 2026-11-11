@@ -9,8 +9,8 @@ Column {
     // ancho fijo para las tres filas, si cada una se calcula sola la de ram "7.8/31" descuadra
     readonly property int anchoValor: 32
 
-    // the right-hand column holds the temperature, or RAM used ("10.7 GiB") on
-    // the RAM row. its width is shared by all rows so the bars stay the same length
+    // the right-hand column holds the temperature, or RAM used in GiB ("10.7")
+    // on the RAM row. its width is shared by all rows so the bars stay the same length
     readonly property int anchoTemp: 34
 
     // all-zeros template, so the column only resizes when the digit count
@@ -24,14 +24,7 @@ Column {
         text: SysInfo.memUsed.replace(/[0-9]/g, "0")
     }
 
-    TextMetrics {
-        id: moldeUnidad
-        font.family: Theme.font
-        font.pixelSize: Theme.labelSmall
-        text: "GiB"
-    }
-
-    readonly property int anchoLado: !Cfg.ramUsage ? anchoTemp : Math.max(anchoTemp, Math.ceil(moldeRam.advanceWidth) + 1 + Math.ceil(moldeUnidad.advanceWidth) + 2)
+    readonly property int anchoLado: !Cfg.ramUsage ? anchoTemp : Math.max(anchoTemp, Math.ceil(moldeRam.advanceWidth) + 2)
 
     component Meter: Item {
         id: m
@@ -44,11 +37,10 @@ Column {
         property int valorAncho: 32
         // vacío = el porcentaje de siempre
         property string valorTexto: ""
-        // width of the right-hand column, and the value (plus a small unit)
-        // shown there when there's no temperature
+        // width of the right-hand column, and the value shown there when
+        // there's no temperature
         property int ladoAncho: 34
         property string extra: ""
-        property string extraUnit: ""
 
         readonly property real v: Math.max(0, Math.min(1, value))
         readonly property bool hot: temp > 80
@@ -168,29 +160,16 @@ Column {
         }
 
         // RAM used, in the same column as the temperature
-        Row {
+        Text {
             anchors.left: tempRow.left
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 1
             visible: m.temp < 0 && m.extra !== ""
-
-            Text {
-                id: extraTxt
-                text: m.extra
-                color: Theme.fgDim
-                font.family: Theme.fontDots
-                font.features: Theme.numFeatures
-                font.pixelSize: 13
-                font.weight: Font.Bold
-            }
-
-            Text {
-                anchors.baseline: extraTxt.baseline
-                text: m.extraUnit
-                color: Theme.fgDim
-                font.family: Theme.font
-                font.pixelSize: Theme.labelSmall
-            }
+            text: m.extra
+            color: Theme.fgDim
+            font.family: Theme.fontDots
+            font.features: Theme.numFeatures
+            font.pixelSize: 13
+            font.weight: Font.Bold
         }
     }
 
@@ -211,7 +190,6 @@ Column {
         valorAncho: root.anchoValor
         ladoAncho: root.anchoLado
         extra: Cfg.ramUsage ? SysInfo.memUsed : ""
-        extraUnit: "GiB"
         accent: SysInfo.mem > 85 ? Theme.error : Theme.tertiary
     }
 

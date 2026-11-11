@@ -72,9 +72,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   times and placeholder icon use their own `Theme.mediaDim` token, which keeps
   the original `#9A9A9A`.
 - The RAM meter shows how much is used next to the percentage, e.g.
-  "68%  10.4 GiB" with a small unit, in the column where CPU and GPU show
-  their temperature, so the three bars stay the same length. The value is in
-  GiB (1024³ bytes) because `/proc/meminfo` counts in KiB. The setting that
+  "68%  10.4", in the column where CPU and GPU show their temperature, so
+  the three bars stay the same length. The number is in GiB (1024³ bytes),
+  because `/proc/meminfo` counts in KiB. The unit isn't printed, to keep the
+  row short. The setting that
   used to swap the percentage for used/total ("7.8/31") now turns this extra
   number on or off, and is on by default.
 - Screen recordings go to `~/Videos/Screen Record` by default (created on
@@ -221,7 +222,7 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Language**: automatic (the system's), Spanish or English. It only changes
   the island's texts, not the desktop.
 - **Time**: 24-hour, or 12-hour with AM/PM.
-- **Meters**: RAM used ("7.8 GiB") next to the percentage (on by default).
+- **Meters**: RAM used in GiB ("7.8") next to the percentage (on by default).
   Turn it off to show the percentage alone.
 - **Show in the small island**: desktops, weather, clock, network, battery.
 - **Player**: show or hide the mini player while something is playing.
@@ -426,7 +427,7 @@ Two rules to avoid it:
   now always the same. For the same reason, the widths of the percentage
   column and of the right-hand column (temperature, or RAM used) are
   decided once in the parent `Column` (`anchoValor`, `anchoLado`), not per
-  row. Otherwise the RAM row widens on its own when it shows "10.4 GiB" and
+  row. Otherwise the RAM row widens on its own when it shows "10.4" and
   the bars end up different lengths again.
 - **Plasma's audio models do say which device is the default, just not right
   away.** `Audio.qml` still polls `wpctl` because the original author found
