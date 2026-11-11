@@ -8,8 +8,9 @@ import "."
 
 // píldora colapsada, la parte que vive dentro del panel de plasma
 // one black capsule: album art · middle · waveform while something plays or
-// is paused, just the clock otherwise. the middle is the clock, or the lyric
-// line being sung (wider, Theme.lyricsWidth). as wide as its content, so
+// is paused, just the clock otherwise. the middle is the clock, a new song's
+// title and artist, or the lyric line being sung (both wider,
+// Theme.lyricsWidth). as wide as its content, so
 // main.qml can reserve exactly what is drawn, and as tall as the panel itself
 Item {
     id: root
@@ -29,16 +30,42 @@ Item {
     readonly property string artUrl: player?.artUrl ?? ""
 
     // ── what the middle shows ──
-    // "lyric": a line is being sung (Lyrics.wide, playing only). "clock":
+    // "peek": a new song's title and artist, for a moment. "lyric": a line
+    // is being sung (Lyrics.wide). both only while playing. "clock":
     // everything else (nothing playing, paused, a song without lyrics, an
     // instrumental break). the clock giving way to the lyrics is an
     // experiment: it isn't anywhere else in the island
     readonly property string mode: {
-        if (!root.media)
+        if (!root.media || !root.isPlaying)
             return "clock";
-        if (root.isPlaying && Lyrics.wide)
+        if (root.peeking)
+            return "peek";
+        if (Lyrics.wide)
             return "lyric";
         return "clock";
+    }
+
+    // ── track peek ──
+    // each song gets one peek, the first time it plays: a track change, the
+    // first song after plasmashell starts, another player taking over, or a
+    // song found paused once it's resumed. the artist often arrives a moment
+    // after the title; that is a new key and starts the peek over with it
+    property bool peeking: false
+    property string peekedKey: ""
+    readonly property bool wantPeek: root.media && root.isPlaying && Lyrics.key !== "" && Lyrics.key !== root.peekedKey
+
+    onWantPeekChanged: {
+        if (!root.wantPeek)
+            return;
+        root.peekedKey = Lyrics.key;
+        root.peeking = true;
+        peekTimer.restart();
+    }
+
+    Timer {
+        id: peekTimer
+        interval: Theme.peekDuration
+        onTriggered: root.peeking = false
     }
     readonly property real middleWidth: root.mode === "clock" ? clock.implicitWidth : Theme.lyricsWidth
 
@@ -168,7 +195,7 @@ Item {
             }
         }
 
-        // ── middle: clock or lyric line ──
+        // ── middle: clock, track peek or lyric line ──
         // as wide as the capsule leaves between art and waveform while the
         // width animates, clipped, so a line widening the island is revealed
         // from the centre instead of running over the art
@@ -185,6 +212,34 @@ Item {
                 Clock {
                     id: clock
                     anchors.centerIn: parent
+                }
+            }
+
+            Layer {
+                id: peekLayer
+                on: root.mode === "peek"
+
+                Column {
+                    anchors.centerIn: parent
+                    width: Theme.lyricsWidth
+
+                    MarqueeText {
+                        width: parent.width
+                        text: Lyrics.track
+                        running: peekLayer.visible
+                        scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
+                        font.pixelSize: Theme.bodyMedium
+                        font.weight: Font.Bold
+                    }
+                    MarqueeText {
+                        width: parent.width
+                        visible: text !== ""
+                        text: Lyrics.artist
+                        running: peekLayer.visible
+                        scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
+                        color: Theme.fgDim
+                        font.pixelSize: Theme.labelMedium
+                    }
                 }
             }
 

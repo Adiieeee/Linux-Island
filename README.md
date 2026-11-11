@@ -56,6 +56,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   clock. So does a song without lyrics, and a paused one. Lyrics come from
   LRCLIB (lrclib.net). See "Lyrics in the panel island" below. Hiding the
   clock while lyrics show is an experiment.
+- When a song starts playing, the small island shows its title (bold) over
+  its artist (grey) for 4.5 seconds at the lyrics' width, then the lyrics or
+  the clock. Every song gets this once, with or without lyrics: a track
+  change, the first song after plasmashell starts, another player taking
+  over, or a song that was paused when found, once it plays. Pausing
+  during it goes straight to the clock. Long titles slide like long lyric
+  lines.
 - With more than one player (Spotify and a browser tab with YouTube, say),
   the panel island always shows the one that's playing. It used to stick to
   whichever player happened to be first: Plasma's MPRIS model lists a

@@ -118,6 +118,8 @@ QtObject {
     // text too long for its space waits this long before sliding, so its
     // start can be read (MarqueeText)
     readonly property int marqueeHold: 700
+    // how long the panel island shows a new song's title and artist
+    readonly property int peekDuration: 4500
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10
