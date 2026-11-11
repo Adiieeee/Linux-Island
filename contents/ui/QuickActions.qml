@@ -67,7 +67,8 @@ Row {
             anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             text: Cfg.t("MODO CAFÉ")
-            color: root.coffee ? Theme.invertedFg : Theme.fg
+            // dim like the other labels (SOUND, RECORDING) while off
+            color: root.coffee ? Theme.invertedFg : Theme.fgDim
             font.letterSpacing: Theme.labelSpacing
             font.family: Theme.font
             font.pixelSize: Theme.bodyMedium
