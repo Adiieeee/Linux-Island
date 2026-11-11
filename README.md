@@ -429,13 +429,32 @@ Two rules to avoid it:
     `topPadding` inside its animated height.
   - **Every change of `implicitHeight` resizes the popup window right away,
     even one that's undone in the same instant.** When an opening ended,
-    the two `Binding`s woke up one after the other and the height went
-    710 → 524 → 710 at once. Plasma shrank and regrew the window, which
-    showed as a stutter at the end of the animation. Sampling every 16 ms
-    never caught it; logging every `implicitHeightChanged` did. The wanted
-    height is now applied by a 0 ms `Timer` (`appliedHeight`), so only the
-    value the frame settles on reaches Plasma: one resize when an opening
-    starts, one when a closing ends.
+    two rest-height `Binding`s woke up one after the other and the height
+    went 710 → 524 → 710 at once, which Plasma showed as a flicker.
+    Sampling every 16 ms never caught it; logging every
+    `implicitHeightChanged` did. Now only one number is taken at rest
+    (`restBase`, everything but the dropdowns), and only once "settled": no
+    dropdown moving, plus one event loop turn so the `Column`s have caught
+    up. The window grows at once (`appliedHeight`) and shrinks only once
+    settled. A first fix delayed growing by a 0 ms `Timer` too. That drew the
+    first frame of an opening in the old, shorter window, and closing a
+    dropdown halfway through its opening shrank the window under it: 32 of
+    220 frames had the content taller than the window, by up to 138 px.
+  - **Plasma reacts to `Layout.minimumHeight`, `preferredHeight` and
+    `maximumHeight` one by one** (`AppletPopup::updateMinSize`,
+    `updateSize`, `updateMaxSize` on the popup window). As three bindings
+    to `implicitHeight` they updated min first, so every opening went
+    through min 710 / max 524, and the resize to 710 arrived while the
+    maximum was still 524. `main.qml` now sets the three by hand: growing
+    sets max, then preferred, then min; shrinking the other way round, so
+    min ≤ max at every step.
+  - How it's checked: a harness loads `ExpandedPanel` with `main.qml`'s
+    `Layout` code under `QT_QPA_PLATFORM=offscreen`, opens and closes the
+    sound dropdown (also closing it halfway through opening), logs every
+    `Layout` change and, on every `frameSwapped`, whether the content is
+    taller than the window. Now: one resize per opening, one per closing,
+    min never above max, 0 clipped frames. `console.warn` from the `qml`
+    tool lands in the journal (`journalctl --user`), not on stderr.
 - **Don't call `qdbus` from the applet.** Plasma 6 systems ship it as
   `qdbus6` (or `/usr/lib/qt6/bin/qdbus`). Plain `qdbus` isn't on `PATH`, and
   `Exec.run` swallows the "command not found". Use `busctl --user`.

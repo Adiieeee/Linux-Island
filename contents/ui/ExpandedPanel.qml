@@ -34,45 +34,70 @@ Item {
     // window resizes once per dropdown animation: at the start of an opening,
     // at the end of a closing. the island fills the window, and only the
     // cards inside it move.
-    // restHeight/restDropdowns follow the content while nothing animates and
-    // freeze while a dropdown moves. finalHeight can't use drawnHeight then:
-    // a Column updates its implicitHeight a frame late, so mixing it with the
-    // live dropdown height wobbles
-    property real restHeight: 0
-    property real restDropdowns: 0
-    Binding {
-        target: root
-        property: "restHeight"
-        value: root.drawnHeight
-        when: !sliderCard.animating
-        restoreMode: Binding.RestoreNone
+    //
+    // every change of implicitHeight resizes the popup window right away
+    // (Plasma watches it), even one undone in the same instant, so the height
+    // must never pass through a wrong value:
+    // - a Column updates its implicitHeight only in the polish pass, a frame
+    //   after the dropdown height it sums. drawnHeight is only trusted while
+    //   "settled": no dropdown animating, and one event loop turn after the
+    //   last one ended, once the Columns have caught up
+    // - what's taken while settled is one number: everything but the
+    //   dropdowns (restBase). two numbers that both moved used to wake up one
+    //   after the other (710 -> 524 -> 710 at the end of an opening); restBase
+    //   doesn't change when only a dropdown did
+    // - the window grows at once and shrinks only once settled, so it never
+    //   cuts off a dropdown that's still closing (also when it's closed again
+    //   halfway through opening)
+    property bool settled: true
+    Connections {
+        target: sliderCard
+        function onAnimatingChanged() {
+            if (sliderCard.animating) {
+                settle.stop();
+                root.settled = false;
+            } else {
+                settle.restart();
+            }
+        }
     }
+    Timer {
+        id: settle
+        interval: 0
+        onTriggered: root.settled = !sliderCard.animating
+    }
+    onSettledChanged: if (settled) shrink.restart()
+
+    property real restBase: 0
     Binding {
         target: root
-        property: "restDropdowns"
-        value: sliderCard.dropdownsHeight
-        when: !sliderCard.animating
+        property: "restBase"
+        value: root.drawnHeight - sliderCard.dropdownsHeight
+        when: root.settled
         restoreMode: Binding.RestoreNone
     }
     // the height once the running animation is over
-    readonly property real finalHeight: Math.round(restHeight - restDropdowns + sliderCard.dropdownsFinal)
+    readonly property real finalHeight: Math.round(restBase + sliderCard.dropdownsFinal)
 
-    // opening: finalHeight jumps up at once. closing: restHeight keeps the
-    // window at its old height until the animation ends
-    readonly property real wantedHeight: Math.max(finalHeight, Math.round(restHeight)) + nudge
+    readonly property real wantedHeight: finalHeight + nudge
 
-    // every change of implicitHeight resizes the popup window right away, and
-    // inside one frame the wanted height can pass through wrong values: when
-    // an animation ends the two Bindings above wake up one after the other
-    // (710 -> 524 -> 710 in the same instant), and a Column catches up only
-    // in the polish pass. so it's applied on the next event loop turn, once
-    // the frame has settled, and only the last value reaches Plasma
+    // growing goes through at once, so the window is tall enough before the
+    // first frame of an opening is drawn (a 0 ms delay here clipped the
+    // bottom row for a frame). shrinking waits until settled, plus one event
+    // loop turn, so only the value the frame settles on reaches Plasma
     property real appliedHeight: 0
-    onWantedHeightChanged: applyHeight.restart()
+    onWantedHeightChanged: {
+        if (wantedHeight > appliedHeight) {
+            shrink.stop();
+            appliedHeight = wantedHeight;
+        } else if (settled) {
+            shrink.restart();
+        }
+    }
     Timer {
-        id: applyHeight
+        id: shrink
         interval: 0
-        onTriggered: root.appliedHeight = root.wantedHeight
+        onTriggered: if (root.settled) root.appliedHeight = root.wantedHeight
     }
     Component.onCompleted: appliedHeight = wantedHeight
 

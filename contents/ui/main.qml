@@ -167,13 +167,32 @@ PlasmoidItem {
     }
 
     fullRepresentation: ExpandedPanel {
+        id: full
+
         // smaller than Theme.expandedWidth by the part of Plasma's frame the
         // island covers (ExpandedPanel.reach)
         Layout.minimumWidth: implicitWidth
         Layout.preferredWidth: implicitWidth
         Layout.maximumWidth: implicitWidth
-        Layout.minimumHeight: implicitHeight
-        Layout.preferredHeight: implicitHeight
-        Layout.maximumHeight: implicitHeight
+
+        // min = preferred = max = implicitHeight, set by hand in an order that
+        // keeps min <= max at every step. Plasma reacts to each of the three on
+        // its own (setMinimumHeight, resize, setMaximumHeight on the popup
+        // window); as three bindings, growing went through min 710 / max 524
+        // for an instant
+        function applyHeight() {
+            const h = full.implicitHeight;
+            if (h > full.Layout.maximumHeight) {
+                full.Layout.maximumHeight = h;
+                full.Layout.preferredHeight = h;
+                full.Layout.minimumHeight = h;
+            } else {
+                full.Layout.minimumHeight = h;
+                full.Layout.preferredHeight = h;
+                full.Layout.maximumHeight = h;
+            }
+        }
+        onImplicitHeightChanged: applyHeight()
+        Component.onCompleted: applyHeight()
     }
 }
