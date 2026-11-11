@@ -110,8 +110,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   right away (and stops it while recording). The rest of the card opens the
   recording view. Before, the whole card opened the view first, so starting
   took two clicks, and a click anywhere on the card stopped a running
-  recording. Under the timer, three small icons show the current recording
-  settings: screen or window, system audio, microphone. A setting that's off
+  recording. On the card's right edge, three small icons stacked top to
+  bottom show the current recording settings: screen or window, system
+  audio, microphone. A setting that's off
   is fainter and uses the crossed-out icon.
 - Recordings include sound. The **System audio** and **Microphone** toggles
   didn't reach Spectacle, so recordings were silent. See "Recordings had no
