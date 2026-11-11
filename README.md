@@ -771,6 +771,54 @@ took effort:
   inside plasmashell. The cover changes instantly anyway, so it isn't
   noticeable.
 
+## Lyrics in the panel island
+
+`Lyrics.qml` (a singleton) finds synced lyrics for the player the panel
+island shows (`Media.active`) and works out which line is on.
+`contents/ui/lrc.js` holds the parts that are plain functions (parsing,
+which line plays when, when the pill should be wide), so they can be tested
+outside Plasma.
+
+- **Where they come from.** [LRCLIB](https://lrclib.net), a free lyrics
+  database with no key. A song is looked up when its title and artist
+  change, 600 ms after the metadata settles (players send the title, artist
+  and length in pieces). First `/api/get` with title, artist, album and
+  duration; if that has nothing, `/api/search` by title and artist; then a
+  looser search with version notes stripped from the title
+  (" - Remastered 2011", `(feat. …)`, `(Official Video)`, `[…]`), which also
+  catches video titles like "Artist - Song". A result counts only with
+  synced (timestamped) lyrics and a duration within 3 s of the track's.
+  Plain lyrics without timestamps, and songs LRCLIB marks as instrumental,
+  count as no lyrics.
+- **What is sent.** The song's title, artist, album and length, to
+  lrclib.net, and nothing else.
+- **XHR, not curl.** The request is built with `encodeURIComponent` and
+  sent with `XMLHttpRequest`, like the weather. A title never goes through a
+  shell, so a song called `$(rm -rf ~)` is only a song.
+- **Busy is not "no lyrics".** Only HTTP 200 and 404 are answers. LRCLIB
+  often answers 503 or 429 when it's busy; the Windhawk island this feature
+  is modelled on cached those as "no lyrics" and lost songs LRCLIB has. Here
+  a busy server or a network error retries after 2, 5, 10 and then every
+  20 seconds. The first two retries go out even while paused, later ones
+  wait for playback to resume, and they stop when the song changes. The last
+  30 answers are kept in memory.
+- **Timing without polling.** MPRIS only gives the position when asked
+  (`updatePosition()`) or after a seek. The playhead is the last known
+  position plus the time since, times the playback rate. One single-shot
+  timer is set for the next moment anything changes (a line starts, or is
+  0.3 s away), so nothing runs between lines. While lyrics show, the
+  position is asked again every 5 seconds to stay in step with the player.
+- **A paused player's position doesn't change**, so asking for it gives no
+  `positionChanged`. On a new song the playhead starts from the player's last
+  known position, not 0, or a player found paused halfway through a song
+  would stay at 0.
+- **Lines.** A line shows 0.3 s before it's sung (`LEAD`). Empty lines and
+  lines with only ♪ are gaps. A gap shorter than 4 s between two sung lines
+  keeps the last line up; longer ones, the intro and the outro hand the
+  middle back to the clock. Not every file closes an instrumental break
+  with an empty line, so a line counts as over 10 s after it starts (6 s for
+  the last one).
+
 ## The real waveform
 
 `LiveWave.qml` draws the small island's waveform from the actual audio.
