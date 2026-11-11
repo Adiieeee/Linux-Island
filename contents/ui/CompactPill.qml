@@ -38,11 +38,14 @@ Item {
     readonly property string artUrl: player?.artUrl ?? ""
 
     // ── the cover's colours, for the tint (as on the media card) ──
+    // only with the tint turned on (Cfg.tintIsland, off by default: the
+    // notch is black like the control center); off, the cover isn't loaded
+    // a second time and no colours are worked out.
     // ImageColors needs the loaded Image, not the URL: given a remote URL it
     // returns grey
     Image {
         id: artImg
-        source: root.artUrl
+        source: Cfg.tintIsland ? root.artUrl : ""
         asynchronous: true
         sourceSize.width: 92
         sourceSize.height: 92
@@ -266,13 +269,14 @@ Item {
         anchors.topMargin: -root.reach
         anchors.bottomMargin: -root.reach
 
-        // tinted with the cover's colours while a song with art plays or is
-        // paused; plain black with just the clock
+        // black like the control center (the same Theme.surface). with the
+        // tint setting on, in the cover's colours while a song with art
+        // plays or is paused; black again with just the date
         NotchShape {
             anchors.fill: parent
             flipped: root.bottomEdge
             tones: root.tones
-            tint: root.media && artImg.status === Image.Ready ? 1 : 0
+            tint: Cfg.tintIsland && root.media && artImg.status === Image.Ready ? 1 : 0
         }
 
         // ── album art, round ──

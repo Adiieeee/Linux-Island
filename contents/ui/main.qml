@@ -58,6 +58,11 @@ PlasmoidItem {
     }
     Binding {
         target: Cfg
+        property: "tintIsland"
+        value: Plasmoid.configuration.tintIsland
+    }
+    Binding {
+        target: Cfg
         property: "weatherCity"
         value: Plasmoid.configuration.weatherCity
     }

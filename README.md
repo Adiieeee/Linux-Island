@@ -69,8 +69,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   without a layer. On a panel at the bottom of the screen it hangs from the
   bottom edge instead. It only looks attached to the edge on a panel that
   isn't floating.
-- While a song with album art plays or is paused, the small island takes
-  the cover's colours, like the media card in the control center: three
+- The small island is black, like the control center (the same
+  `Theme.surface`). With **Colour the island with the album art** on in the
+  settings (off by default), while a song with album art plays or is
+  paused, it takes the cover's colours, like the media card in the control
+  center: three
   soft blobs in the cover's palette (`Kirigami.ImageColors`, the same three
   colours the card uses) under the same 45% dark veil, so the white text
   stays readable. With just the date it's plain black again; the change
@@ -372,6 +375,9 @@ Right-click the island → **Configure Linux Island…**. Options:
   clock checkboxes.)
 - **Player**: show or hide the album art, waveform and lyrics in the notch
   while something is playing or paused. Off, the notch shows the date.
+- **Colour the island with the album art** (off by default): the notch in
+  the cover's colours, like the media card. Off, it's black like the
+  control center, and the cover isn't loaded a second time for its colours.
 - **Show synced lyrics** (on by default): the lyric lines in the small
   island. The lyrics button in the control center's bottom row flips the
   same setting. Off, nothing is sent to lrclib.net, and the middle shows the

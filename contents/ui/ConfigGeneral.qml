@@ -17,6 +17,7 @@ Kirigami.FormLayout {
     property bool cfg_showBattery: true
     property bool cfg_showMini: true
     property bool cfg_showLyrics: true
+    property bool cfg_tintIsland: false
     property string cfg_weatherCity: ""
 
     // del combo en vivo, no de Cfg.esp (eso es el idioma ya aplicado, no el que se está eligiendo)
@@ -152,6 +153,21 @@ Kirigami.FormLayout {
     QQC2.Label {
         Kirigami.FormData.label: ""
         text: page.esp ? "En lugar del reloj mientras se canta una línea. Para encontrarla se envían a lrclib.net el título, el artista, el álbum y la duración de la canción." : "In place of the clock while a line is sung. To find them, the song's title, artist, album and length are sent to lrclib.net."
+        opacity: 0.7
+        wrapMode: Text.WordWrap
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 20
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Colorear la isla con la carátula" : "Colour the island with the album art"
+        enabled: page.cfg_showMini
+        checked: page.cfg_tintIsland
+        onToggled: page.cfg_tintIsland = checked
+    }
+
+    QQC2.Label {
+        Kirigami.FormData.label: ""
+        text: page.esp ? "Con los colores de la carátula, como la tarjeta del reproductor en el centro de control. Apagado: negra, como el centro de control." : "In the cover's colours, like the media card in the control center. Off: black, like the control center."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20

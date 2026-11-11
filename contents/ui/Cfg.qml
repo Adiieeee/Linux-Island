@@ -46,6 +46,9 @@ QtObject {
     // synced lyrics in the small island (Lyrics.qml); off = nothing is sent
     // to lrclib.net
     property bool showLyrics: true
+    // the panel island in the album art's colours, like the media card; off
+    // = black, like the control center
+    property bool tintIsland: false
 
     // ciudad para el clima; vacío = wttr.in detecta sola por ip
     property string weatherCity: ""

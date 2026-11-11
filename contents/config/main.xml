@@ -43,6 +43,10 @@
     <entry name="showLyrics" type="Bool">
       <default>true</default>
     </entry>
+    <!-- Colour the small island with the album art, like the media card -->
+    <entry name="tintIsland" type="Bool">
+      <default>false</default>
+    </entry>
 
     <!-- Ciudad para el clima; vacío = detectar sola por IP -->
     <entry name="weatherCity" type="String">
