@@ -7,12 +7,13 @@ import org.kde.plasma.private.mpris as Mpris
 import "."
 
 // píldora colapsada, la parte que vive dentro del panel de plasma
-// one black notch hanging from the screen edge (NotchShape): album art ·
-// middle · waveform while something plays or is paused, just the clock
-// otherwise. the middle is the clock, a new song's
+// desktop dots · notch · clock. the notch hangs from the screen edge
+// (NotchShape): album art · middle · waveform while something plays or is
+// paused, just today's date otherwise. the middle is the date, a new song's
 // title and artist, or the lyric line being sung (both wider,
-// Theme.lyricsWidth). as wide as its content, so
-// main.qml can reserve exactly what is drawn, and as tall as the panel itself
+// Theme.lyricsWidth). the dots and the clock sit outside it, on the panel.
+// as wide as its content, so main.qml can reserve exactly what is drawn,
+// and as tall as the panel itself
 Item {
     id: root
 
@@ -63,19 +64,20 @@ Item {
     }
 
     // ── what the middle shows ──
+    // "date": no song (long form, alone in the notch), or the lyrics turned
+    // off (short form, between art and waveform; no track peek either).
     // "peek": a new song's title and artist, for a moment. "lyric": a line
-    // is being sung (Lyrics.wide). both only while playing. "clock":
-    // everything else (nothing playing, paused, a song without lyrics, an
-    // instrumental break). the clock giving way to the lyrics is an
-    // experiment: it isn't anywhere else in the island
+    // is being sung (Lyrics.wide). both only while playing. everything else
+    // (paused, a song without lyrics, an instrumental break) shows the date
+    // too for now
     readonly property string mode: {
-        if (!root.media || !root.isPlaying)
-            return "clock";
+        if (!root.media || !Lyrics.enabled || !root.isPlaying)
+            return "date";
         if (root.peeking)
             return "peek";
         if (Lyrics.wide)
             return "lyric";
-        return "clock";
+        return "date";
     }
 
     // ── track peek ──
@@ -113,7 +115,18 @@ Item {
         interval: Theme.peekDuration
         onTriggered: root.peeking = false
     }
-    readonly property real middleWidth: root.mode === "clock" ? clock.implicitWidth : Theme.lyricsWidth
+    readonly property real middleWidth: root.mode === "date" ? dateText.implicitWidth : Theme.lyricsWidth
+
+    // today, for the date in the middle
+    Timer {
+        id: day
+        property date now: new Date()
+        interval: 60000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: now = new Date()
+    }
 
     // ── as tall as the panel ──
     // the panel insets every applet by its theme's margins (Ant-Dark: 4 px
@@ -148,11 +161,11 @@ Item {
     // crowded its round end; kept because it looked right)
     readonly property real edge: inset + 6
     readonly property int gap: 16
-    // sides when only the clock shows
+    // sides when only the date shows
     readonly property int padding: 12
 
     // what the art and the waveform take on each side, or the padding beside
-    // a lone clock
+    // a lone date
     readonly property real leftSide: root.ear + (root.media ? root.inset + root.tile + root.gap : root.padding)
     readonly property real rightSide: root.ear + (root.media ? root.edge + root.tile + root.gap : root.padding)
 
@@ -168,12 +181,12 @@ Item {
     }
 
     // ── outside the notch ──
-    // the desktop dots on its left, on the panel itself. both sides are as
-    // wide as the wider of the two (the narrower one gets empty space at its
-    // outer end), so the notch, and the popup that opens under the whole
-    // widget, stay in the middle of the screen
+    // the desktop dots on its left and the clock on its right, on the panel
+    // itself. both sides are as wide as the wider of the two (the narrower
+    // one gets empty space at its outer end), so the notch, and the popup
+    // that opens under the whole widget, stay in the middle of the screen
     readonly property int sideGap: 12
-    readonly property real sideWidth: dots.implicitWidth + root.sideGap
+    readonly property real sideWidth: Math.max(dots.implicitWidth, clock.implicitWidth) + root.sideGap
 
     implicitWidth: 2 * root.sideWidth + root.notchWidth
     implicitHeight: Theme.collapsedHeight
@@ -182,6 +195,13 @@ Item {
         id: dots
         anchors.right: capsule.left
         anchors.rightMargin: root.sideGap
+        anchors.verticalCenter: parent.verticalCenter
+    }
+
+    Clock {
+        id: clock
+        anchors.left: capsule.right
+        anchors.leftMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
     }
 
@@ -277,7 +297,7 @@ Item {
             }
         }
 
-        // ── middle: clock, track peek or lyric line ──
+        // ── middle: date, track peek or lyric line ──
         // as wide as the capsule leaves between art and waveform while the
         // width animates, clipped, so a line widening the island is revealed
         // from the centre instead of running over the art
@@ -289,12 +309,21 @@ Item {
             height: parent.height
             clip: true
 
+            // "11 November 2026" alone in the notch, "11 NOV 2026" (in the
+            // labels' uppercase style) between art and waveform
             Layer {
-                on: root.mode === "clock"
+                on: root.mode === "date"
 
-                Clock {
-                    id: clock
+                Text {
+                    id: dateText
                     anchors.centerIn: parent
+                    text: root.media ? Cfg.locale.toString(day.now, "d MMM yyyy").toUpperCase() : Cfg.locale.toString(day.now, "d MMMM yyyy")
+                    color: Theme.fg
+                    font.family: Theme.font
+                    font.features: Theme.numFeatures
+                    font.pixelSize: root.media ? Theme.labelMedium : Theme.bodySmall
+                    font.letterSpacing: root.media ? Theme.labelSpacing : 0
+                    font.weight: Font.Medium
                 }
             }
 

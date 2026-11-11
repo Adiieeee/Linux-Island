@@ -107,8 +107,9 @@ Kirigami.FormLayout {
         Kirigami.FormData.isSection: true
     }
 
-    // the desktop dots are off for now and the clock is always there, so
-    // their checkboxes are gone (showWorkspaces/showClock stay in main.xml)
+    // the desktop dots and the clock are always there, so their checkboxes
+    // are gone (showWorkspaces/showClock stay in main.xml). weather and
+    // battery don't do anything yet either
     QQC2.CheckBox {
         Kirigami.FormData.label: page.esp ? "Mostrar en la isla chica:" : "Show in the small island:"
         text: page.esp ? "Clima" : "Weather"

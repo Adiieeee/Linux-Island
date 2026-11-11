@@ -27,9 +27,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   drawn 150 px wide, so it spilled into the neighbouring widgets, and the
   pill was a fixed 27 px tall.
 - The small island is one black shape instead of two pills: the album art
-  on the left (round), the clock (or the lyrics, see below) in the middle, and
-  a waveform on the right. With nothing playing or
-  paused it shrinks to the clock, with an animated width. The previous, play
+  on the left (round), the date (or the lyrics, see below) in the middle, and
+  a waveform on the right. With no song it shrinks to today's date, with an
+  animated width. The previous, play
   and next buttons are gone (the control center has them), and so is the
   capsule tinted with the album's colour, which turned white with light
   covers. The island is as tall as the panel: the panel insets every
@@ -47,6 +47,15 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   differently. Both sides of the notch take the same width, the wider of
   the two plus a 12 px gap, so the notch and the popup under it stay in the
   middle of the screen.
+- The clock moved out of the notch to its right, on the panel, in white
+  (`Clock.qml`). It's always 24-hour with a leading zero (`HH:mm`), 15 px
+  (`Theme.islandClock`), and as wide as "00:00" whatever the digits, so the
+  notch never shifts as it ticks. The **Time** setting now only sets the
+  control center's big clock. Inside the notch, today's date takes the
+  clock's old place: "11 November 2026" when the notch holds nothing else,
+  "11 NOV 2026" (in the labels' uppercase style) between the album art and
+  the waveform when the lyrics are turned off. The month follows the
+  widget's language.
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots or the empty space beside the notch does nothing.
@@ -63,7 +72,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the cover's colours, like the media card in the control center: three
   soft blobs in the cover's palette (`Kirigami.ImageColors`, the same three
   colours the card uses) under the same 45% dark veil, so the white text
-  stays readable. With just the clock it's plain black again; the change
+  stays readable. With just the date it's plain black again; the change
   fades over `Theme.durLong`. Each layer is one more `ShapePath` over the
   notch's outline (a radial gradient per blob), so the colour follows the
   notch's curves without a clip or a mask, which would need a layer. The
@@ -89,16 +98,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The small island shows synced lyrics. While a line is being sung, the
   island widens to a fixed width (`Theme.lyricsWidth`, 280 px for the
   middle, the same for every line, so it doesn't resize on each one) and the
-  line takes the clock's place, in an 11 px font (`Theme.labelMedium`).
-  The clock itself is 15 px (`Theme.islandClock`, down from 17). At
+  line takes the middle, in an 11 px font (`Theme.labelMedium`). At
   13 and 12 px too few words fitted, and most lines slid, which was tiring
   to read. A line too long for that width waits a moment, then slides once to
   show its end within the time it's sung. Each new line fades in from below
   while the old one fades out upwards. During the intro, the outro and
   instrumental breaks of 4 seconds or more the island shrinks back to the
-  clock. So does a song without lyrics, and a paused one. Lyrics come from
-  LRCLIB (lrclib.net). See "Lyrics in the panel island" below. Hiding the
-  clock while lyrics show is an experiment.
+  date. So does a song without lyrics, and a paused one. Lyrics come from
+  LRCLIB (lrclib.net). See "Lyrics in the panel island" below.
 - The control center's bottom row has a lyrics button (the `lyrics` icon)
   where the app launcher's button was. It turns the small island's lyrics on
   and off, the same switch as **Show synced lyrics** in the settings, and
@@ -107,10 +114,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   `apps.py` stay in the repo.
 - When a song starts playing, the small island shows its title (12 px bold)
   over its artist (10 px, grey) for 4.5 seconds at the lyrics' width, then the lyrics or
-  the clock. Every song gets this once, with or without lyrics: a track
+  the date. Every song gets this once, with or without lyrics: a track
   change, the first song after plasmashell starts, another player taking
   over, or a song that was paused when found, once it plays. Pausing
-  during it goes straight to the clock. Long titles slide like long lyric
+  during it goes straight to the date. With the lyrics off there's no
+  peek. Long titles slide like long lyric
   lines.
 - With more than one player (Spotify and a browser tab with YouTube, say),
   the panel island always shows the one that's playing. It used to stick to
@@ -349,19 +357,21 @@ Right-click the island → **Configure Linux Island…**. Options:
 
 - **Language**: automatic (the system's), Spanish or English. It only changes
   the island's texts, not the desktop.
-- **Time**: 24-hour, or 12-hour with AM/PM.
+- **Time**: 24-hour, or 12-hour with AM/PM, for the control center's big
+  clock. The panel island's clock is always 24-hour.
 - **Meters**: RAM used in GiB ("7.8") next to the percentage (on by default).
   Turn it off to show the percentage alone.
 - **Show in the small island**: weather, battery. Neither does anything at the
   moment: the island was rebuilt around the media and these are kept for a
   later plan. (The network checkbox is gone, and so are the desktops and
   clock checkboxes.)
-- **Player**: show or hide the album art, waveform and lyrics around the
-  clock while something is playing or paused.
+- **Player**: show or hide the album art, waveform and lyrics in the notch
+  while something is playing or paused. Off, the notch shows the date.
 - **Show synced lyrics** (on by default): the lyric lines in the small
   island. The lyrics button in the control center's bottom row flips the
-  same setting. Off, nothing is sent to lrclib.net, and the middle shows the clock
-  after the title and artist of a new song.
+  same setting. Off, nothing is sent to lrclib.net, and the middle shows the
+  date ("11 NOV 2026") between the art and the waveform, with no title and
+  artist when a song starts.
 - **Weather city**: leave it empty to detect it from your IP.
 
 The values live in `contents/config/main.xml`. Adding a new one means
@@ -905,7 +915,7 @@ outside Plasma.
 - **Lines.** A line shows 0.3 s before it's sung (`LEAD`). Empty lines and
   lines with only ♪ are gaps. A gap shorter than 4 s between two sung lines
   keeps the last line up; longer ones, the intro and the outro hand the
-  middle back to the clock. Not every file closes an instrumental break
+  middle back to the date. Not every file closes an instrumental break
   with an empty line, so a line counts as over 10 s after it starts (6 s for
   the last one).
 
