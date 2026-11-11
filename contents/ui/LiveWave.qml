@@ -28,38 +28,52 @@ Item {
     // the outermost bars are this much of the others, for a rounder outline
     readonly property real edgeScale: 0.8
 
-    // peak (linear 0..1) → dB → 0..1, relative to a running peak: the loudest
-    // recent moment is full height and spanDb below it is silence. songs are
-    // mastered at very different levels (two measured Spotify tracks peaked at
-    // -21 and -10 dB), and a fixed scale left the quiet one small and pinned
-    // the loud one at the top. a peak meter barely moves on dense music (a few
-    // dB between samples), hence the narrow window.
+    // peak (linear 0..1) → dB → a height (0..1) made of two parts:
+    // - how loud: the short average against the loudest recent moment, so
+    //   a quietly mastered song isn't small and a soft passage is
+    // - motion: how far this sample is above or below that average
+    // a plain dB scale, even one relative to the recent peak, looked full
+    // all the time: on a loud pop master the peaks only move ~3 dB (measured:
+    // -9 to -5.7 dB for 80% of a song). with a base of 0.5 and a swing of
+    // 0.4 a loud song sits around half height and moves, and only a loud
+    // moment well above its average gets near the top.
     // the monitor isn't scaled by the volume slider (PipeWire leaves monitor
     // ports at full level), so turning the volume down doesn't shrink the bars
-    readonly property real spanDb: 24
+    readonly property real base: 0.5
+    readonly property real swing: 0.4
+    // a sample this many dB above (below) the average is a full swing up (down)
+    readonly property real devDb: 3
+    // share of each sample in the short average (~0.5 s)
+    readonly property real avgRate: 0.1
+    // loudness scale: the running peak is full, spanDb below it is nothing
+    readonly property real spanDb: 30
     // the running peak jumps up at once and falls this many dB per sample
-    // (~3 dB/s at the monitor's ~25 samples a second)
+    // (2-3 dB/s: the monitor sends about 15-25 samples a second)
     readonly property real refFall: 0.12
     // and never counts as lower than this, so a quiet passage after a loud
     // one isn't blown up to full height
     readonly property real refFloorDb: -30
-    // keeps quiet passages small
-    readonly property real curve: 1.3
+    // below this: silence
+    readonly property real gateDb: -60
     // envelope: a rise shows at once, a fall keeps this much per sample
     readonly property real release: 0.5
 
     property real refDb: refFloorDb
+    property real avgDb: gateDb
     property real env: 0
     // history[0] is the newest level (middle bar), history[k] is k samples older
     property var history: []
 
     function push(peak: real): void {
         let level = 0;
-        if (peak > 0.00001) {
-            const db = 20 * Math.log(peak) / Math.LN10;
+        const db = peak > 0.000001 ? 20 * Math.log(peak) / Math.LN10 : -120;
+        if (db > wave.gateDb) {
+            wave.avgDb += (db - wave.avgDb) * wave.avgRate;
             wave.refDb = Math.max(db, wave.refDb - wave.refFall);
             const top = Math.max(wave.refDb, wave.refFloorDb);
-            level = Math.pow(Math.max(0, Math.min(1, (db - top + wave.spanDb) / wave.spanDb)), wave.curve);
+            const loud = Math.max(0, Math.min(1, (wave.avgDb - top + wave.spanDb) / wave.spanDb));
+            const dev = Math.max(-1, Math.min(1, (db - wave.avgDb) / wave.devDb));
+            level = Math.max(0, Math.min(1, loud * (wave.base + wave.swing * dev)));
         }
         wave.env = level > wave.env ? level : level + (wave.env - level) * wave.release;
         const next = [wave.env].concat(wave.history);
@@ -70,6 +84,7 @@ Item {
     onLiveChanged: if (!live) {
         wave.env = 0;
         wave.refDb = wave.refFloorDb;
+        wave.avgDb = wave.gateDb;
         wave.history = [];
     }
 

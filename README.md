@@ -43,7 +43,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the centre. It reads Plasma's own live level meter (plasma-pa's
   `VolumeMonitor`, the one the audio applet draws in its sliders), only while
   something plays. The volume slider doesn't shrink the bars, and quietly
-  mastered songs are scaled up to use the full height. While paused the bars
+  mastered songs are scaled up. Loud music sits around half height and
+  moves, instead of looking full all the time. While paused the bars
   rest low and dim. Before, four bars moved on a fixed animation whatever
   was playing. See "The real waveform" below.
 - The small island shows synced lyrics. While a line is being sung, the
@@ -862,8 +863,8 @@ outside Plasma.
 - **The level comes from plasma-pa's `VolumeMonitor`.** It's the live level
   meter Plasma's audio applet shows in its sliders, with the same pattern:
   `target: live ? PreferredDevice.sink : null`. With a target it records a
-  peak-detect stream from the default output's monitor (about 25 peaks a
-  second); with `null` it closes the stream, so nothing runs while paused.
+  peak-detect stream from the default output's monitor (about 15–25 peaks
+  a second); with `null` it closes the stream, so nothing runs while paused.
   Everything the speakers play counts, not just the player, so a
   notification sound moves the bars too. Picking out only the player's
   stream was skipped: browser audio comes out of a different process than
@@ -873,20 +874,29 @@ outside Plasma.
   process 25 times a second to read a file would break the "don't poll
   often" rule. `VolumeMonitor` is native, event-driven and already part of
   Plasma.
-- **The scale is relative to a running peak.** Songs are mastered at very
-  different levels: two Spotify tracks measured here peaked at −21 and
-  −10 dB. On a fixed dB scale the quiet one stayed small and the loud one
-  sat pinned at the top. A peak meter also barely moves on dense music (a
-  few dB from one sample to the next). So the loudest recent moment is full
-  height and 24 dB below it is silence. The running peak jumps up at once
-  and falls about 3 dB a second, but never counts as lower than −30 dB, so
-  a soft passage after a loud one isn't blown up to full height.
+- **The height is loudness plus motion.** A bar's height has two parts.
+  How loud: the short average (about half a second) against the loudest
+  recent moment, so a quietly mastered song isn't small and a soft passage
+  after a loud one is. Motion: how far the newest peak is above or below
+  that average, ±3 dB being a full swing. Loud music sits around half height
+  and moves; only a moment well above its average gets near the top.
+  Two earlier scales didn't work. A fixed dB scale: songs are mastered at
+  very different levels (two Spotify tracks measured here peaked at −21
+  and −10 dB), so the quiet one stayed small and the loud one sat pinned at
+  the top. A scale relative to the running peak (the loudest recent moment
+  full, 24 dB below it empty): it looked full all the time on pop, because
+  a loud master's peaks barely move. On one Taylor Swift song, 80% of the
+  peaks fell between −9 and −5.7 dB, and the bars were above 85% height 97%
+  of the time. The running peak jumps up at once and falls 2–3 dB a
+  second, but never counts as lower than −30 dB, so a soft passage after a
+  loud one isn't blown up.
 - **The volume slider doesn't change the bars.** PipeWire leaves monitor
   ports at full level (`monitorVolumes` stays 1.0 whatever the volume is).
 - **The envelope is short.** A rise shows at once and a fall keeps half per
   sample. The reference Windhawk island uses attack 0.7 / release 0.85, but
-  per sample at 100 Hz; at 25 Hz the same numbers held every peak for a
-  quarter of a second and the bars hovered near the top. Each bar animates
+  per sample at 100 Hz; the monitor here sends about 15–25 peaks a second,
+  and at that rate the same numbers held every peak for a quarter of a
+  second and the bars hovered near the top. Each bar animates
   its height over `Theme.durTick` (70 ms) to smooth the steps between
   samples.
 - **To test it outside Plasma**, load `LiveWave` in a small QML file with
