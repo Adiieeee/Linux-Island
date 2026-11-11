@@ -254,7 +254,7 @@ Item {
 
                                 Text {
                                     text: Cfg.t("CALENDARIO")
-                                    color: fechaMa.containsMouse ? Theme.fgDim : Theme.fgFaint
+                                    color: fechaMa.containsMouse ? Theme.fg : Theme.fgDim
                                     font.family: Theme.font
                                     font.pixelSize: Theme.labelSmall
                                     font.letterSpacing: Theme.labelSpacing

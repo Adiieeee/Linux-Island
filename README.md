@@ -72,7 +72,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   expand arrows, "Searching…", the "off" message and the password
   placeholder) uses the brighter `fgDim`, like the secondary text in the main
   view. The recording view does the same for its unchecked toggle icons and
-  the "Saved to …" line. The media card is left as it was: its artist line,
+  the "Saved to …" line, and so does the **CALENDAR** hint under the date
+  (full white on hover). The media card is left as it was: its artist line,
   times and placeholder icon use their own `Theme.mediaDim` token, which keeps
   the original `#9A9A9A`.
 - The RAM meter shows how much is used next to the percentage, e.g.
