@@ -27,6 +27,7 @@ QtObject {
     readonly property string next: "skip_next"
     readonly property string prev: "skip_previous"
     readonly property string music: "music_note"
+    readonly property string lyrics: "lyrics"
 
     readonly property string close: "close"
     readonly property string bell: "notifications"

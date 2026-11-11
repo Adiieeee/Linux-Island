@@ -56,6 +56,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   clock. So does a song without lyrics, and a paused one. Lyrics come from
   LRCLIB (lrclib.net). See "Lyrics in the panel island" below. Hiding the
   clock while lyrics show is an experiment.
+- A **LYRICS** button at the right of the control center's header (next to
+  the clock and the date) turns the small island's lyrics on and off. It's
+  the same switch as **Show synced lyrics** in the settings, and it's filled
+  white (the inverted pair, like a connected Wi-Fi card) while on.
 - When a song starts playing, the small island shows its title (bold) over
   its artist (grey) for 4.5 seconds at the lyrics' width, then the lyrics or
   the clock. Every song gets this once, with or without lyrics: a track
@@ -306,7 +310,8 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Player**: show or hide the album art, waveform and lyrics around the
   clock while something is playing or paused.
 - **Show synced lyrics** (on by default): the lyric lines in the small
-  island. Off, nothing is sent to lrclib.net, and the middle shows the clock
+  island. The **LYRICS** button in the control center's header flips the
+  same setting. Off, nothing is sent to lrclib.net, and the middle shows the clock
   after the title and artist of a new song.
 - **Weather city**: leave it empty to detect it from your IP.
 
