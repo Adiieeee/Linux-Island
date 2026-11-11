@@ -55,7 +55,7 @@ Item {
     // enough to stay inside its round ends
     readonly property real inset: Math.round(capsuleHeight * 0.15)
     readonly property real tile: capsuleHeight - 2 * inset
-    readonly property int gap: 10
+    readonly property int gap: 16
     // sides when only the clock shows
     readonly property int padding: 12
 
@@ -100,7 +100,7 @@ Item {
         radius: height / 2
         color: Theme.surface
 
-        // ── album art, rounded like Spotify's ──
+        // ── album art, round ──
         MediaPart {
             x: root.inset
             anchors.verticalCenter: parent.verticalCenter
@@ -109,14 +109,14 @@ Item {
 
             Rectangle {
                 anchors.fill: parent
-                radius: Theme.shapeXs
+                radius: width / 2
                 color: Theme.surfaceHigh
             }
 
             // clip leaves it square; ShadowedImage really rounds it
             Kirigami.ShadowedImage {
                 anchors.fill: parent
-                radius: Theme.shapeXs
+                radius: width / 2
                 source: root.artUrl
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true

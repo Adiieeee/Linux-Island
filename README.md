@@ -27,7 +27,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   drawn 150 px wide, so it spilled into the neighbouring widgets, and the
   pill was a fixed 27 px tall.
 - The small island is one black capsule instead of two pills: the album art
-  on the left (a rounded square, like Spotify's), the clock in the middle, and
+  on the left (round), the clock in the middle, and
   a waveform on the right, four bars that move while something plays and rest
   low and dim while it's paused (not real audio). With nothing playing or
   paused it shrinks to the clock, with an animated width. The previous, play
