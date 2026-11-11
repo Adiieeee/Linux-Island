@@ -7,7 +7,36 @@ Column {
     spacing: 9
 
     // ancho fijo para las tres filas, si cada una se calcula sola la de ram "7.8/31" descuadra
-    readonly property int anchoValor: Cfg.ramUsage ? 58 : 32
+    readonly property int anchoValor: 32
+
+    // the right-hand column holds the temperature, or RAM used/total on the RAM
+    // row. its width is shared by all rows so the bars stay the same length
+    readonly property int anchoTemp: 34
+    // shortest bar allowed before RAM falls back to just the used amount
+    readonly property int barraMin: 60
+    // everything in a row except the bar and the right-hand column
+    readonly property int fijo: 26 + 9 + 30 + 4 + 10 + anchoValor + 8
+
+    // all-zeros templates, so the column only resizes when the digit count
+    // changes. same font as the temperature and RAM text
+    TextMetrics {
+        id: moldeRamLargo
+        font.family: Theme.fontDots
+        font.features: Theme.numFeatures
+        font.pixelSize: 13
+        font.weight: Font.Bold
+        text: SysInfo.memShort.replace(/[0-9]/g, "0")
+    }
+
+    TextMetrics {
+        id: moldeRamCorto
+        font: moldeRamLargo.font
+        text: (SysInfo.memUsed + "G").replace(/[0-9]/g, "0")
+    }
+
+    readonly property int anchoRamLargo: Math.ceil(moldeRamLargo.advanceWidth) + 2
+    readonly property bool ramLargo: root.width - root.fijo - root.anchoRamLargo >= root.barraMin
+    readonly property int anchoLado: !Cfg.ramUsage ? anchoTemp : Math.max(anchoTemp, ramLargo ? anchoRamLargo : Math.ceil(moldeRamCorto.advanceWidth) + 2)
 
     component Meter: Item {
         id: m
@@ -20,6 +49,9 @@ Column {
         property int valorAncho: 32
         // vacío = el porcentaje de siempre
         property string valorTexto: ""
+        // width of the right-hand column, and text shown there when there's no temperature
+        property int ladoAncho: 34
+        property string extra: ""
 
         readonly property real v: Math.max(0, Math.min(1, value))
         readonly property bool hot: temp > 80
@@ -116,7 +148,7 @@ Column {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             spacing: 1
-            width: 34
+            width: m.ladoAncho
             visible: m.temp >= 0
 
             Text {
@@ -137,6 +169,19 @@ Column {
                 font.weight: Font.Bold
             }
         }
+
+        // RAM used/total, in the same column as the temperature
+        Text {
+            anchors.left: tempRow.left
+            anchors.verticalCenter: parent.verticalCenter
+            visible: m.temp < 0 && m.extra !== ""
+            text: m.extra
+            color: Theme.fgDim
+            font.family: Theme.fontDots
+            font.features: Theme.numFeatures
+            font.pixelSize: 13
+            font.weight: Font.Bold
+        }
     }
 
     Meter {
@@ -145,6 +190,7 @@ Column {
         value: SysInfo.cpu / 100
         temp: SysInfo.cpuTemp
         valorAncho: root.anchoValor
+        ladoAncho: root.anchoLado
         accent: SysInfo.cpu > 85 ? Theme.error : Theme.primary
     }
 
@@ -153,7 +199,8 @@ Column {
         label: "RAM"
         value: SysInfo.mem / 100
         valorAncho: root.anchoValor
-        valorTexto: Cfg.ramUsage ? SysInfo.memShort : ""
+        ladoAncho: root.anchoLado
+        extra: !Cfg.ramUsage ? "" : root.ramLargo ? SysInfo.memShort : SysInfo.memUsed + "G"
         accent: SysInfo.mem > 85 ? Theme.error : Theme.tertiary
     }
 
@@ -163,6 +210,7 @@ Column {
         value: SysInfo.gpu / 100
         temp: SysInfo.gpuAvailable ? SysInfo.gpuTemp : -1
         valorAncho: root.anchoValor
+        ladoAncho: root.anchoLado
         accent: SysInfo.gpu > 85 ? Theme.error : Theme.secondary
         visible: SysInfo.gpuAvailable
     }

@@ -13,6 +13,8 @@ QtObject {
     property string memText: "0G / 0G"
     // versión corta para la fila del medidor
     property string memShort: "0/0"
+    // used GB alone, for when used/total doesn't fit
+    property string memUsed: "0"
     property int gpu: 0
     property int gpuTemp: 0
     property bool gpuAvailable: false
@@ -67,6 +69,7 @@ QtObject {
         root.memText = gb(totalKb - availKb) + "G / " + gb(totalKb) + "G";
         // total redondeado a entero, "7.8/31" ocupa menos que "7.8/31.3"
         root.memShort = gb(totalKb - availKb) + "/" + Math.round(totalKb / 1048576);
+        root.memUsed = gb(totalKb - availKb);
 
         // hwmon reporta milésimas de grado
         if (lines.length >= 5) {

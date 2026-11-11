@@ -18,9 +18,9 @@
       <default>true</default>
     </entry>
 
-    <!-- RAM como cantidad usada (7.8/31) en vez de porcentaje -->
+    <!-- RAM used/total (7.8/31) next to the percentage -->
     <entry name="ramUsage" type="Bool">
-      <default>false</default>
+      <default>true</default>
     </entry>
 
     <!-- Qué se ve en la píldora chica -->

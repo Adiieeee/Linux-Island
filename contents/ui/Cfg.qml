@@ -32,7 +32,7 @@ QtObject {
 
     // ── medidores ──
     // apagado: ram en porcentaje. encendido: "7.8/31"
-    property bool ramUsage: false
+    property bool ramUsage: true
 
     // ── qué se ve en la píldora chica ──
     property bool showWorkspaces: true
