@@ -452,6 +452,17 @@ Two rules to avoid it:
     shows layout bugs but not the cost of a real popup resize. The numbers
     above come from plasmashell. `console.warn` from either lands in the
     journal (`journalctl --user`), not on stderr.
+- **A white capsule or a gap around the island may come from Panel
+  Colorizer, not from the island.** The author's top panel runs Panel
+  Colorizer (`luisbocanegra.panel.colorizer`), whose presets gave every panel
+  widget a `#eae8e0` background with a 20 px radius and 2/4 px margins
+  (`globalSettings.widgets.normal`). That drew a white ring around the island
+  and shrank its slot. The island is on Panel Colorizer's blacklist now
+  (`blacklistedWidgets`), in both auto-loaded presets
+  (`~/.config/panel-colorizer/presets/top-clear` and `blur-top`), because
+  loading a preset overwrites the widget's blacklist with the preset's. Once
+  blacklisted, the slot falls back to the panel theme's own 4 px margins,
+  which `CompactPill.reach` covers.
 - **Don't call `qdbus` from the applet.** Plasma 6 systems ship it as
   `qdbus6` (or `/usr/lib/qt6/bin/qdbus`). Plain `qdbus` isn't on `PATH`, and
   `Exec.run` swallows the "command not found". Use `busctl --user`.
