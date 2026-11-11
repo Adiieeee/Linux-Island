@@ -166,7 +166,7 @@ Item {
 
         Text {
             text: popup.count + (popup.count === 1 ? " EN LA BANDEJA" : " EN LA BANDEJA")
-            color: Theme.outline
+            color: Theme.fgFaint
             font.family: Theme.font
             font.pixelSize: Theme.labelSmall
             font.weight: Font.Medium
@@ -256,7 +256,7 @@ Item {
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                         text: "close"
-                        color: dismissMa.containsMouse ? Theme.fg : Theme.outline
+                        color: dismissMa.containsMouse ? Theme.fg : Theme.fgFaint
                         font.family: Theme.fontIcons
                         font.pixelSize: 16
 

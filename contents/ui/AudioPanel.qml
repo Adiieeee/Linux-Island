@@ -95,7 +95,7 @@ Item {
                 anchors.leftMargin: 14
                 anchors.verticalCenter: parent.verticalCenter
                 text: volCard.muted ? "volume_off" : "volume_up"
-                color: volCard.muted ? Theme.outline : volCard.vol > 1 ? Theme.alert : Theme.fg
+                color: volCard.muted ? Theme.fgFaint : volCard.vol > 1 ? Theme.alert : Theme.fg
                 font.family: Theme.fontIcons
                 font.pixelSize: 20
 
@@ -251,7 +251,7 @@ Item {
         }
 
         component SectionLabel: Text {
-            color: Theme.outline
+            color: Theme.fgFaint
             font.family: Theme.font
             font.pixelSize: Theme.labelSmall
             font.weight: Font.Medium
@@ -284,7 +284,7 @@ Item {
                 topPadding: 8
                 bottomPadding: 8
                 text: Cfg.t("Sin salidas")
-                color: Theme.outline
+                color: Theme.fgFaint
                 font.family: Theme.font
                 font.pixelSize: Theme.bodySmall
             }
@@ -316,7 +316,7 @@ Item {
                 topPadding: 8
                 bottomPadding: 8
                 text: Cfg.t("Sin entradas")
-                color: Theme.outline
+                color: Theme.fgFaint
                 font.family: Theme.font
                 font.pixelSize: Theme.bodySmall
             }

@@ -495,7 +495,7 @@ Item {
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                         text: "expand_more"
-                        color: cr.abierto || detMa.containsMouse ? Theme.fg : Theme.outline
+                        color: cr.abierto || detMa.containsMouse ? Theme.fg : Theme.fgFaint
                         font.family: Theme.fontIcons
                         font.pixelSize: 18
 
@@ -686,7 +686,7 @@ Item {
             }
 
             component SectionLabel: Text {
-                color: Theme.outline
+                color: Theme.fgFaint
                 font.family: Theme.font
                 font.pixelSize: Theme.labelSmall
                 font.weight: Font.Medium
@@ -783,7 +783,7 @@ Item {
                                 topPadding: 8
                                 bottomPadding: 8
                                 text: Cfg.t("Buscando…")
-                                color: Theme.outline
+                                color: Theme.fgFaint
                                 font.family: Theme.font
                                 font.pixelSize: Theme.bodySmall
                             }
@@ -819,7 +819,7 @@ Item {
                 topPadding: 10
                 bottomPadding: 10
                 text: popup.mode === "wifi" ? Cfg.t("Wi-Fi apagado") : Cfg.t("Bluetooth apagado")
-                color: Theme.outline
+                color: Theme.fgFaint
                 font.family: Theme.font
                 font.pixelSize: Theme.bodySmall
             }

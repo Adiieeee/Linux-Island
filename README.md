@@ -57,6 +57,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   colour), and its **Connected** line is in the full text colour. Saved and
   nearby entries keep a plain dim icon. Before, the only difference was a
   slightly brighter icon and a medium-weight name.
+- Grey text is brighter, so secondary labels are readable. With the default
+  colours the two text greys went from `#9A9A9A`/`#4E4E4E` to
+  `#B3B3B3`/`#808080`. Section headings (**CONNECTED**, **NEARBY DEVICES**,
+  …), "Searching…", empty-list messages, the app search placeholder, the
+  expand arrows, the notification count and muted volume icons used to be
+  drawn in the border grey (`#2A2A2A`) and were close to invisible. They now
+  use the faint text grey.
 
 ## Install
 
@@ -197,10 +204,15 @@ Three design details:
 - **It asks for four colours, not twelve.** `Theme.qml` derives the
   intermediate steps (`surfaceAlt`, `surfaceHigh`, `surfaceTop`, `fgDim`,
   `fgFaint`, `outline`) by mixing the chosen colours with the text colour or
-  the background in fixed proportions. With the default values they give
-  exactly the previous greys, checked token by token. If the user picks a
+  the background in fixed proportions. With the default values they gave
+  exactly the upstream greys, checked token by token, until the two text
+  greys were brightened (see "What this fork changes"). If the user picks a
   light background the ramp adjusts on its own, because it's an
   interpolation and doesn't assume a dark background.
+- **`outline` is for lines, not text.** It's only 16.5% of the way from the
+  background to the text colour (`#2A2A2A` on black), which is fine for a
+  border or a divider but unreadable as text. The dimmest text grey is
+  `fgFaint`.
 - **The inverted card's text colour is chosen by brightness**, not fixed to
   black. If someone makes that card dark, the text switches to white
   automatically.

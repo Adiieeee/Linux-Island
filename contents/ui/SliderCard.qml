@@ -483,7 +483,7 @@ Rectangle {
         }
 
         icon: root.deviceIcon(ds.dev, ds.isInput)
-        iconColor: ds.devMuted ? Theme.outline : ds.level > 1 ? Theme.alert : ds.selected ? Theme.fg : Theme.fgVariant
+        iconColor: ds.devMuted ? Theme.fgFaint : ds.level > 1 ? Theme.alert : ds.selected ? Theme.fg : Theme.fgVariant
         label: root.deviceName(ds.dev).toUpperCase()
         selected: ds.dev ? ds.dev.default : false
         labelClickable: !ds.selected
@@ -494,7 +494,7 @@ Rectangle {
         showMark: ds.maxLevel > 1
         fillColor: ds.devMuted ? Theme.outline : Theme.fg
         valueText: Math.round(ds.level * 100) + "%"
-        valueColor: ds.devMuted ? Theme.outline : ds.level > 1 ? Theme.alert : Theme.fg
+        valueColor: ds.devMuted ? Theme.fgFaint : ds.level > 1 ? Theme.alert : Theme.fg
 
         onMoved: f => ds.setLevel(f * ds.maxLevel)
         onStepped: d => ds.setLevel(ds.level + d * 0.05)
@@ -514,7 +514,7 @@ Rectangle {
         // ── sound: real ceiling 150%, past 100% the fill turns red ──
         SliderRow {
             icon: Audio.muted ? "volume_off" : "volume_up"
-            iconColor: Audio.muted ? Theme.outline : Audio.boosted ? Theme.alert : Theme.fgVariant
+            iconColor: Audio.muted ? Theme.fgFaint : Audio.boosted ? Theme.alert : Theme.fgVariant
             label: Cfg.t("SONIDO")
             labelClickable: true
             expanded: root.menu === "sound"
@@ -524,7 +524,7 @@ Rectangle {
             // muted keeps the level visible, just dimmed
             fillColor: Audio.muted ? Theme.outline : Theme.fg
             valueText: Audio.percent + "%"
-            valueColor: Audio.muted ? Theme.outline : Audio.boosted ? Theme.alert : Theme.fg
+            valueColor: Audio.muted ? Theme.fgFaint : Audio.boosted ? Theme.alert : Theme.fg
 
             // the 1 s poll would overwrite the value mid-drag and make it jump
             onPressedChanged: Audio.holding = pressed

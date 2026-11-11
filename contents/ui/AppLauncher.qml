@@ -181,7 +181,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: search.text === ""
                     text: Cfg.t("Buscar aplicaciones…")
-                    color: Theme.outline
+                    color: Theme.fgFaint
                     font: search.font
                 }
 
@@ -306,7 +306,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: Cfg.t("Sin resultados")
-                            color: Theme.outline
+                            color: Theme.fgFaint
                             font.family: Theme.font
                             font.pixelSize: Theme.bodySmall
                         }

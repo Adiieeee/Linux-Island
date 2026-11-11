@@ -26,8 +26,11 @@ QtObject {
     readonly property color invertedFg: brillo(inverted) > 0.5 ? "#000000" : "#FFFFFF"
 
     readonly property color fg: Cfg.colorTexto
-    readonly property color fgDim: mezcla(fg, bg, 0.396)
-    readonly property color fgFaint: mezcla(fg, bg, 0.694)
+    // text greys, evenly spaced: #B3B3B3 and #808080 with the defaults.
+    // fgFaint is the dimmest grey still readable as text (about 5:1 on the
+    // default card); outline is for lines and borders only, never for text
+    readonly property color fgDim: mezcla(fg, bg, 0.3)
+    readonly property color fgFaint: mezcla(fg, bg, 0.5)
     readonly property color outline: mezcla(bg, fg, 0.165)
 
     // único color del sistema, solo estados críticos
