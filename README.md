@@ -87,6 +87,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   `~/Desktop`, `~/`), and the pick went back to `~/Videos` every time
   plasmashell started. The "Saved to …" line under the buttons is gone,
   because the folder row says the same.
+- The recording view has a **MODE** row: **Full screen** (as before) or
+  **Window**. In window mode, after you start, the cursor turns into a
+  crosshair: click the window to record, or press Esc to cancel. Only that
+  window's picture is recorded. Sound is still the whole system's (Spectacle
+  can't record one app's audio). The mode is saved in the `recMode` config
+  key (`s` or `w`) and also applies to the round button on the main card.
 - On the recording card in the main view, the round button starts recording
   right away (and stops it while recording). The rest of the card opens the
   recording view. Before, the whole card opened the view first, so starting
@@ -547,6 +553,14 @@ means cancelled. `Recorder` is a singleton and can't write
 `Plasmoid.configuration`, so it emits `folderChosen(path)` and `main.qml`
 saves it. Paths go through `Recorder.quote()` now that they can contain
 anything.
+
+### Window mode
+
+`spectacle --record=w` asks KWin to pick a window interactively (the
+crosshair is KWin's `queryWindowInfo`). Esc makes Spectacle exit with
+"Window recording canceled" and no file. The exit detection below brings
+the island back to idle. `stop()` repeats the mode the recording started
+with (`lastMode`), together with the same `--output`.
 
 ### The island kept "recording" after Spectacle had stopped
 

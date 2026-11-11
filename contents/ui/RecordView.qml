@@ -71,7 +71,7 @@ Item {
                 }
 
                 Text {
-                    text: Recorder.recording ? Cfg.t("Grabando") + " · " + Recorder.elapsedText : Cfg.t("Listo para grabar")
+                    text: Recorder.recording ? Cfg.t("Grabando") + " · " + Recorder.elapsedText : Recorder.mode === "w" ? Cfg.t("Al empezar, hacé clic en la ventana") : Cfg.t("Listo para grabar")
                     color: Theme.fgDim
                     font.family: Theme.font
                     font.pixelSize: Theme.bodySmall
@@ -185,6 +185,42 @@ Item {
                         active: false
                         onPicked: {}
                     }
+                }
+            }
+        }
+
+        // ── mode: whole screen or one window ──
+        Item {
+            width: parent.width
+            height: 30
+
+            Text {
+                id: modeLabel
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                width: 66
+                text: Cfg.t("MODO")
+                color: Theme.fgDim
+                font.family: Theme.font
+                font.pixelSize: Theme.labelSmall
+                font.letterSpacing: Theme.labelSpacing
+            }
+
+            Row {
+                anchors.left: modeLabel.right
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8
+
+                ChoicePill {
+                    label: Cfg.t("Pantalla completa")
+                    active: Recorder.mode === "s"
+                    onPicked: Recorder.setMode("s")
+                }
+
+                ChoicePill {
+                    label: Cfg.t("Ventana")
+                    active: Recorder.mode === "w"
+                    onPicked: Recorder.setMode("w")
                 }
             }
         }

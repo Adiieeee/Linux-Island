@@ -53,6 +53,11 @@
       <default></default>
     </entry>
 
+    <!-- What to record: "s" whole screen, "w" one window -->
+    <entry name="recMode" type="String">
+      <default>s</default>
+    </entry>
+
     <!-- Colores. Los de fábrica son el estilo Nothing; Theme.qml saca de
          estos los escalones intermedios (grises, bordes, texto apagado) -->
     <entry name="colorFondo" type="Color">

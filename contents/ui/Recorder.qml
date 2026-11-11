@@ -24,6 +24,13 @@ QtObject {
 
     property string lastFile: ""
 
+    // what to record: "s" whole screen, "w" one window (after starting, KWin
+    // turns the cursor into a crosshair and the clicked window is recorded).
+    // saved in the applet config (Cfg.recMode); main.qml writes it on modeChosen
+    readonly property string mode: Cfg.recMode === "w" ? "w" : "s"
+    property string lastMode: "s"
+    signal modeChosen(string mode)
+
     // the singleton can't reach Plasmoid.configuration, so main.qml saves it
     signal folderChosen(string path)
 
@@ -58,6 +65,10 @@ QtObject {
 
     function resetFolder(): void {
         root.folderChosen("");
+    }
+
+    function setMode(m): void {
+        root.modeChosen(m);
     }
 
     // the command that launched the current recording. spectacle stays alive
@@ -106,7 +117,9 @@ QtObject {
         // island's toggles there first (this overwrites spectacle's own setting)
         const audio = `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordSystemAudio --type bool ${root.systemAudio}; ` + `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordMicrophone --type bool ${root.microphone}; `;
         // "s" = pantalla, la palabra entera "screen" spectacle no la reconoce
-        root.startCmd = `${audio}mkdir -p ${root.quote(root.folder)}; spectacle --background --record=s --output=${root.quote(file)}; pgrep -x spectacle >/dev/null`;
+        // ("w" = window). stop() repeats the same mode
+        root.lastMode = root.mode;
+        root.startCmd = `${audio}mkdir -p ${root.quote(root.folder)}; spectacle --background --record=${root.lastMode} --output=${root.quote(file)}; pgrep -x spectacle >/dev/null`;
         recording = true;
         root.proc.connectSource(root.startCmd);
     }
@@ -118,7 +131,7 @@ QtObject {
     function stop(): void {
         if (!recording)
             return;
-        Exec.run(`pgrep -x spectacle >/dev/null && spectacle --background --record=s --output=${root.quote(root.lastFile)}`);
+        Exec.run(`pgrep -x spectacle >/dev/null && spectacle --background --record=${root.lastMode} --output=${root.quote(root.lastFile)}`);
         recording = false;
     }
 

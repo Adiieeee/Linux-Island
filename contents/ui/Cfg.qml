@@ -47,6 +47,8 @@ QtObject {
 
     // recordings folder picked in the recording view; empty = Recorder.defaultFolder
     property string recFolder: ""
+    // recording mode: "s" whole screen, "w" one window
+    property string recMode: "s"
 
     // ── aspecto ──
     // los valores de acá son solo el arranque, main.qml los pisa con lo guardado
@@ -155,7 +157,11 @@ QtObject {
             "Se guarda en": ["Se guarda en", "Saved to"],
             "Cambiar": ["Cambiar", "Change"],
             "Predeterminada": ["Predeterminada", "Default"],
-            "Carpeta de grabaciones": ["Carpeta de grabaciones", "Recordings folder"]
+            "Carpeta de grabaciones": ["Carpeta de grabaciones", "Recordings folder"],
+            "MODO": ["MODO", "MODE"],
+            "Pantalla completa": ["Pantalla completa", "Full screen"],
+            "Ventana": ["Ventana", "Window"],
+            "Al empezar, hacé clic en la ventana": ["Al empezar, hacé clic en la ventana", "After starting, click the window"]
         })
 
     function t(clave) {

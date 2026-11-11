@@ -101,12 +101,20 @@ PlasmoidItem {
         property: "recFolder"
         value: Plasmoid.configuration.recFolder
     }
+    Binding {
+        target: Cfg
+        property: "recMode"
+        value: Plasmoid.configuration.recMode
+    }
 
-    // the folder picked in the recording view (Recorder can't write the config)
+    // folder and mode picked in the recording view (Recorder can't write the config)
     Connections {
         target: Recorder
         function onFolderChosen(path) {
             Plasmoid.configuration.recFolder = path;
+        }
+        function onModeChosen(mode) {
+            Plasmoid.configuration.recMode = mode;
         }
     }
 
