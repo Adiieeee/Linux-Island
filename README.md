@@ -90,6 +90,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - Recordings include sound. The **System audio** and **Microphone** toggles
   didn't reach Spectacle, so recordings were silent. See "Recordings had no
   sound" below.
+- The bottom of the island is no longer cut off after a restart where
+  PowerDevil answered late (see "So the island's height must not depend on
+  data that arrives late" below).
 
 ## Install
 
@@ -381,6 +384,16 @@ Two rules to avoid it:
   plasmashell, delete those two keys and start it again**, or the old size
   keeps winning (and the black strip comes back even though the code is
   right).
+- **So the island's height must not depend on data that arrives late.** The
+  BRIGHTNESS row only exists once PowerDevil answers
+  (`ScreenBrightnessControl.isBrightnessAvailable`). Once Plasma stored the
+  height from before it showed up (`popupHeight=491` instead of ~526, exactly
+  one 30 px row plus 4 px spacing), the bottom row of the island stayed cut
+  off. `SliderCard` now shows a disabled stand-in BRIGHTNESS row while the
+  island is on a built-in panel and no real row exists yet, so the height is
+  the same from the first frame. If the backlight can't be controlled at
+  all, the stand-in stays. External-only setups don't get it, since they may
+  have no brightness row.
 - **A child with `anchors.fill` inside a `Row` breaks the Row**: all its
   content disappears. It happened when the scroll-wheel `MouseArea` was put
   inside `Workspaces`, which was a `Row`, and the desktop dots vanished. Now

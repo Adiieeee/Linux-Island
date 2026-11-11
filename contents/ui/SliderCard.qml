@@ -588,6 +588,19 @@ Rectangle {
             }
         }
 
+        // stand-in for the row above until PowerDevil answers, on a built-in
+        // panel only (external-only setups may have no brightness row at all).
+        // Plasma stores the popup's first height and keeps using it, so without
+        // this a slow PowerDevil left the bottom of the island cut off
+        SliderRow {
+            visible: root.hereInternal && root.mainScreen === ""
+            enabled: false
+            icon: "light_mode"
+            iconClickable: false
+            label: Cfg.t("BRILLO")
+            value: 0
+        }
+
         // ── brightness dropdown: every other screen ──
         Column {
             width: parent.width
