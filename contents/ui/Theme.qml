@@ -115,6 +115,9 @@ QtObject {
     // following a live value (the waveform's audio level): just enough to
     // smooth the steps between samples
     readonly property int durTick: 70
+    // text too long for its space waits this long before sliding, so its
+    // start can be read (MarqueeText)
+    readonly property int marqueeHold: 700
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10
@@ -124,6 +127,9 @@ QtObject {
     readonly property int collapsedHeight: 36
     readonly property int expandedHeight: 502
     readonly property int collapsedWidth: 460
+    // the panel island's middle while it shows a lyric line instead of the
+    // clock; the same for every line, so the island doesn't resize on each
+    readonly property int lyricsWidth: 200
     readonly property int expandedWidth: 580
     // se suma a la isla, no reemplaza, así lo de arriba sigue visible
     readonly property int notifStrip: 62

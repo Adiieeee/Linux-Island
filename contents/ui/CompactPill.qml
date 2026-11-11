@@ -7,9 +7,10 @@ import org.kde.plasma.private.mpris as Mpris
 import "."
 
 // píldora colapsada, la parte que vive dentro del panel de plasma
-// one black capsule: album art · clock · waveform while something plays or
-// is paused, just the clock otherwise. as wide as its content, so main.qml
-// can reserve exactly what is drawn, and as tall as the panel itself
+// one black capsule: album art · middle · waveform while something plays or
+// is paused, just the clock otherwise. the middle is the clock, or the lyric
+// line being sung (wider, Theme.lyricsWidth). as wide as its content, so
+// main.qml can reserve exactly what is drawn, and as tall as the panel itself
 Item {
     id: root
 
@@ -26,6 +27,20 @@ Item {
     // playing or paused, not stopped
     readonly property bool media: Cfg.showMini && player !== null && playback !== Mpris.PlaybackStatus.Stopped
     readonly property string artUrl: player?.artUrl ?? ""
+
+    // ── what the middle shows ──
+    // "lyric": a line is being sung (Lyrics.wide, playing only). "clock":
+    // everything else (nothing playing, paused, a song without lyrics, an
+    // instrumental break). the clock giving way to the lyrics is an
+    // experiment: it isn't anywhere else in the island
+    readonly property string mode: {
+        if (!root.media)
+            return "clock";
+        if (root.isPlaying && Lyrics.wide)
+            return "lyric";
+        return "clock";
+    }
+    readonly property real middleWidth: root.mode === "clock" ? clock.implicitWidth : Theme.lyricsWidth
 
     // ── as tall as the panel ──
     // the panel insets every applet by its theme's margins (Ant-Dark: 4 px
@@ -57,7 +72,10 @@ Item {
     // sides when only the clock shows
     readonly property int padding: 12
 
-    implicitWidth: root.media ? 2 * (root.inset + root.tile + root.gap) + clock.implicitWidth : 2 * root.padding + clock.implicitWidth
+    // what the art and the waveform take, or the padding beside a lone clock
+    readonly property real sides: root.media ? 2 * (root.inset + root.tile + root.gap) : 2 * root.padding
+
+    implicitWidth: root.sides + root.middleWidth
     implicitHeight: Theme.collapsedHeight
 
     Behavior on implicitWidth {
@@ -84,6 +102,23 @@ Item {
         Behavior on scale {
             NumberAnimation {
                 duration: Theme.durLong
+                easing.type: Easing.Bezier
+                easing.bezierCurve: Theme.emphasizedDecel
+            }
+        }
+    }
+
+    // one of the middle's contents, fading in and out as the mode changes
+    component Layer: Item {
+        property bool on: false
+
+        anchors.fill: parent
+        opacity: on ? 1 : 0
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Theme.durMedium
                 easing.type: Easing.Bezier
                 easing.bezierCurve: Theme.emphasizedDecel
             }
@@ -133,9 +168,41 @@ Item {
             }
         }
 
-        Clock {
-            id: clock
+        // ── middle: clock or lyric line ──
+        // as wide as the capsule leaves between art and waveform while the
+        // width animates, clipped, so a line widening the island is revealed
+        // from the centre instead of running over the art
+        Item {
+            id: middle
             anchors.centerIn: parent
+            width: Math.max(0, capsule.width - root.sides)
+            height: parent.height
+            clip: true
+
+            Layer {
+                on: root.mode === "clock"
+
+                Clock {
+                    id: clock
+                    anchors.centerIn: parent
+                }
+            }
+
+            Layer {
+                id: lyricLayer
+                on: root.mode === "lyric"
+
+                LyricLine {
+                    anchors.centerIn: parent
+                    width: Theme.lyricsWidth
+                    text: Lyrics.text
+                    serial: Lyrics.shown
+                    running: lyricLayer.visible
+                    // the line is on screen from its start to the next one;
+                    // the slide fits in between, with a hold at each end
+                    scrollMs: Math.max(500, (Lyrics.lineEnd - Lyrics.lineStart) * 1000 / Lyrics.rate - 2 * Theme.marqueeHold)
+                }
+            }
         }
 
         // ── waveform: the real level of what the speakers play ──

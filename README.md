@@ -27,7 +27,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   drawn 150 px wide, so it spilled into the neighbouring widgets, and the
   pill was a fixed 27 px tall.
 - The small island is one black capsule instead of two pills: the album art
-  on the left (round), the clock in the middle, and
+  on the left (round), the clock (or the lyrics, see below) in the middle, and
   a waveform on the right. With nothing playing or
   paused it shrinks to the clock, with an animated width. The previous, play
   and next buttons are gone (the control center has them), and so is the
@@ -46,6 +46,16 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   mastered songs are scaled up to use the full height. While paused the bars
   rest low and dim. Before, four bars moved on a fixed animation whatever
   was playing. See "The real waveform" below.
+- The small island shows synced lyrics. While a line is being sung, the
+  island widens to a fixed width (`Theme.lyricsWidth`, the same for every
+  line, so it doesn't resize on each one) and the line takes the clock's
+  place. A line too long for that width waits a moment, then slides once to
+  show its end within the time it's sung. Each new line fades in from below
+  while the old one fades out upwards. During the intro, the outro and
+  instrumental breaks of 4 seconds or more the island shrinks back to the
+  clock. So does a song without lyrics, and a paused one. Lyrics come from
+  LRCLIB (lrclib.net). See "Lyrics in the panel island" below. Hiding the
+  clock while lyrics show is an experiment.
 - With more than one player (Spotify and a browser tab with YouTube, say),
   the panel island always shows the one that's playing. It used to stick to
   whichever player happened to be first: Plasma's MPRIS model lists a
@@ -190,6 +200,7 @@ section stays empty, but the rest of the island keeps working:
 | Bluetooth | `bluetoothctl` |
 | Sound | `wpctl`, `pactl` (PipeWire), plus Plasma's audio applet (plasma-pa) for the device dropdown |
 | Waveform in the small island | Plasma's audio applet (plasma-pa), with PipeWire or PulseAudio |
+| Lyrics in the small island | internet access to `lrclib.net` |
 | Brightness | Plasma's PowerDevil (built in). External monitors need DDC/CI support |
 | GPU meter | `nvidia-smi` (hidden if missing) |
 | Screen recording | `spectacle` |
@@ -285,8 +296,8 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Show in the small island**: weather, network, battery. (The desktops and
   clock checkboxes are gone: the island has no desktop dots for now and
   always shows the clock.)
-- **Player**: show or hide the album art and waveform around the clock while
-  something is playing or paused.
+- **Player**: show or hide the album art, waveform and lyrics around the
+  clock while something is playing or paused.
 - **Weather city**: leave it empty to detect it from your IP.
 
 The values live in `contents/config/main.xml`. Adding a new one means
@@ -812,6 +823,15 @@ outside Plasma.
   `positionChanged`. On a new song the playhead starts from the player's last
   known position, not 0, or a player found paused halfway through a song
   would stay at 0.
+- **Fixed width.** Every line gets the same middle width
+  (`Theme.lyricsWidth`), so the island resizes when lyrics start and stop,
+  not on each line. While the width animates, the middle is clipped to the
+  space between the art and the waveform, so the line is revealed from the
+  centre instead of running over them.
+- **Long lines slide once** (`MarqueeText.qml`): a hold of
+  `Theme.marqueeHold` (0.7 s), a slide to the end that fits in the line's
+  time on screen, then it stays there. Looping would make the line hard to
+  follow while it's sung.
 - **Lines.** A line shows 0.3 s before it's sung (`LEAD`). Empty lines and
   lines with only ♪ are gaps. A gap shorter than 4 s between two sung lines
   keeps the last line up; longer ones, the intro and the outro hand the
