@@ -134,9 +134,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   data that arrives late" below).
 - The translucent, blurred frame Plasma draws around the open island is
   4 px wide instead of the theme's full margin (12 px with Ant-Dark), and
-  the island's corners follow the frame's corner shape, so the frame is an
-  even 4 px all the way round. The corners are a little less round than the
-  old 26 px radius. See "Plasma's popup always has a frame" below.
+  the control center's corners run parallel to the frame's, so the frame is an
+  even 4 px all the way round. The frame's corners were a tight "squircle"
+  that made the control center look boxy, so the author's Ant-Dark theme was
+  edited to round them (radius 24, control center radius 20). See "Plasma's
+  popup always has a frame" below.
 - When Spectacle stops recording on its own (it failed to start, or it was
   stopped from its tray icon), the island notices and goes back to idle
   instead of counting forever.
@@ -459,8 +461,9 @@ Two rules to avoid it:
   (`globalSettings.widgets.normal`). That drew a white ring around the island
   and shrank its slot. The island is on Panel Colorizer's blacklist now
   (`blacklistedWidgets`), in both auto-loaded presets
-  (`~/.config/panel-colorizer/presets/top-clear` and `blur-top`), because
-  loading a preset overwrites the widget's blacklist with the preset's. Once
+  (`~/.config/panel-colorizer/presets/top-clear` and `blur-top`, originals
+  kept as `settings.json.orig`), because loading a preset overwrites the
+  widget's blacklist with the preset's. Once
   blacklisted, the slot falls back to the panel theme's own 4 px margins,
   which `CompactPill.reach` covers.
 - **Don't call `qdbus` from the applet.** Plasma 6 systems ship it as
@@ -505,15 +508,25 @@ Two rules to avoid it:
   negative margins, leaving `Theme.popupRing` (4 px) of it visible. The item
   itself shrinks by the same amount (`implicitWidth`, `drawnHeight`), so the
   island keeps its size and the content stays where it was.
-  The frame's corners aren't circles: Ant-Dark's corner is a cubic across a
-  24 px tile with its control points 4 px from the corner, a "squircle".
-  With a circular 26 px radius the ring was thicker at the corners. So the
-  island (and the dark layer behind open overlays, which was a plain square
-  and darkened the frame's corners) is drawn by `IslandShape`, a `Shape`
-  with the same cubic corners in a 20 px tile (`Theme.islandCorner`,
-  `Theme.islandCornerPull`), and runs parallel to the frame. Another Plasma
-  theme has another corner: measure its `dialogs/background.svg` and change
-  those two tokens. `CurveRenderer` antialiases the curves without
+  The frame's corners decide how round the popup can look: the island can't
+  be rounder than the frame without the ring getting thicker at the corners
+  (it was, with a circular 26 px radius). Ant-Dark's corner was a cubic
+  across a 24 px tile with its control points 4 px from the corner, a tight
+  "squircle" that read as radius ~15 and made the control center boxy. So
+  the author's copy of the theme
+  (`~/.local/share/plasma/desktoptheme/Ant-Dark/dialogs/background.svg`,
+  original kept next to it as `background.svg.orig`) was edited: the four
+  corners, their `mask-*` and `shadow-*` counterparts are now quarter circles
+  of radius 24 (control points 13.255 px from the ends). This rounds every
+  Plasma popup, not just the island's. After editing a theme SVG, stop
+  plasmashell and delete `~/.cache/ksvg-elements` and
+  `~/.cache/plasma_theme_<theme>.kcache`, or the old corners stay cached.
+  The island (and the dark layer behind open overlays, which was a plain
+  square and darkened the frame's corners) is drawn by `IslandShape`, a
+  `Shape` whose corners follow the frame's, inset by the ring: a quarter
+  circle of radius 20 (`Theme.islandCorner`, `Theme.islandCornerPull`).
+  With another Plasma theme, measure its `dialogs/background.svg` corner and
+  change those two tokens. `CurveRenderer` antialiases the curves without
   `layer.enabled`.
 - **A child with `anchors.fill` inside a `Row` breaks the Row**: all its
   content disappears. It happened when the scroll-wheel `MouseArea` was put
