@@ -165,7 +165,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 66
                 text: "FPS"
-                color: Theme.fgFaint
+                color: Theme.fgDim
                 font.family: Theme.font
                 font.pixelSize: Theme.labelSmall
                 font.letterSpacing: Theme.labelSpacing
@@ -214,7 +214,7 @@ Item {
                 anchors.leftMargin: 14
                 anchors.verticalCenter: parent.verticalCenter
                 text: tr.icon
-                color: tr.checked ? Theme.fg : Theme.fgFaint
+                color: tr.checked ? Theme.fg : Theme.fgDim
                 font.family: Theme.fontIcons
                 font.pixelSize: 18
             }
@@ -390,7 +390,7 @@ Item {
 
         Text {
             text: Cfg.t("Se guarda en") + " " + Recorder.folder.replace(root.home, "~")
-            color: Theme.fgFaint
+            color: Theme.fgDim
             font.family: Theme.font
             font.pixelSize: Theme.labelSmall
         }
