@@ -313,13 +313,9 @@ Item {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                // grabando: solo detiene. libre: abre la vista de config
-                                onClicked: {
-                                    if (Recorder.recording)
-                                        Recorder.stop();
-                                    else
-                                        root.openOverlay("rec");
-                                }
+                                // the card opens the recording view (status and stop
+                                // while recording); the round button starts/stops directly
+                                onClicked: root.openOverlay("rec")
                             }
 
                             Rectangle {
@@ -330,7 +326,9 @@ Item {
                                 width: 30
                                 height: 30
                                 radius: height / 2
-                                color: Recorder.recording ? "transparent" : Theme.surfaceHigh
+                                // a step above surfaceHigh on hover, or it vanishes when
+                                // the whole card hovers to surfaceHigh
+                                color: Recorder.recording ? "transparent" : recBtnMa.containsMouse ? Theme.surfaceTop : Theme.surfaceHigh
                                 border.width: 1.5
                                 border.color: Recorder.recording ? Theme.alert : Theme.outline
 
@@ -356,6 +354,16 @@ Item {
                                     color: Theme.fg
                                     font.family: Theme.fontIcons
                                     font.pixelSize: 18
+                                }
+
+                                // above the card's MouseArea, so the button doesn't open the view
+                                MouseArea {
+                                    id: recBtnMa
+                                    anchors.fill: parent
+                                    anchors.margins: -4
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Recorder.toggle()
                                 }
                             }
 

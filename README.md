@@ -82,6 +82,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   `~/Videos`. The folder row in the recording view (`~/Videos`, `~/Pictures`,
   `~/Desktop`, `~/`) is gone. Its pick wasn't saved anyway and went back to
   `~/Videos` every time plasmashell started.
+- On the recording card in the main view, the round button starts recording
+  right away (and stops it while recording). The rest of the card opens the
+  recording view. Before, the whole card opened the view first, so starting
+  took two clicks, and a click anywhere on the card stopped a running
+  recording.
 
 ## Install
 
