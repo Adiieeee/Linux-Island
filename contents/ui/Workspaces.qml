@@ -14,7 +14,8 @@ Item {
     function activate(id) {
         if (!id)
             return;
-        Exec.run('qdbus org.kde.KWin /VirtualDesktopManager org.kde.KWin.VirtualDesktopManager.current "' + id + '"');
+        // busctl: plain "qdbus" isn't installed on Plasma 6 systems (only qdbus6)
+        Exec.run('busctl --user set-property org.kde.KWin /VirtualDesktopManager org.kde.KWin.VirtualDesktopManager current s "' + id + '"');
     }
 
     function step(delta) {
