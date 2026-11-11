@@ -922,8 +922,9 @@ outside Plasma.
   it a double beam, which reads as sixteenths). Each note is one SVG path in
   a `Shape`: tilted elliptical heads (two half arcs each), stems, and a flag
   or a beam, filled with the winding rule so the overlapping parts make one
-  shape. `Theme.noteSize` (14 px) sets the height and `Theme.noteWidth`
-  (24 px) the middle's width while a note shows.
+  shape. `Theme.noteSize` (9 px, about the height of the lyric text; 14 px
+  was far too big) sets the height and `Theme.noteWidth` (20 px) the
+  middle's width while a note shows.
 - **Pausing needs no code of its own.** The playhead stops, so
   `Lyrics.wide` and the line on show stay as they are. `MarqueeText.paused`
   holds a sliding line where it is (set by hand on the running animation:

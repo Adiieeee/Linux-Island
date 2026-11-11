@@ -140,8 +140,8 @@ QtObject {
     // a music note in the notch's middle (NoteGlyph: ♪ in a song's
     // instrumental break, ♫ for a song without lyrics): its height, and the
     // middle's width while it shows
-    readonly property int noteSize: 14
-    readonly property int noteWidth: 24
+    readonly property int noteSize: 9
+    readonly property int noteWidth: 20
     readonly property int expandedWidth: 580
     // se suma a la isla, no reemplaza, así lo de arriba sigue visible
     readonly property int notifStrip: 62
