@@ -48,6 +48,11 @@
       <default></default>
     </entry>
 
+    <!-- Folder picked in the recording view; empty = ~/Videos/Screen Record -->
+    <entry name="recFolder" type="String">
+      <default></default>
+    </entry>
+
     <!-- Colores. Los de fábrica son el estilo Nothing; Theme.qml saca de
          estos los escalones intermedios (grises, bordes, texto apagado) -->
     <entry name="colorFondo" type="Color">

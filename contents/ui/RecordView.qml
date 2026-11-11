@@ -1,5 +1,6 @@
 import QtQuick
 import Qt.labs.platform as Platform
+import org.kde.plasma.plasmoid
 import "."
 
 // vista de config de grabación, reemplaza el contenido de la isla mientras está abierta
@@ -212,14 +213,15 @@ Item {
                 spacing: 8
 
                 Repeater {
-                    model: ["Videos", "Pictures", "Desktop", ""]
+                    model: [Recorder.defaultFolder, root.home + "/Pictures", root.home + "/Desktop", root.home]
 
+                    // the pick goes to the applet config (Recorder.folder follows it);
+                    // the default is stored as "" so the config stays clean
                     ChoicePill {
-                        required property var modelData
-                        readonly property string path: root.home + (modelData !== "" ? "/" + modelData : "")
-                        label: modelData !== "" ? "~/" + modelData : "~/"
-                        active: Recorder.folder === path
-                        onPicked: Recorder.folder = path
+                        required property string modelData
+                        label: modelData === root.home ? "~/" : modelData.replace(root.home, "~")
+                        active: Recorder.folder === modelData
+                        onPicked: Plasmoid.configuration.recFolder = modelData === Recorder.defaultFolder ? "" : modelData
                     }
                 }
             }

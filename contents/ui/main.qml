@@ -96,6 +96,11 @@ PlasmoidItem {
         property: "fuenteNumeros"
         value: Plasmoid.configuration.fuenteNumeros
     }
+    Binding {
+        target: Cfg
+        property: "recFolder"
+        value: Plasmoid.configuration.recFolder
+    }
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 

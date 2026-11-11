@@ -13,7 +13,10 @@ QtObject {
     property int elapsed: 0
 
     // ajustes
-    property string folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.MoviesLocation).toString().replace("file://", "")
+    // default: a "Screen Record" folder inside the user's Videos folder. a pick
+    // in the recording view is saved in the applet config, so it survives restarts
+    readonly property string defaultFolder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.MoviesLocation).toString().replace("file://", "") + "/Screen Record"
+    readonly property string folder: Cfg.recFolder !== "" ? Cfg.recFolder : defaultFolder
     property bool systemAudio: true
     property bool microphone: false
 
@@ -61,7 +64,8 @@ QtObject {
             start();
     }
 
+    // the default folder doesn't exist until the first recording
     function openFolder(): void {
-        Exec.run(`xdg-open '${root.folder}'`);
+        Exec.run(`mkdir -p '${root.folder}'; xdg-open '${root.folder}'`);
     }
 }

@@ -76,6 +76,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the bars too short (under 60 px), it shows only the used amount ("7.8G").
   The setting that used to swap the percentage for "7.8/31" now turns this
   extra number on or off, and is on by default.
+- Screen recordings go to `~/Videos/Screen Record` by default (created on
+  the first recording, or when you open the folder), instead of straight
+  into `~/Videos`. The folder you pick in the recording view is remembered
+  across restarts. Before, it went back to `~/Videos` every time plasmashell
+  started. The pick is stored in the `recFolder` config key, written by
+  `RecordView` through `Plasmoid.configuration` because the `Recorder`
+  singleton can't reach it; empty means the default.
 
 ## Install
 
