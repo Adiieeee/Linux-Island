@@ -31,7 +31,7 @@ QtObject {
     readonly property string fmtHoraCorta: cfg.clock24 ? "HH:mm" : "h:mm"
 
     // ── medidores ──
-    // off: RAM as a percentage only. on: also used/total ("7.8/31") next to it
+    // off: RAM as a percentage only. on: also the used amount ("7.8 GiB") next to it
     property bool ramUsage: true
 
     // ── qué se ve en la píldora chica ──

@@ -9,34 +9,29 @@ Column {
     // ancho fijo para las tres filas, si cada una se calcula sola la de ram "7.8/31" descuadra
     readonly property int anchoValor: 32
 
-    // the right-hand column holds the temperature, or RAM used/total on the RAM
-    // row. its width is shared by all rows so the bars stay the same length
+    // the right-hand column holds the temperature, or RAM used ("10.7 GiB") on
+    // the RAM row. its width is shared by all rows so the bars stay the same length
     readonly property int anchoTemp: 34
-    // shortest bar allowed before RAM falls back to just the used amount
-    readonly property int barraMin: 60
-    // everything in a row except the bar and the right-hand column
-    readonly property int fijo: 26 + 9 + 30 + 4 + 10 + anchoValor + 8
 
-    // all-zeros templates, so the column only resizes when the digit count
-    // changes. same font as the temperature and RAM text
+    // all-zeros template, so the column only resizes when the digit count
+    // changes. same font as the temperature
     TextMetrics {
-        id: moldeRamLargo
+        id: moldeRam
         font.family: Theme.fontDots
         font.features: Theme.numFeatures
         font.pixelSize: 13
         font.weight: Font.Bold
-        text: SysInfo.memShort.replace(/[0-9]/g, "0")
+        text: SysInfo.memUsed.replace(/[0-9]/g, "0")
     }
 
     TextMetrics {
-        id: moldeRamCorto
-        font: moldeRamLargo.font
-        text: (SysInfo.memUsed + "G").replace(/[0-9]/g, "0")
+        id: moldeUnidad
+        font.family: Theme.font
+        font.pixelSize: Theme.labelSmall
+        text: "GiB"
     }
 
-    readonly property int anchoRamLargo: Math.ceil(moldeRamLargo.advanceWidth) + 2
-    readonly property bool ramLargo: root.width - root.fijo - root.anchoRamLargo >= root.barraMin
-    readonly property int anchoLado: !Cfg.ramUsage ? anchoTemp : Math.max(anchoTemp, ramLargo ? anchoRamLargo : Math.ceil(moldeRamCorto.advanceWidth) + 2)
+    readonly property int anchoLado: !Cfg.ramUsage ? anchoTemp : Math.max(anchoTemp, Math.ceil(moldeRam.advanceWidth) + 1 + Math.ceil(moldeUnidad.advanceWidth) + 2)
 
     component Meter: Item {
         id: m
@@ -49,9 +44,11 @@ Column {
         property int valorAncho: 32
         // vacío = el porcentaje de siempre
         property string valorTexto: ""
-        // width of the right-hand column, and text shown there when there's no temperature
+        // width of the right-hand column, and the value (plus a small unit)
+        // shown there when there's no temperature
         property int ladoAncho: 34
         property string extra: ""
+        property string extraUnit: ""
 
         readonly property real v: Math.max(0, Math.min(1, value))
         readonly property bool hot: temp > 80
@@ -170,17 +167,30 @@ Column {
             }
         }
 
-        // RAM used/total, in the same column as the temperature
-        Text {
+        // RAM used, in the same column as the temperature
+        Row {
             anchors.left: tempRow.left
             anchors.verticalCenter: parent.verticalCenter
+            spacing: 1
             visible: m.temp < 0 && m.extra !== ""
-            text: m.extra
-            color: Theme.fgDim
-            font.family: Theme.fontDots
-            font.features: Theme.numFeatures
-            font.pixelSize: 13
-            font.weight: Font.Bold
+
+            Text {
+                id: extraTxt
+                text: m.extra
+                color: Theme.fgDim
+                font.family: Theme.fontDots
+                font.features: Theme.numFeatures
+                font.pixelSize: 13
+                font.weight: Font.Bold
+            }
+
+            Text {
+                anchors.baseline: extraTxt.baseline
+                text: m.extraUnit
+                color: Theme.fgDim
+                font.family: Theme.font
+                font.pixelSize: Theme.labelSmall
+            }
         }
     }
 
@@ -200,7 +210,8 @@ Column {
         value: SysInfo.mem / 100
         valorAncho: root.anchoValor
         ladoAncho: root.anchoLado
-        extra: !Cfg.ramUsage ? "" : root.ramLargo ? SysInfo.memShort : SysInfo.memUsed + "G"
+        extra: Cfg.ramUsage ? SysInfo.memUsed : ""
+        extraUnit: "GiB"
         accent: SysInfo.mem > 85 ? Theme.error : Theme.tertiary
     }
 

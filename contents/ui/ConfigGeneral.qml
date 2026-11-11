@@ -98,7 +98,7 @@ Kirigami.FormLayout {
 
     QQC2.CheckBox {
         Kirigami.FormData.label: page.esp ? "Medidores:" : "Meters:"
-        text: page.esp ? "Mostrar la RAM usada (7.8/31) junto al porcentaje" : "Show RAM used (7.8/31) next to the percentage"
+        text: page.esp ? "Mostrar la RAM usada (7.8 GiB) junto al porcentaje" : "Show RAM used (7.8 GiB) next to the percentage"
         checked: page.cfg_ramUsage
         onToggled: page.cfg_ramUsage = checked
     }

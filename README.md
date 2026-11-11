@@ -70,12 +70,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   view. The media card is left as it was: its artist line,
   times and placeholder icon use their own `Theme.mediaDim` token, which keeps
   the original `#9A9A9A`.
-- The RAM meter shows how much is used next to the percentage, as used over
-  total in GB ("7.8/31"), in the column where CPU and GPU show their
-  temperature, so the three bars stay the same length. If a wide font leaves
-  the bars too short (under 60 px), it shows only the used amount ("7.8G").
-  The setting that used to swap the percentage for "7.8/31" now turns this
-  extra number on or off, and is on by default.
+- The RAM meter shows how much is used next to the percentage, e.g.
+  "68%  10.4 GiB" with a small unit, in the column where CPU and GPU show
+  their temperature, so the three bars stay the same length. The value is in
+  GiB (1024³ bytes) because `/proc/meminfo` counts in KiB. The setting that
+  used to swap the percentage for used/total ("7.8/31") now turns this extra
+  number on or off, and is on by default.
 - Screen recordings go to `~/Videos/Screen Record` by default (created on
   the first recording, or when you open the folder), instead of straight
   into `~/Videos`. The folder you pick in the recording view is remembered
@@ -197,8 +197,8 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Language**: automatic (the system's), Spanish or English. It only changes
   the island's texts, not the desktop.
 - **Time**: 24-hour, or 12-hour with AM/PM.
-- **Meters**: RAM used over total ("7.8/31") next to the percentage (on by
-  default). Turn it off to show the percentage alone.
+- **Meters**: RAM used ("7.8 GiB") next to the percentage (on by default).
+  Turn it off to show the percentage alone.
 - **Show in the small island**: desktops, weather, clock, network, battery.
 - **Player**: show or hide the mini player while something is playing.
 - **Weather city**: leave it empty to detect it from your IP.
@@ -390,10 +390,10 @@ Two rules to avoid it:
   `tempRow` is still anchored to the right with its width, so the RAM number
   sat 8 px off and its bar was 8 px longer than the other two. The margin is
   now always the same. For the same reason, the widths of the percentage
-  column and of the right-hand column (temperature, or RAM used/total) are
+  column and of the right-hand column (temperature, or RAM used) are
   decided once in the parent `Column` (`anchoValor`, `anchoLado`), not per
-  row. Otherwise the RAM row widens on its own when it shows "7.8/31" and the
-  bars end up different lengths again.
+  row. Otherwise the RAM row widens on its own when it shows "10.4 GiB" and
+  the bars end up different lengths again.
 - **Plasma's audio models do say which device is the default, just not right
   away.** `Audio.qml` still polls `wpctl` because the original author found
   that plasma-pa's `SinkModel` didn't expose the active device. It does: right
