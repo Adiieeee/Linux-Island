@@ -100,6 +100,12 @@ Item {
                 // más ancha que la tarjeta, así se ven como una sola masa y no tres manchas
                 width: card.width * 1.4
                 height: width
+                // start where the path starts. at the default 0,0 the blob's
+                // centre sat far below the card, and the card stayed dark and
+                // grey for the 10-20 s its first swing took, every time the
+                // popup was created
+                x: mancha.desdeX - mancha.width / 2
+                y: mancha.desdeY - mancha.height / 2
 
                 // se pinta chico (220px) y se estira, mucho más liviano y sin escalones
                 Canvas {

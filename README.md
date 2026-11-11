@@ -217,6 +217,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   that made the control center look boxy, so the author's Ant-Dark theme was
   edited to round them (radius 24, control center radius 20). See "Plasma's
   popup always has a frame" below.
+- The media card shows the cover's colours as soon as it opens. Its colour
+  blobs used to start below the card and drift in over 10–20 seconds, so it
+  looked dark and grey at first (see "The player's liquid background").
 - When Spectacle stops recording on its own (it failed to start, or it was
   stopped from its tray icon), the island notices and goes back to idle
   instead of counting forever.
@@ -825,6 +828,11 @@ took effort:
 - **The blobs are 1.4 times the card's width and move by their centre**,
   not their corner. Moving the corner keeps the dense centre always out of
   frame, so only the faded edge is visible.
+- **The blobs start on their path.** They used to start at `0,0`, which put
+  each blob's centre far below the card (the blob is 1.4 times the card's
+  width), and the first swing back up takes 9 to 21 seconds. So every time
+  the popup was created, the card stayed dark and grey for its first
+  10–20 seconds while the small island already showed the cover's colours.
 - **When the song changes, the colour jumps instead of crossfading.** There
   used to be a 900 ms `Behavior on color`. With `Canvas` that would mean
   repainting three gradients every frame for a second, which is extra work
