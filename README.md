@@ -52,6 +52,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   monitors by model name.
   Drag or scroll to adjust. The slider never goes below 1%, because 0 switches
   some backlights off completely.
+- In the Bluetooth and Wi-Fi panels, a connected device or network is easy to
+  spot: its icon sits in a filled disc in the "on" colour (the inverted card
+  colour), and its **Connected** line is in the full text colour. Saved and
+  nearby entries keep a plain dim icon. Before, the only difference was a
+  slightly brighter icon and a medium-weight name.
 
 ## Install
 

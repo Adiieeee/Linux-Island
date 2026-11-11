@@ -356,74 +356,100 @@ Item {
                     anchors.top: parent.top
                     height: 44
 
-                    // icono normal de la fila
-                    Text {
-                        id: crIcon
-                        anchors.left: parent.left
-                        anchors.leftMargin: 10
-                        anchors.verticalCenter: parent.verticalCenter
-                        visible: !cr.isBusy
-                        text: {
-                            if (popup.mode === "wifi")
-                                return cr.isConnected ? "wifi" : (cr.item?.secure ?? false) ? "lock" : "wifi_find";
-                            const n = (cr.item?.name ?? "").toLowerCase();
-                            if (n.includes("head") || n.includes("buds") || n.includes("audio"))
-                                return "headphones";
-                            if (n.includes("phone"))
-                                return "call";
-                            if (n.includes("keyboard") || n.includes("teclado"))
-                                return "keyboard";
-                            if (n.includes("mouse"))
-                                return "mouse";
-                            return "bluetooth";
-                        }
-                        color: cr.didFail ? Theme.alert : cr.isConnected ? Theme.fg : Theme.fgFaint
-                        font.family: Theme.fontIcons
-                        font.pixelSize: 18
-                    }
-
-                    // spinner aparte del icono, si no queda torcido al frenar
+                    // icon slot. connected rows get a filled disc in the "on"
+                    // colour, so they stand out from saved and nearby ones
                     Item {
-                        id: spinner
+                        id: crSlot
                         anchors.left: parent.left
-                        anchors.leftMargin: 10
+                        anchors.leftMargin: 8
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 18
-                        height: 18
-                        visible: cr.isBusy
+                        width: 28
+                        height: 28
 
                         Rectangle {
                             anchors.fill: parent
                             radius: width / 2
-                            color: "transparent"
-                            border.width: 2
-                            border.color: Theme.outline
+                            color: Theme.inverted
+                            opacity: cr.isConnected && !cr.isBusy ? 1 : 0
+
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: Theme.durShort
+                                }
+                            }
                         }
 
-                        Item {
-                            anchors.fill: parent
-
-                            RotationAnimator on rotation {
-                                running: spinner.visible
-                                loops: Animation.Infinite
-                                from: 0
-                                to: 360
-                                duration: 1100
+                        // icono normal de la fila
+                        Text {
+                            id: crIcon
+                            anchors.centerIn: parent
+                            visible: !cr.isBusy
+                            text: {
+                                if (popup.mode === "wifi")
+                                    return cr.isConnected ? "wifi" : (cr.item?.secure ?? false) ? "lock" : "wifi_find";
+                                const n = (cr.item?.name ?? "").toLowerCase();
+                                if (n.includes("head") || n.includes("buds") || n.includes("audio"))
+                                    return "headphones";
+                                if (n.includes("phone"))
+                                    return "call";
+                                if (n.includes("keyboard") || n.includes("teclado"))
+                                    return "keyboard";
+                                if (n.includes("mouse"))
+                                    return "mouse";
+                                return "bluetooth";
                             }
+                            color: cr.didFail ? Theme.alert : cr.isConnected ? Theme.invertedFg : Theme.fgFaint
+                            font.family: Theme.fontIcons
+                            font.pixelSize: 18
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: Theme.durShort
+                                }
+                            }
+                        }
+
+                        // spinner aparte del icono, si no queda torcido al frenar
+                        Item {
+                            id: spinner
+                            anchors.centerIn: parent
+                            width: 18
+                            height: 18
+                            visible: cr.isBusy
 
                             Rectangle {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                y: 0
-                                width: 6
-                                height: 6
-                                radius: 3
-                                color: Theme.fg
+                                anchors.fill: parent
+                                radius: width / 2
+                                color: "transparent"
+                                border.width: 2
+                                border.color: Theme.outline
+                            }
+
+                            Item {
+                                anchors.fill: parent
+
+                                RotationAnimator on rotation {
+                                    running: spinner.visible
+                                    loops: Animation.Infinite
+                                    from: 0
+                                    to: 360
+                                    duration: 1100
+                                }
+
+                                Rectangle {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    y: 0
+                                    width: 6
+                                    height: 6
+                                    radius: 3
+                                    color: Theme.fg
+                                }
                             }
                         }
                     }
 
                     Column {
-                        anchors.left: crIcon.right
+                        anchors.left: crSlot.right
                         anchors.leftMargin: 10
                         anchors.right: crAction.left
                         anchors.rightMargin: 6
@@ -455,7 +481,7 @@ Item {
                                     return Cfg.t("Guardado");
                                 return Cfg.t("Disponible");
                             }
-                            color: cr.didFail ? Theme.alert : Theme.fgVariant
+                            color: cr.didFail ? Theme.alert : cr.isConnected ? Theme.fg : Theme.fgVariant
                             font.family: Theme.font
                             font.pixelSize: Theme.labelSmall
                             elide: Text.ElideRight
@@ -521,7 +547,7 @@ Item {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.top: fila.bottom
-                    anchors.leftMargin: 40
+                    anchors.leftMargin: 46
                     anchors.rightMargin: 10
                     spacing: 8
                     visible: cr.abierto && !cr.askingPass
