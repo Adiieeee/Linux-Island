@@ -395,9 +395,12 @@ Two rules to avoid it:
   bare script, without `sh -c` or extra quotes.
 - **`VirtualDesktopInfo` is read-only.** It has no method to switch
   desktops. Switching goes through DBus, writing KWin's `current` property
-  directly: `qdbus org.kde.KWin /VirtualDesktopManager
-  org.kde.KWin.VirtualDesktopManager.current "<uuid>"`. The ids returned by
+  directly: `busctl --user set-property org.kde.KWin /VirtualDesktopManager
+  org.kde.KWin.VirtualDesktopManager current s "<uuid>"`. The ids returned by
   `VirtualDesktopInfo.desktopIds` are those same UUIDs.
+- **Don't call `qdbus` from the applet.** Plasma 6 systems ship it as
+  `qdbus6` (or `/usr/lib/qt6/bin/qdbus`). Plain `qdbus` isn't on `PATH`, and
+  `Exec.run` swallows the "command not found". Use `busctl --user`.
 - **`ExpandedPanel`'s height can't be a fixed number like on Hyprland.**
   There the island grows with a hand-made spring. Here Plasma draws the popup
   at whatever size it's asked for. With a fixed `Theme.expandedHeight` (meant
