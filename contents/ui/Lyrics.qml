@@ -161,7 +161,11 @@ QtObject {
         if (root.status === "loading")
             root.settle.restart();
     }
-    onEnabledChanged: root.settle.restart()
+    // at once, not after `settle`: that wait is for metadata arriving in
+    // pieces, and the song is already known here. turned back on, a song
+    // looked up before comes straight from the cache; through the wait the
+    // status stayed "idle" and the island flashed ♫ ("no lyrics") for 0.6 s
+    onEnabledChanged: root.lookup()
 
     // key → lines, or null for "none". plain data, at most cacheMax songs
     property var cache: ({})

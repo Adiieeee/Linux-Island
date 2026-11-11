@@ -904,6 +904,14 @@ outside Plasma.
   timer is set for the next moment anything changes (a line starts, or is
   0.3 s away), so nothing runs between lines. While lyrics show, the
   position is asked again every 5 seconds to stay in step with the player.
+- **Turning the lyrics back on looks the song up at once**, not after the
+  600 ms wait for metadata (that wait is for a new song whose title, artist
+  and length arrive in pieces). The last 30 answers are kept while the
+  lyrics are off, so a song looked up before shows its line straight away.
+  Through the wait the island used to flash ♫ ("no lyrics"). A song that
+  started while the lyrics were off still has to be asked for (about a
+  second, longer when LRCLIB is busy), and in an instrumental part the
+  island shows ♪ until the next line.
 - **A paused player's position doesn't change**, so asking for it gives no
   `positionChanged`. On a new song the playhead starts from the player's last
   known position, not 0, or a player found paused halfway through a song
