@@ -226,6 +226,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   window's picture is recorded. Sound is still the whole system's (Spectacle
   can't record one app's audio). The mode is saved in the `recMode` config
   key (`s` or `w`) and also applies to the round button on the main card.
+- Texts that were still in Spanish with the widget in English are
+  translated: the notification panel's count ("3 IN THE TRAY", hardcoded as
+  "EN LA BANDEJA" in both languages), coffee mode's entry in Plasma's power
+  applet (it registered as "Isla" / "Modo café", now "Linux Island" /
+  "Coffee mode"), and the Spanish option in the language picker, which an
+  English settings page now calls "Spanish".
 - The **COFFEE MODE** label is dim grey while off, like the other labels in
   the main view. It was the only one in full white.
 - The lock button in the bottom row works. It called `qdbus`, which Plasma 6

@@ -165,7 +165,7 @@ Item {
         }
 
         Text {
-            text: popup.count + (popup.count === 1 ? " EN LA BANDEJA" : " EN LA BANDEJA")
+            text: popup.count + " " + Cfg.t("EN LA BANDEJA")
             color: Theme.fgFaint
             font.family: Theme.font
             font.pixelSize: Theme.labelSmall

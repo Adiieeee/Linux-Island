@@ -34,7 +34,7 @@ Kirigami.FormLayout {
                 valor: "auto"
             },
             {
-                texto: "Español",
+                texto: page.esp ? "Español" : "Spanish",
                 valor: "es"
             },
             {

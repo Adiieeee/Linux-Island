@@ -39,31 +39,31 @@ def main():
     try:
         ss = proxy("org.freedesktop.ScreenSaver", "/org/freedesktop/ScreenSaver",
                    "org.freedesktop.ScreenSaver")
-        ss.Inhibit("(ss)", "Isla", "Modo café")
+        ss.Inhibit("(ss)", "Linux Island", "Coffee mode")
         pedidas += 1
     except Exception as e:
-        print(f"modo café: sin ScreenSaver: {e}", file=sys.stderr)
+        print(f"coffee mode: no ScreenSaver: {e}", file=sys.stderr)
 
     try:
         pm = proxy("org.freedesktop.PowerManagement",
                    "/org/freedesktop/PowerManagement/Inhibit",
                    "org.freedesktop.PowerManagement.Inhibit")
-        pm.Inhibit("(ss)", "Isla", "Modo café")
+        pm.Inhibit("(ss)", "Linux Island", "Coffee mode")
         pedidas += 1
     except Exception as e:
-        print(f"modo café: sin PowerManagement: {e}", file=sys.stderr)
+        print(f"coffee mode: no PowerManagement: {e}", file=sys.stderr)
 
     try:
         pa = proxy("org.kde.Solid.PowerManagement",
                    "/org/kde/Solid/PowerManagement/PolicyAgent",
                    "org.kde.Solid.PowerManagement.PolicyAgent")
-        pa.AddInhibition("(uss)", POLICY_SESION_Y_PANTALLA, "Isla", "Modo café")
+        pa.AddInhibition("(uss)", POLICY_SESION_Y_PANTALLA, "Linux Island", "Coffee mode")
         pedidas += 1
     except Exception as e:
-        print(f"modo café: sin PolicyAgent: {e}", file=sys.stderr)
+        print(f"coffee mode: no PolicyAgent: {e}", file=sys.stderr)
 
     if pedidas == 0:
-        print("modo café: no se pudo inhibir nada", file=sys.stderr)
+        print("coffee mode: could not inhibit anything", file=sys.stderr)
         return 1
 
     bucle = GLib.MainLoop()
