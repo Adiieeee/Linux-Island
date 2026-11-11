@@ -49,7 +49,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   component in `SliderCard.qml`), and so does the brightness one. It uses the
   same speed and curve as the island's other expansions (`durMedium`,
   `emphasized`). See "Animating the island's height" below for why it doesn't
-  stutter.
+  stutter, and why no glass shows under the island while it moves.
 - New **BRIGHTNESS** slider in the same card, for the screen the island is on.
   If the brightness of that screen can't be controlled, it falls back to the
   built-in panel. With more than one screen, click **BRIGHTNESS** to show the
@@ -121,6 +121,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The bottom of the island is no longer cut off after a restart where
   PowerDevil answered late (see "So the island's height must not depend on
   data that arrives late" below).
+- The translucent, blurred frame Plasma draws around the open island is
+  4 px wide instead of the theme's full margin (12 px with Ant-Dark). See
+  "Plasma's popup always has a frame" below.
 - When Spectacle stops recording on its own (it failed to start, or it was
   stopped from its tray icon), the island notices and goes back to idle
   instead of counting forever.
@@ -406,10 +409,13 @@ Two rules to avoid it:
   the content on every frame, and Plasma resizing the popup window ~17
   times in 280 ms looked choppy. Now `ExpandedPanel` asks for the final
   height at the start of an opening and keeps the old height until the end
-  of a closing (`finalHeight`, `restHeight`). The `island` rectangle draws
-  at the live `drawnHeight` inside the window (the popup is transparent
-  around it), so the visible edge still moves smoothly. Two traps on the
-  way:
+  of a closing (`finalHeight`, `restHeight`). The `island` fills the window
+  and only the cards inside it move, so its bottom edge jumps once (at the
+  start of an opening, at the end of a closing). A first try let the island
+  draw at the live height inside the taller window, for a moving edge, but
+  the popup isn't transparent there: Plasma's blurred frame showed as a big
+  pane of glass under the island for the length of the animation. Two traps
+  on the way:
   - A `Column` updates its `implicitHeight` a frame late (in the polish
     pass). Adding it to the dropdown's live height to predict the final
     height gave a different number every frame. The rest height is taken
@@ -431,11 +437,14 @@ Two rules to avoid it:
   `Layout.maximumHeight` to the minimum so Plasma doesn't stretch it.
 - **Plasma remembers the popup size** in `popupHeight` / `popupWidth`, under
   `[Containments][N][Applets][M][Configuration]` in
-  `~/.config/plasma-org.kde.plasma.desktop-appletsrc`. That value wins over a
-  new `implicitHeight`. If you change the island's height, **stop
-  plasmashell, delete those two keys and start it again**, or the old size
-  keeps winning (and the black strip comes back even though the code is
-  right).
+  `~/.config/plasma-org.kde.plasma.desktop-appletsrc`, saved when the popup
+  hides. That value wins over a new `implicitHeight` when the popup is
+  created, and Plasma only enforces our min/max height again when those
+  change while the popup is shown. So `ExpandedPanel` nudges its height by
+  1 px for 50 ms every time the popup window becomes visible, which makes
+  Plasma apply the real height. If an old size still wins (the black strip
+  or a cut-off bottom), **stop plasmashell, delete those two keys and start
+  it again**.
 - **So the island's height must not depend on data that arrives late.** The
   BRIGHTNESS row only exists once PowerDevil answers
   (`ScreenBrightnessControl.isBrightnessAvailable`). Once Plasma stored the
@@ -446,6 +455,18 @@ Two rules to avoid it:
   the same from the first frame. If the backlight can't be controlled at
   all, the stand-in stays. External-only setups don't get it, since they may
   have no brightness row.
+- **Plasma's popup always has a frame, even with `NoBackground`.** The
+  applet's `backgroundHints` only affects the applet in the panel. The popup
+  (`AppletPopup`, a `PlasmaWindow`) draws the Plasma theme's dialog
+  background around the content, translucent and blurred, as wide as the
+  theme's margins. With Ant-Dark that's 12 px a side (`hint-*-margin` in
+  `dialogs/background.svg`), which looked like a thick glass border around
+  the island. `ExpandedPanel` reads the popup window's `topPadding`,
+  `leftPadding`, … by name (`root.Window.window[...]`, undefined outside a
+  Plasma popup) and lets the `island` rectangle reach into the frame with
+  negative margins, leaving `Theme.popupRing` (4 px) of it visible. The item
+  itself shrinks by the same amount (`implicitWidth`, `drawnHeight`), so the
+  island keeps its size and the content stays where it was.
 - **A child with `anchors.fill` inside a `Row` breaks the Row**: all its
   content disappears. It happened when the scroll-wheel `MouseArea` was put
   inside `Workspaces`, which was a `Row`, and the desktop dots vanished. Now

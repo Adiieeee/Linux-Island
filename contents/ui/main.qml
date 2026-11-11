@@ -167,9 +167,11 @@ PlasmoidItem {
     }
 
     fullRepresentation: ExpandedPanel {
-        Layout.minimumWidth: Theme.expandedWidth
-        Layout.preferredWidth: Theme.expandedWidth
-        Layout.maximumWidth: Theme.expandedWidth
+        // smaller than Theme.expandedWidth by the part of Plasma's frame the
+        // island covers (ExpandedPanel.reach)
+        Layout.minimumWidth: implicitWidth
+        Layout.preferredWidth: implicitWidth
+        Layout.maximumWidth: implicitWidth
         Layout.minimumHeight: implicitHeight
         Layout.preferredHeight: implicitHeight
         Layout.maximumHeight: implicitHeight

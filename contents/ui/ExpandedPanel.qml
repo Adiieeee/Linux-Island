@@ -6,16 +6,33 @@ import "."
 Item {
     id: root
 
-    implicitWidth: Theme.expandedWidth
+    // Plasma's popup always draws the theme's dialog frame around this item
+    // (translucent and blurred, as wide as the theme's margins). the island
+    // reaches into that frame and leaves only Theme.popupRing of it showing,
+    // and this item shrinks by the same amount so the island keeps its size.
+    // the padding is read by name from the popup window: outside a Plasma
+    // popup it's undefined and the reach is 0
+    function reach(side) {
+        const w = root.Window.window;
+        const pad = w ? (w[side + "Padding"] ?? 0) : 0;
+        return Math.max(0, pad - Theme.popupRing);
+    }
+    readonly property real reachTop: root.reach("top")
+    readonly property real reachBottom: root.reach("bottom")
+    readonly property real reachLeft: root.reach("left")
+    readonly property real reachRight: root.reach("right")
+
+    implicitWidth: Theme.expandedWidth - reachLeft - reachRight
 
     // plasma dibuja el popup del tamaño que le pidamos, sale del alto real del contenido
-    // the content's height as drawn right now (follows the dropdown animations)
-    readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 + (root.notifying ? Theme.notifStrip : 0)
+    // this item's height that fits the content as drawn right now (follows
+    // the dropdown animations); the island adds the reach back
+    readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 + (root.notifying ? Theme.notifStrip : 0) - reachTop - reachBottom
 
     // resizing the popup window on every animation frame stutters, so the
     // window resizes once per dropdown animation: at the start of an opening,
-    // at the end of a closing. the island's own background (island.height)
-    // animates inside it.
+    // at the end of a closing. the island fills the window, and only the
+    // cards inside it move.
     // restHeight/restDropdowns follow the content while nothing animates and
     // freeze while a dropdown moves. finalHeight can't use drawnHeight then:
     // a Column updates its implicitHeight a frame late, so mixing it with the
@@ -41,7 +58,30 @@ Item {
 
     // opening: finalHeight jumps up at once. closing: restHeight keeps the
     // window at its old height until the animation ends
-    implicitHeight: Math.max(finalHeight, Math.round(restHeight))
+    implicitHeight: Math.max(finalHeight, Math.round(restHeight)) + nudge
+
+    // Plasma restores the size saved at the last hide (popupHeight) when it
+    // creates the popup, and only enforces our min/max height when those
+    // change while it's shown. if the content changed meanwhile (PowerDevil
+    // late, a new version of the widget) the island came out cut off or with
+    // a blank strip. a 1 px nudge right after showing makes Plasma apply the
+    // real height again
+    property int nudge: 0
+    Timer {
+        id: nudgeBack
+        interval: 50
+        onTriggered: root.nudge = 0
+    }
+    Connections {
+        target: root.Window.window
+        ignoreUnknownSignals: true
+        function onVisibleChanged() {
+            if (root.Window.window && root.Window.window.visible) {
+                root.nudge = 1;
+                nudgeBack.restart();
+            }
+        }
+    }
 
     // vista activa: "", "wifi", "bt", "rec", "audio", "notif", "cal", "power"
     property string overlay: ""
@@ -57,12 +97,12 @@ Item {
 
     Rectangle {
         id: island
-        // drawn height, not the window's: the window can be taller for the
-        // length of a dropdown animation (the popup is transparent there)
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        height: root.drawnHeight
+        // fills the window and reaches into Plasma's frame (see reach())
+        anchors.fill: parent
+        anchors.topMargin: -root.reachTop
+        anchors.bottomMargin: -root.reachBottom
+        anchors.leftMargin: -root.reachLeft
+        anchors.rightMargin: -root.reachRight
         radius: Theme.expandedRadius
         color: Theme.surface
         clip: true
