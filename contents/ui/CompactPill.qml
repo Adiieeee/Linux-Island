@@ -138,74 +138,17 @@ Item {
             anchors.centerIn: parent
         }
 
-        // ── waveform: not real audio, bars that move while it plays ──
+        // ── waveform: the real level of what the speakers play ──
         MediaPart {
-            id: wave
             anchors.right: parent.right
             anchors.rightMargin: root.inset
             anchors.verticalCenter: parent.verticalCenter
             width: root.tile
             height: Math.round(root.tile * 0.75)
 
-            // each bar: [high, low, ms up, ms down]. different periods so
-            // they never line up
-            readonly property var bars: [[0.55, 0.25, 420, 380], [0.95, 0.35, 330, 460], [0.7, 0.2, 510, 300], [1.0, 0.4, 290, 410]]
-            readonly property real rest: 0.25
-
-            Row {
-                anchors.centerIn: parent
-                spacing: 2
-
-                Repeater {
-                    model: wave.bars
-
-                    Rectangle {
-                        id: bar
-                        required property var modelData
-
-                        readonly property bool live: root.media && root.isPlaying
-
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 3
-                        height: Math.round(wave.height * wave.rest)
-                        radius: width / 2
-                        color: root.isPlaying ? Theme.fg : Theme.fgFaint
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Theme.durMedium
-                            }
-                        }
-
-                        SequentialAnimation on height {
-                            running: bar.live
-                            loops: Animation.Infinite
-
-                            NumberAnimation {
-                                to: wave.height * bar.modelData[0]
-                                duration: bar.modelData[2]
-                                easing.type: Easing.InOutSine
-                            }
-                            NumberAnimation {
-                                to: wave.height * bar.modelData[1]
-                                duration: bar.modelData[3]
-                                easing.type: Easing.InOutSine
-                            }
-                        }
-
-                        // paused: settle low instead of freezing mid-swing
-                        NumberAnimation {
-                            id: settle
-                            target: bar
-                            property: "height"
-                            to: Math.round(wave.height * wave.rest)
-                            duration: Theme.durMedium
-                            easing.type: Easing.Bezier
-                            easing.bezierCurve: Theme.emphasized
-                        }
-                        onLiveChanged: if (!live) settle.restart()
-                    }
-                }
+            LiveWave {
+                anchors.fill: parent
+                live: root.media && root.isPlaying
             }
         }
     }

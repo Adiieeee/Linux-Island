@@ -112,6 +112,9 @@ QtObject {
     readonly property int durShort: 180
     readonly property int durMedium: 280
     readonly property int durLong: 380
+    // following a live value (the waveform's audio level): just enough to
+    // smooth the steps between samples
+    readonly property int durTick: 70
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10

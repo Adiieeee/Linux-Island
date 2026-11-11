@@ -28,8 +28,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   pill was a fixed 27 px tall.
 - The small island is one black capsule instead of two pills: the album art
   on the left (round), the clock in the middle, and
-  a waveform on the right, four bars that move while something plays and rest
-  low and dim while it's paused (not real audio). With nothing playing or
+  a waveform on the right. With nothing playing or
   paused it shrinks to the clock, with an animated width. The previous, play
   and next buttons are gone (the control center has them), and so is the
   capsule tinted with the album's colour, which turned white with light
@@ -38,6 +37,15 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   applet by its theme's margins (4 px above and below with Ant-Dark), and the
   capsule reaches past its slot by that much (`CompactPill.reach`, capped at
   the theme margin so a floating panel isn't overshot).
+- The small island's waveform follows the real audio. Five bars show the
+  level of everything the speakers play: the newest level in the middle bar,
+  older ones moving out to both sides, so a beat looks like a pulse leaving
+  the centre. It reads Plasma's own live level meter (plasma-pa's
+  `VolumeMonitor`, the one the audio applet draws in its sliders), only while
+  something plays. The volume slider doesn't shrink the bars, and quietly
+  mastered songs are scaled up to use the full height. While paused the bars
+  rest low and dim. Before, four bars moved on a fixed animation whatever
+  was playing. See "The real waveform" below.
 - With more than one player (Spotify and a browser tab with YouTube, say),
   the panel island always shows the one that's playing. It used to stick to
   whichever player happened to be first: Plasma's MPRIS model lists a
@@ -181,6 +189,7 @@ section stays empty, but the rest of the island keeps working:
 | Network, Wi-Fi | `nmcli` (NetworkManager) |
 | Bluetooth | `bluetoothctl` |
 | Sound | `wpctl`, `pactl` (PipeWire), plus Plasma's audio applet (plasma-pa) for the device dropdown |
+| Waveform in the small island | Plasma's audio applet (plasma-pa), with PipeWire or PulseAudio |
 | Brightness | Plasma's PowerDevil (built in). External monitors need DDC/CI support |
 | GPU meter | `nvidia-smi` (hidden if missing) |
 | Screen recording | `spectacle` |
@@ -761,6 +770,44 @@ took effort:
   repainting three gradients every frame for a second, which is extra work
   inside plasmashell. The cover changes instantly anyway, so it isn't
   noticeable.
+
+## The real waveform
+
+`LiveWave.qml` draws the small island's waveform from the actual audio.
+
+- **The level comes from plasma-pa's `VolumeMonitor`.** It's the live level
+  meter Plasma's audio applet shows in its sliders, with the same pattern:
+  `target: live ? PreferredDevice.sink : null`. With a target it records a
+  peak-detect stream from the default output's monitor (about 25 peaks a
+  second); with `null` it closes the stream, so nothing runs while paused.
+  Everything the speakers play counts, not just the player, so a
+  notification sound moves the bars too. Picking out only the player's
+  stream was skipped: browser audio comes out of a different process than
+  the one that owns the MPRIS player.
+- **Why not cava or a Python helper.** `DataSource` only hands back a
+  command's output once it exits, so it can't read a stream. Spawning a
+  process 25 times a second to read a file would break the "don't poll
+  often" rule. `VolumeMonitor` is native, event-driven and already part of
+  Plasma.
+- **The scale is relative to a running peak.** Songs are mastered at very
+  different levels: two Spotify tracks measured here peaked at −21 and
+  −10 dB. On a fixed dB scale the quiet one stayed small and the loud one
+  sat pinned at the top. A peak meter also barely moves on dense music (a
+  few dB from one sample to the next). So the loudest recent moment is full
+  height and 24 dB below it is silence. The running peak jumps up at once
+  and falls about 3 dB a second, but never counts as lower than −30 dB, so
+  a soft passage after a loud one isn't blown up to full height.
+- **The volume slider doesn't change the bars.** PipeWire leaves monitor
+  ports at full level (`monitorVolumes` stays 1.0 whatever the volume is).
+- **The envelope is short.** A rise shows at once and a fall keeps half per
+  sample. The reference Windhawk island uses attack 0.7 / release 0.85, but
+  per sample at 100 Hz; at 25 Hz the same numbers held every peak for a
+  quarter of a second and the bars hovered near the top. Each bar animates
+  its height over `Theme.durTick` (70 ms) to smooth the steps between
+  samples.
+- **To test it outside Plasma**, load `LiveWave` in a small QML file with
+  `/usr/lib/qt6/bin/qml` and `QT_QPA_PLATFORM=offscreen`, and log `history`.
+  Qt's log goes to the journal unless `QT_FORCE_STDERR_LOGGING=1` is set.
 
 ## Why videos don't show a thumbnail
 
