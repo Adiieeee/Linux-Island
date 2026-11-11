@@ -95,12 +95,15 @@ Item {
     // enough to stay inside its round ends
     readonly property real inset: Math.round(capsuleHeight * 0.15)
     readonly property real tile: capsuleHeight - 2 * inset
+    // from the capsule's ends they sit further in than from its top and
+    // bottom: at the plain inset they crowded the round ends
+    readonly property real edge: inset + 6
     readonly property int gap: 16
     // sides when only the clock shows
     readonly property int padding: 12
 
     // what the art and the waveform take, or the padding beside a lone clock
-    readonly property real sides: root.media ? 2 * (root.inset + root.tile + root.gap) : 2 * root.padding
+    readonly property real sides: root.media ? 2 * (root.edge + root.tile + root.gap) : 2 * root.padding
 
     implicitWidth: root.sides + root.middleWidth
     implicitHeight: Theme.collapsedHeight
@@ -162,7 +165,7 @@ Item {
 
         // ── album art, round ──
         MediaPart {
-            x: root.inset
+            x: root.edge
             anchors.verticalCenter: parent.verticalCenter
             width: root.tile
             height: root.tile
@@ -263,7 +266,7 @@ Item {
         // ── waveform: the real level of what the speakers play ──
         MediaPart {
             anchors.right: parent.right
-            anchors.rightMargin: root.inset
+            anchors.rightMargin: root.edge
             anchors.verticalCenter: parent.verticalCenter
             width: root.tile
             height: Math.round(root.tile * 0.75)

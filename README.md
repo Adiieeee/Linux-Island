@@ -36,7 +36,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   later plan). The capsule is as tall as the panel: the panel insets every
   applet by its theme's margins (4 px above and below with Ant-Dark), and the
   capsule reaches past its slot by that much (`CompactPill.reach`, capped at
-  the theme margin so a floating panel isn't overshot).
+  the theme margin so a floating panel isn't overshot). The art and the
+  waveform sit 6 px further from the capsule's round ends than from its top
+  and bottom (`CompactPill.edge`), so they don't crowd the curve.
 - The small island's waveform follows the real audio. Five bars show the
   level of everything the speakers play: the newest level in the middle bar,
   older ones moving out to both sides, so a beat looks like a pulse leaving
