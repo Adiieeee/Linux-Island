@@ -47,6 +47,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   so the island showed a paused YouTube while Spotify played. A single
   `Media` singleton now owns the MPRIS model and reads the multiplexer row's
   player directly (`Media.active`); the island and the media card use it.
+- The media card in the control center has arrows at its left and right
+  edges to switch between players, shown only when there's more than one.
+  The card's content moves in to make room. Without a pick it follows the
+  playing player; stepping back onto that player follows it again, and a
+  picked player that closes goes back to following. The panel island keeps
+  showing the playing one either way.
 - Text uses your system font (Plasma's general font) instead of the bundled
   Space Grotesk and the NDOT 47 dot-matrix font, which are no longer shipped.
   Numbers use tabular figures so they don't jiggle as they change.

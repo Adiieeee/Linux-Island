@@ -8,9 +8,20 @@ import "."
 Item {
     id: root
 
-    // the active player, the one playing (see Media.qml)
+    // the active player (the one playing) unless the arrows at the card's
+    // edges picked another one (see Media.qml)
     readonly property var player: Media.cardPlayer
     readonly property bool active: player !== null
+
+    // room for the arrows at both edges, only with more than one player
+    property int side: Media.canStep ? 22 : 0
+    Behavior on side {
+        NumberAnimation {
+            duration: Theme.durMedium
+            easing.type: Easing.Bezier
+            easing.bezierCurve: Theme.emphasized
+        }
+    }
 
     readonly property bool isPlaying: (player?.playbackStatus ?? 0) === Mpris.PlaybackStatus.Playing
 
@@ -243,7 +254,7 @@ Item {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.margins: 10
-            anchors.leftMargin: 10
+            anchors.leftMargin: 10 + root.side
             width: 46
             height: 46
 
@@ -331,7 +342,7 @@ Item {
         Row {
             id: controls
             anchors.right: parent.right
-            anchors.rightMargin: 10
+            anchors.rightMargin: 10 + root.side
             anchors.verticalCenter: art.verticalCenter
             spacing: 2
 
@@ -408,8 +419,8 @@ Item {
             id: wave
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: 12
-            anchors.rightMargin: 12
+            anchors.leftMargin: 12 + root.side
+            anchors.rightMargin: 12 + root.side
             anchors.top: art.bottom
             anchors.topMargin: 8
             height: 30
@@ -486,7 +497,7 @@ Item {
         // ── tiempos ──
         Text {
             anchors.left: parent.left
-            anchors.leftMargin: 12
+            anchors.leftMargin: 12 + root.side
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
             text: root.fmt(root.position)
@@ -499,7 +510,7 @@ Item {
 
         Text {
             anchors.right: parent.right
-            anchors.rightMargin: 12
+            anchors.rightMargin: 12 + root.side
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
             text: root.fmt(root.length)
@@ -508,6 +519,49 @@ Item {
             font.features: Theme.numFeatures
             font.pixelSize: 13
             font.weight: Font.Bold
+        }
+
+        // ── switch player: arrows at the card's edges, only with more than
+        // one player (Spotify, a browser tab with YouTube, ...) ──
+        Repeater {
+            model: [-1, 1]
+
+            Rectangle {
+                id: arrow
+                required property int modelData
+
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.margins: 6
+                x: arrow.modelData < 0 ? 4 : parent.width - width - 4
+                width: Math.max(0, root.side - 4)
+                visible: width > 2
+                radius: Theme.shapeSm
+                // transparent at rest: fade from Qt.alpha, not "transparent" (hard rule 6)
+                color: arrowMa.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Theme.durShort
+                    }
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: arrow.modelData < 0 ? "chevron_left" : "chevron_right"
+                    color: arrowMa.containsMouse ? Theme.fg : Theme.mediaDim
+                    font.family: Theme.fontIcons
+                    font.pixelSize: 20
+                }
+
+                MouseArea {
+                    id: arrowMa
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: Media.step(arrow.modelData)
+                }
+            }
         }
     }
 }
