@@ -46,9 +46,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   rows around it. Virtual devices such as Easy Effects only show when they're
   the default, and devices whose port is unplugged are hidden. The dropdown
   opens and closes with an animated height and a fade (the `Dropdown`
-  component in `SliderCard.qml`), and so does the brightness one. The island's
-  height follows the animation, so Plasma resizes the popup window on every
-  frame of it.
+  component in `SliderCard.qml`), and so does the brightness one. It uses the
+  same speed and curve as the island's other expansions (`durMedium`,
+  `emphasized`). See "Animating the island's height" below for why it doesn't
+  stutter.
 - New **BRIGHTNESS** slider in the same card, for the screen the island is on.
   If the brightness of that screen can't be controlled, it falls back to the
   built-in panel. With more than one screen, click **BRIGHTNESS** to show the
@@ -400,6 +401,24 @@ Two rules to avoid it:
   directly: `busctl --user set-property org.kde.KWin /VirtualDesktopManager
   org.kde.KWin.VirtualDesktopManager current s "<uuid>"`. The ids returned by
   `VirtualDesktopInfo.desktopIds` are those same UUIDs.
+- **Animating the island's height: resize the window once, animate inside
+  it.** The first version of the dropdown animation let the popup follow
+  the content on every frame, and Plasma resizing the popup window ~17
+  times in 280 ms looked choppy. Now `ExpandedPanel` asks for the final
+  height at the start of an opening and keeps the old height until the end
+  of a closing (`finalHeight`, `restHeight`). The `island` rectangle draws
+  at the live `drawnHeight` inside the window (the popup is transparent
+  around it), so the visible edge still moves smoothly. Two traps on the
+  way:
+  - A `Column` updates its `implicitHeight` a frame late (in the polish
+    pass). Adding it to the dropdown's live height to predict the final
+    height gave a different number every frame. The rest height is taken
+    while nothing moves (a `Binding` with `when: !sliderCard.animating`) and
+    stays frozen during the animation.
+  - A hidden item doesn't get the `Column`'s spacing, so the 4 px gap above a
+    dropdown popped in and out at the ends of the animation. Each dropdown
+    now sits in a spacing-0 group with its row and carries that gap as
+    `topPadding` inside its animated height.
 - **Don't call `qdbus` from the applet.** Plasma 6 systems ship it as
   `qdbus6` (or `/usr/lib/qt6/bin/qdbus`). Plain `qdbus` isn't on `PATH`, and
   `Exec.run` swallows the "command not found". Use `busctl --user`.

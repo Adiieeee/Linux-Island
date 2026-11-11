@@ -9,7 +9,39 @@ Item {
     implicitWidth: Theme.expandedWidth
 
     // plasma dibuja el popup del tamaño que le pidamos, sale del alto real del contenido
-    implicitHeight: mainColumn.implicitHeight + 14 + 12 + (root.notifying ? Theme.notifStrip : 0)
+    // the content's height as drawn right now (follows the dropdown animations)
+    readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 + (root.notifying ? Theme.notifStrip : 0)
+
+    // resizing the popup window on every animation frame stutters, so the
+    // window resizes once per dropdown animation: at the start of an opening,
+    // at the end of a closing. the island's own background (island.height)
+    // animates inside it.
+    // restHeight/restDropdowns follow the content while nothing animates and
+    // freeze while a dropdown moves. finalHeight can't use drawnHeight then:
+    // a Column updates its implicitHeight a frame late, so mixing it with the
+    // live dropdown height wobbles
+    property real restHeight: 0
+    property real restDropdowns: 0
+    Binding {
+        target: root
+        property: "restHeight"
+        value: root.drawnHeight
+        when: !sliderCard.animating
+        restoreMode: Binding.RestoreNone
+    }
+    Binding {
+        target: root
+        property: "restDropdowns"
+        value: sliderCard.dropdownsHeight
+        when: !sliderCard.animating
+        restoreMode: Binding.RestoreNone
+    }
+    // the height once the running animation is over
+    readonly property real finalHeight: Math.round(restHeight - restDropdowns + sliderCard.dropdownsFinal)
+
+    // opening: finalHeight jumps up at once. closing: restHeight keeps the
+    // window at its old height until the animation ends
+    implicitHeight: Math.max(finalHeight, Math.round(restHeight))
 
     // vista activa: "", "wifi", "bt", "rec", "audio", "notif", "cal", "power"
     property string overlay: ""
@@ -25,7 +57,12 @@ Item {
 
     Rectangle {
         id: island
-        anchors.fill: parent
+        // drawn height, not the window's: the window can be taller for the
+        // length of a dropdown animation (the popup is transparent there)
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        height: root.drawnHeight
         radius: Theme.expandedRadius
         color: Theme.surface
         clip: true
@@ -279,6 +316,7 @@ Item {
 
                     // ── sound (and brightness): full-width sliders ──
                     SliderCard {
+                        id: sliderCard
                         width: parent.width
                         onRequestPanel: mode => root.openOverlay(mode)
                     }
