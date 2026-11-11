@@ -77,11 +77,16 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   GiB (1024³ bytes) because `/proc/meminfo` counts in KiB. The setting that
   used to swap the percentage for used/total ("7.8/31") now turns this extra
   number on or off, and is on by default.
-- Screen recordings always go to `~/Videos/Screen Record` (created on the
-  first recording, or when you open the folder), instead of straight into
-  `~/Videos`. The folder row in the recording view (`~/Videos`, `~/Pictures`,
-  `~/Desktop`, `~/`) is gone. Its pick wasn't saved anyway and went back to
-  `~/Videos` every time plasmashell started.
+- Screen recordings go to `~/Videos/Screen Record` by default (created on
+  the first recording, or when you open the folder), instead of straight into
+  `~/Videos`. The **FOLDER** row in the recording view shows the current
+  folder. **Change** opens a folder dialog, and **Default** (shown only for a
+  custom folder) goes back to `~/Videos/Screen Record`. The choice is saved
+  in the `recFolder` config key (empty = default) and survives restarts.
+  Before, there were four fixed choices (`~/Videos`, `~/Pictures`,
+  `~/Desktop`, `~/`), and the pick went back to `~/Videos` every time
+  plasmashell started. The "Saved to …" line under the buttons is gone,
+  because the folder row says the same.
 - On the recording card in the main view, the round button starts recording
   right away (and stops it while recording). The rest of the card opens the
   recording view. Before, the whole card opened the view first, so starting
@@ -530,6 +535,18 @@ right before launching Spectacle. Side effects worth knowing:
   config it loaded and ignores the new values.
 - MP4 can carry audio. Only GIF and WebP can't, and the island always records
   to `.mp4`.
+
+### Picking the recordings folder
+
+The **Change** button runs `kdialog --getexistingdirectory` through
+`Recorder`'s own `DataSource`, not a `FolderDialog` from QtQuick.Dialogs. The
+island's popup hides as soon as it loses focus, and a Qt dialog opened from
+it would lose its parent window inside plasmashell. `kdialog` is a separate
+process, so that can't happen. On exit 0 its stdout is the path. Exit 1
+means cancelled. `Recorder` is a singleton and can't write
+`Plasmoid.configuration`, so it emits `folderChosen(path)` and `main.qml`
+saves it. Paths go through `Recorder.quote()` now that they can contain
+anything.
 
 ### The island kept "recording" after Spectacle had stopped
 

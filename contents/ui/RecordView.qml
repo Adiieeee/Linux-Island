@@ -136,10 +136,10 @@ Item {
                 anchors.centerIn: parent
                 text: cp.label
                 color: cp.active ? Theme.invertedFg : Theme.fgDim
-                font.family: Theme.fontDots
-                font.features: Theme.numFeatures
-                font.pixelSize: 13
-                font.weight: Font.Bold
+                // words now (folder buttons), not numbers
+                font.family: Theme.font
+                font.pixelSize: Theme.labelMedium
+                font.weight: Font.Medium
             }
 
             MouseArea {
@@ -185,6 +185,54 @@ Item {
                         active: false
                         onPicked: {}
                     }
+                }
+            }
+        }
+
+        // ── folder: current path, change (kdialog) and back to default ──
+        Item {
+            width: parent.width
+            height: 30
+
+            Text {
+                id: dirLabel
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                width: 66
+                text: Cfg.t("CARPETA")
+                color: Theme.fgDim
+                font.family: Theme.font
+                font.pixelSize: Theme.labelSmall
+                font.letterSpacing: Theme.labelSpacing
+            }
+
+            Text {
+                anchors.left: dirLabel.right
+                anchors.right: dirBtns.left
+                anchors.rightMargin: 10
+                anchors.verticalCenter: parent.verticalCenter
+                text: Recorder.folder.replace(root.home, "~")
+                color: Theme.fg
+                font.family: Theme.font
+                font.pixelSize: Theme.bodySmall
+                elide: Text.ElideMiddle
+            }
+
+            Row {
+                id: dirBtns
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8
+
+                ChoicePill {
+                    visible: Cfg.recFolder !== ""
+                    label: Cfg.t("Predeterminada")
+                    onPicked: Recorder.resetFolder()
+                }
+
+                ChoicePill {
+                    label: Cfg.t("Cambiar")
+                    onPicked: Recorder.chooseFolder()
                 }
             }
         }
@@ -386,13 +434,6 @@ Item {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: Recorder.openFolder()
             }
-        }
-
-        Text {
-            text: Cfg.t("Se guarda en") + " " + Recorder.folder.replace(root.home, "~")
-            color: Theme.fgDim
-            font.family: Theme.font
-            font.pixelSize: Theme.labelSmall
         }
     }
 }

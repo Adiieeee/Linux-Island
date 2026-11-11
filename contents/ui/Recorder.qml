@@ -14,12 +14,51 @@ QtObject {
     property int elapsed: 0
 
     // ajustes
-    // always a "Screen Record" folder inside the user's Videos folder
-    readonly property string folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.MoviesLocation).toString().replace("file://", "") + "/Screen Record"
+    // default: a "Screen Record" folder inside the user's Videos folder. the
+    // folder picked in the recording view lives in the applet config
+    // (Cfg.recFolder, empty = default); main.qml writes it on folderChosen
+    readonly property string defaultFolder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.MoviesLocation).toString().replace("file://", "") + "/Screen Record"
+    readonly property string folder: Cfg.recFolder !== "" ? Cfg.recFolder : defaultFolder
     property bool systemAudio: true
     property bool microphone: false
 
     property string lastFile: ""
+
+    // the singleton can't reach Plasmoid.configuration, so main.qml saves it
+    signal folderChosen(string path)
+
+    // single quotes for the shell, escaping only the single quote (as in Net)
+    function quote(s) {
+        return "'" + String(s).replace(/'/g, "'\\''") + "'";
+    }
+
+    // kdialog runs as its own process: a Qt dialog opened from the popup
+    // would lose its parent when the popup hides on focus loss
+    property string pickCmd: ""
+
+    readonly property P5Support.DataSource picker: P5Support.DataSource {
+        engine: "executable"
+        connectedSources: []
+
+        onNewData: (cmd, data) => {
+            disconnectSource(cmd);
+            if (cmd !== root.pickCmd)
+                return;
+            const path = (data["stdout"] ?? "").trim();
+            // exit 1 = cancelled
+            if ((data["exit code"] ?? 1) === 0 && path !== "")
+                root.folderChosen(path === root.defaultFolder ? "" : path);
+        }
+    }
+
+    function chooseFolder(): void {
+        root.pickCmd = `kdialog --getexistingdirectory ${root.quote(root.folder)} --title ${root.quote(Cfg.t("Carpeta de grabaciones"))}`;
+        root.picker.connectSource(root.pickCmd);
+    }
+
+    function resetFolder(): void {
+        root.folderChosen("");
+    }
 
     // the command that launched the current recording. spectacle stays alive
     // while it records, so this DataSource answers when the recording ends
@@ -67,7 +106,7 @@ QtObject {
         // island's toggles there first (this overwrites spectacle's own setting)
         const audio = `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordSystemAudio --type bool ${root.systemAudio}; ` + `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordMicrophone --type bool ${root.microphone}; `;
         // "s" = pantalla, la palabra entera "screen" spectacle no la reconoce
-        root.startCmd = `${audio}mkdir -p '${root.folder}'; spectacle --background --record=s --output='${file}'; pgrep -x spectacle >/dev/null`;
+        root.startCmd = `${audio}mkdir -p ${root.quote(root.folder)}; spectacle --background --record=s --output=${root.quote(file)}; pgrep -x spectacle >/dev/null`;
         recording = true;
         root.proc.connectSource(root.startCmd);
     }
@@ -79,7 +118,7 @@ QtObject {
     function stop(): void {
         if (!recording)
             return;
-        Exec.run(`pgrep -x spectacle >/dev/null && spectacle --background --record=s --output='${root.lastFile}'`);
+        Exec.run(`pgrep -x spectacle >/dev/null && spectacle --background --record=s --output=${root.quote(root.lastFile)}`);
         recording = false;
     }
 
@@ -92,6 +131,6 @@ QtObject {
 
     // the default folder doesn't exist until the first recording
     function openFolder(): void {
-        Exec.run(`mkdir -p '${root.folder}'; xdg-open '${root.folder}'`);
+        Exec.run(`mkdir -p ${root.quote(root.folder)}; xdg-open ${root.quote(root.folder)}`);
     }
 }

@@ -96,6 +96,19 @@ PlasmoidItem {
         property: "fuenteNumeros"
         value: Plasmoid.configuration.fuenteNumeros
     }
+    Binding {
+        target: Cfg
+        property: "recFolder"
+        value: Plasmoid.configuration.recFolder
+    }
+
+    // the folder picked in the recording view (Recorder can't write the config)
+    Connections {
+        target: Recorder
+        function onFolderChosen(path) {
+            Plasmoid.configuration.recFolder = path;
+        }
+    }
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 

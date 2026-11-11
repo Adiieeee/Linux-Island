@@ -45,6 +45,9 @@ QtObject {
     // ciudad para el clima; vacío = wttr.in detecta sola por ip
     property string weatherCity: ""
 
+    // recordings folder picked in the recording view; empty = Recorder.defaultFolder
+    property string recFolder: ""
+
     // ── aspecto ──
     // los valores de acá son solo el arranque, main.qml los pisa con lo guardado
     property color colorFondo: "#000000"
@@ -149,7 +152,10 @@ QtObject {
             "Detener grabación": ["Detener grabación", "Stop recording"],
             "Empezar a grabar": ["Empezar a grabar", "Start recording"],
             "Abrir carpeta de grabaciones": ["Abrir carpeta de grabaciones", "Open recordings folder"],
-            "Se guarda en": ["Se guarda en", "Saved to"]
+            "Se guarda en": ["Se guarda en", "Saved to"],
+            "Cambiar": ["Cambiar", "Change"],
+            "Predeterminada": ["Predeterminada", "Default"],
+            "Carpeta de grabaciones": ["Carpeta de grabaciones", "Recordings folder"]
         })
 
     function t(clave) {
