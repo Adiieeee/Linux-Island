@@ -100,6 +100,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   key (`s` or `w`) and also applies to the round button on the main card.
 - The **COFFEE MODE** label is dim grey while off, like the other labels in
   the main view. It was the only one in full white.
+- The lock button in the bottom row works. It called `qdbus`, which Plasma 6
+  systems don't ship under that name (only `qdbus6`), so it silently did
+  nothing. It now uses `busctl`, like the lock entry in the power panel.
 - On the recording card in the main view, the round button starts recording
   right away (and stops it while recording). The rest of the card opens the
   recording view. Before, the whole card opened the view first, so starting

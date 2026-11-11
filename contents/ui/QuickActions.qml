@@ -189,7 +189,9 @@ Row {
 
     ActionButton {
         icon: "lock"
-        onActivated: Exec.run("qdbus org.freedesktop.ScreenSaver /ScreenSaver Lock")
+        // busctl, like PowerView: plain "qdbus" isn't installed on Plasma 6
+        // systems (only qdbus6), so the button silently did nothing
+        onActivated: Exec.run("busctl --user call org.freedesktop.ScreenSaver /ScreenSaver org.freedesktop.ScreenSaver Lock")
     }
 
     ActionButton {
