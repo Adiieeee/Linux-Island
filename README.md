@@ -305,6 +305,9 @@ Right-click the island → **Configure Linux Island…**. Options:
   always shows the clock.)
 - **Player**: show or hide the album art, waveform and lyrics around the
   clock while something is playing or paused.
+- **Show synced lyrics** (on by default): the lyric lines in the small
+  island. Off, nothing is sent to lrclib.net, and the middle shows the clock
+  after the title and artist of a new song.
 - **Weather city**: leave it empty to detect it from your IP.
 
 The values live in `contents/config/main.xml`. Adding a new one means
@@ -809,7 +812,8 @@ outside Plasma.
   Plain lyrics without timestamps, and songs LRCLIB marks as instrumental,
   count as no lyrics.
 - **What is sent.** The song's title, artist, album and length, to
-  lrclib.net, and nothing else.
+  lrclib.net, and nothing else. **Show synced lyrics** off in the settings
+  sends nothing.
 - **XHR, not curl.** The request is built with `encodeURIComponent` and
   sent with `XMLHttpRequest`, like the weather. A title never goes through a
   shell, so a song called `$(rm -rf ~)` is only a song.

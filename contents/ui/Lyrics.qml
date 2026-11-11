@@ -20,8 +20,8 @@ QtObject {
     id: root
 
     readonly property var player: Media.active
-    // follows the island's player part; Cfg.showMini off = no lookups
-    readonly property bool enabled: Cfg.showMini
+    // off (the setting, or the island's whole player part) = no lookups
+    readonly property bool enabled: Cfg.showMini && Cfg.showLyrics
     readonly property bool playing: (root.player?.playbackStatus ?? Mpris.PlaybackStatus.Stopped) === Mpris.PlaybackStatus.Playing
     readonly property real rate: Math.max(0.01, root.player?.rate ?? 1)
 

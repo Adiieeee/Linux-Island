@@ -42,6 +42,10 @@
     <entry name="showMini" type="Bool">
       <default>true</default>
     </entry>
+    <!-- Synced lyrics from lrclib.net in the small island -->
+    <entry name="showLyrics" type="Bool">
+      <default>true</default>
+    </entry>
 
     <!-- Ciudad para el clima; vacío = detectar sola por IP -->
     <entry name="weatherCity" type="String">

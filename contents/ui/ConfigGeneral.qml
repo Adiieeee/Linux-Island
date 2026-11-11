@@ -17,6 +17,7 @@ Kirigami.FormLayout {
     property bool cfg_showNetwork: true
     property bool cfg_showBattery: true
     property bool cfg_showMini: true
+    property bool cfg_showLyrics: true
     property string cfg_weatherCity: ""
 
     // del combo en vivo, no de Cfg.esp (eso es el idioma ya aplicado, no el que se está eligiendo)
@@ -142,6 +143,21 @@ Kirigami.FormLayout {
     QQC2.Label {
         Kirigami.FormData.label: ""
         text: page.esp ? "A los lados del reloj, mientras hay música o video sonando o en pausa." : "On both sides of the clock, while music or video is playing or paused."
+        opacity: 0.7
+        wrapMode: Text.WordWrap
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 20
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Mostrar la letra sincronizada" : "Show synced lyrics"
+        enabled: page.cfg_showMini
+        checked: page.cfg_showLyrics
+        onToggled: page.cfg_showLyrics = checked
+    }
+
+    QQC2.Label {
+        Kirigami.FormData.label: ""
+        text: page.esp ? "En lugar del reloj mientras se canta una línea. Para encontrarla se envían a lrclib.net el título, el artista, el álbum y la duración de la canción." : "In place of the clock while a line is sung. To find them, the song's title, artist, album and length are sent to lrclib.net."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20

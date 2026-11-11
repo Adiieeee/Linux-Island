@@ -43,6 +43,9 @@ QtObject {
     property bool showNetwork: true
     property bool showBattery: true
     property bool showMini: true
+    // synced lyrics in the small island (Lyrics.qml); off = nothing is sent
+    // to lrclib.net
+    property bool showLyrics: true
 
     // ciudad para el clima; vacío = wttr.in detecta sola por ip
     property string weatherCity: ""
