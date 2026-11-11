@@ -33,9 +33,6 @@
     <entry name="showClock" type="Bool">
       <default>true</default>
     </entry>
-    <entry name="showNetwork" type="Bool">
-      <default>true</default>
-    </entry>
     <entry name="showBattery" type="Bool">
       <default>true</default>
     </entry>

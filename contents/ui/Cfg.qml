@@ -40,7 +40,6 @@ QtObject {
     property bool showWorkspaces: true
     property bool showWeather: true
     property bool showClock: true
-    property bool showNetwork: true
     property bool showBattery: true
     property bool showMini: true
     // synced lyrics in the small island (Lyrics.qml); off = nothing is sent

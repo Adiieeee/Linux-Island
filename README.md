@@ -341,9 +341,10 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Time**: 24-hour, or 12-hour with AM/PM.
 - **Meters**: RAM used in GiB ("7.8") next to the percentage (on by default).
   Turn it off to show the percentage alone.
-- **Show in the small island**: weather, network, battery. (The desktops and
-  clock checkboxes are gone: the island has no desktop dots for now and
-  always shows the clock.)
+- **Show in the small island**: weather, battery. Neither does anything at the
+  moment: the island was rebuilt around the media and these are kept for a
+  later plan. (The network checkbox is gone, and so are the desktops and
+  clock checkboxes.)
 - **Player**: show or hide the album art, waveform and lyrics around the
   clock while something is playing or paused.
 - **Show synced lyrics** (on by default): the lyric lines in the small

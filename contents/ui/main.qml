@@ -43,11 +43,6 @@ PlasmoidItem {
     }
     Binding {
         target: Cfg
-        property: "showNetwork"
-        value: Plasmoid.configuration.showNetwork
-    }
-    Binding {
-        target: Cfg
         property: "showBattery"
         value: Plasmoid.configuration.showBattery
     }

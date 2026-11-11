@@ -14,7 +14,6 @@ Kirigami.FormLayout {
     property bool cfg_showWorkspaces: true
     property bool cfg_showWeather: true
     property bool cfg_showClock: true
-    property bool cfg_showNetwork: true
     property bool cfg_showBattery: true
     property bool cfg_showMini: true
     property bool cfg_showLyrics: true
@@ -115,12 +114,6 @@ Kirigami.FormLayout {
         text: page.esp ? "Clima" : "Weather"
         checked: page.cfg_showWeather
         onToggled: page.cfg_showWeather = checked
-    }
-
-    QQC2.CheckBox {
-        text: page.esp ? "Red" : "Network"
-        checked: page.cfg_showNetwork
-        onToggled: page.cfg_showNetwork = checked
     }
 
     QQC2.CheckBox {
