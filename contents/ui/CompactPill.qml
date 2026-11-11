@@ -67,17 +67,24 @@ Item {
     // "date": no song (long form, alone in the notch), or the lyrics turned
     // off (short form, between art and waveform; no track peek either).
     // "peek": a new song's title and artist, for a moment. "lyric": a line
-    // is being sung (Lyrics.wide). both only while playing. everything else
-    // (paused, a song without lyrics, an instrumental break) shows the date
-    // too for now
+    // is being sung (Lyrics.wide). "gap": a song with lyrics between lines
+    // (intro, outro, a break of 4 s or more): one eighth note (♪). "nolyrics":
+    // a song without lyrics, or with no title to look up: two beamed eighth
+    // notes (♫). "blank": still looking the lyrics up (usually hidden by the
+    // peek). the notes follow the Windhawk island this is modelled on.
+    // pausing changes nothing here: the playhead stops, so Lyrics.wide and
+    // the line on show stay as they are, and the waveform resting dim says
+    // it's paused
     readonly property string mode: {
-        if (!root.media || !Lyrics.enabled || !root.isPlaying)
+        if (!root.media || !Lyrics.enabled)
             return "date";
         if (root.peeking)
             return "peek";
-        if (Lyrics.wide)
-            return "lyric";
-        return "date";
+        if (Lyrics.status === "found")
+            return Lyrics.wide ? "lyric" : "gap";
+        if (Lyrics.status === "loading")
+            return "blank";
+        return "nolyrics";
     }
 
     // ── track peek ──
@@ -115,7 +122,13 @@ Item {
         interval: Theme.peekDuration
         onTriggered: root.peeking = false
     }
-    readonly property real middleWidth: root.mode === "date" ? dateText.implicitWidth : Theme.lyricsWidth
+    readonly property real middleWidth: {
+        if (root.mode === "date")
+            return dateText.implicitWidth;
+        if (root.mode === "peek" || root.mode === "lyric")
+            return Theme.lyricsWidth;
+        return Theme.noteWidth;
+    }
 
     // today, for the date in the middle
     Timer {
@@ -297,7 +310,7 @@ Item {
             }
         }
 
-        // ── middle: date, track peek or lyric line ──
+        // ── middle: date, track peek, lyric line or a note ──
         // as wide as the capsule leaves between art and waveform while the
         // width animates, clipped, so a line widening the island is revealed
         // from the centre instead of running over the art
@@ -339,6 +352,7 @@ Item {
                         width: parent.width
                         text: Lyrics.track
                         running: peekLayer.visible
+                        paused: !root.isPlaying
                         scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
                         // a size above the artist and bold, so the two lines
                         // read as title and byline at a glance
@@ -350,6 +364,7 @@ Item {
                         visible: text !== ""
                         text: Lyrics.artist
                         running: peekLayer.visible
+                        paused: !root.isPlaying
                         scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
                         color: Theme.fgDim
                         font.pixelSize: Theme.labelSmall
@@ -367,9 +382,28 @@ Item {
                     text: Lyrics.text
                     serial: Lyrics.shown
                     running: lyricLayer.visible
+                    paused: !root.isPlaying
                     // the line is on screen from its start to the next one;
                     // the slide fits in between, with a hold at each end
                     scrollMs: Math.max(500, (Lyrics.lineEnd - Lyrics.lineStart) * 1000 / Lyrics.rate - 2 * Theme.marqueeHold)
+                }
+            }
+
+            Layer {
+                on: root.mode === "gap"
+
+                NoteGlyph {
+                    anchors.centerIn: parent
+                    kind: "eighth"
+                }
+            }
+
+            Layer {
+                on: root.mode === "nolyrics"
+
+                NoteGlyph {
+                    anchors.centerIn: parent
+                    kind: "beamed"
                 }
             }
         }

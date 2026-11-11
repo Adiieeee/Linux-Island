@@ -17,6 +17,8 @@ Item {
     property int scrollMs: 3000
     // off while hidden: long lines don't slide
     property bool running: true
+    // the song is paused: a sliding line holds where it is
+    property bool paused: false
 
     // how far a line moves while it fades
     readonly property int shift: 6
@@ -64,6 +66,7 @@ Item {
         opacity: current ? root.progress : 1 - root.progress
         visible: opacity > 0
         running: root.running && current
+        paused: root.paused
         font.pixelSize: Theme.labelMedium
         font.weight: Font.Medium
     }

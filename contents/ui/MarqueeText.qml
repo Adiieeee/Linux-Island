@@ -15,6 +15,9 @@ Item {
     property int scrollMs: 3000
     // off: back to the start, no slide
     property bool running: true
+    // the slide holds where it is (the song is paused) and goes on from
+    // there, instead of jumping back to the start like running off does
+    property bool paused: false
 
     readonly property real overflow: Math.max(0, label.implicitWidth - root.width)
     property real offset: 0
@@ -50,8 +53,21 @@ Item {
     function restart(): void {
         slide.stop();
         root.offset = 0;
-        if (root.running && root.overflow > 0)
+        if (root.running && root.overflow > 0) {
             slide.start();
+            if (root.paused)
+                slide.pause();
+        }
+    }
+
+    // set by hand: a bound `paused` on a stopped animation makes Qt warn
+    onPausedChanged: {
+        if (!slide.running)
+            return;
+        if (root.paused)
+            slide.pause();
+        else
+            slide.resume();
     }
 
     onTextChanged: Qt.callLater(root.restart)

@@ -103,9 +103,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   to read. A line too long for that width waits a moment, then slides once to
   show its end within the time it's sung. Each new line fades in from below
   while the old one fades out upwards. During the intro, the outro and
-  instrumental breaks of 4 seconds or more the island shrinks back to the
-  date. So does a song without lyrics, and a paused one. Lyrics come from
-  LRCLIB (lrclib.net). See "Lyrics in the panel island" below.
+  instrumental breaks of 4 seconds or more the island shrinks around one
+  eighth note (♪). A song without lyrics (instrumental, not on LRCLIB, or
+  with no title to look up) shows two eighth notes joined by one beam (♫),
+  like the Windhawk island this follows. Both are drawn as vectors
+  (`NoteGlyph.qml`). Pausing changes nothing in the middle: the line, ♪ or
+  ♫ stays, and a sliding line holds where it is; the waveform resting dim
+  shows the pause. Lyrics come from LRCLIB (lrclib.net). See "Lyrics in the
+  panel island" below.
 - The control center's bottom row has a lyrics button (the `lyrics` icon)
   where the app launcher's button was. It turns the small island's lyrics on
   and off, the same switch as **Show synced lyrics** in the settings, and
@@ -117,8 +122,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the date. Every song gets this once, with or without lyrics: a track
   change, the first song after plasmashell starts, another player taking
   over, or a song that was paused when found, once it plays. Pausing
-  during it goes straight to the date. With the lyrics off there's no
-  peek. Long titles slide like long lyric
+  doesn't cut it short. With the lyrics off there's no peek. Long titles slide like long lyric
   lines.
 - With more than one player (Spotify and a browser tab with YouTube, say),
   the panel island always shows the one that's playing. It used to stick to
@@ -912,10 +916,21 @@ outside Plasma.
   `Theme.marqueeHold` (0.7 s), a slide to the end that fits in the line's
   time on screen, then it stays there. Looping would make the line hard to
   follow while it's sung.
+- **The notes are drawn, not typed** (`NoteGlyph.qml`). Material Symbols
+  only has `music_note`, and how ♪ and ♫ look as text depends on the system
+  font; the Windhawk island draws its ♫ for the same reason (Segoe UI gives
+  it a double beam, which reads as sixteenths). Each note is one SVG path in
+  a `Shape`: tilted elliptical heads (two half arcs each), stems, and a flag
+  or a beam, filled with the winding rule so the overlapping parts make one
+  shape. `Theme.noteSize` (14 px) sets the height and `Theme.noteWidth`
+  (24 px) the middle's width while a note shows.
+- **Pausing needs no code of its own.** The playhead stops, so
+  `Lyrics.wide` and the line on show stay as they are. `MarqueeText.paused`
+  holds a sliding line where it is (set by hand on the running animation:
+  a bound `paused` on a stopped animation makes Qt warn).
 - **Lines.** A line shows 0.3 s before it's sung (`LEAD`). Empty lines and
   lines with only ♪ are gaps. A gap shorter than 4 s between two sung lines
-  keeps the last line up; longer ones, the intro and the outro hand the
-  middle back to the date. Not every file closes an instrumental break
+  keeps the last line up; longer ones, the intro and the outro show ♪. Not every file closes an instrumental break
   with an empty line, so a line counts as over 10 s after it starts (6 s for
   the last one).
 
