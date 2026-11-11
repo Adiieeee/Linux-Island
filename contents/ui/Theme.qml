@@ -128,5 +128,13 @@ QtObject {
     // how much of Plasma's popup frame (the theme's translucent, blurred dialog
     // margin, 12 px with Ant-Dark) stays visible around the open island
     readonly property int popupRing: 4
+    // corner of the open island: a "squircle" that runs parallel to Plasma's
+    // dialog frame, so the ring above has the same width all the way round.
+    // Ant-Dark's dialogs/background.svg corner is a cubic across a 24 px tile
+    // with both control points 4 px (1/6 of the tile) from the corner; the
+    // island's corner is the same curve, inset by popupRing. another Plasma
+    // theme has another corner: measure it there and change these two
+    readonly property int islandCorner: 24 - popupRing
+    readonly property real islandCornerPull: 1 / 6
     readonly property int topGap: 0
 }

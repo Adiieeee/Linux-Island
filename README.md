@@ -122,8 +122,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   PowerDevil answered late (see "So the island's height must not depend on
   data that arrives late" below).
 - The translucent, blurred frame Plasma draws around the open island is
-  4 px wide instead of the theme's full margin (12 px with Ant-Dark). See
-  "Plasma's popup always has a frame" below.
+  4 px wide instead of the theme's full margin (12 px with Ant-Dark), and
+  the island's corners follow the frame's corner shape, so the frame is an
+  even 4 px all the way round. The corners are a little less round than the
+  old 26 px radius. See "Plasma's popup always has a frame" below.
 - When Spectacle stops recording on its own (it failed to start, or it was
   stopped from its tray icon), the island notices and goes back to idle
   instead of counting forever.
@@ -476,6 +478,16 @@ Two rules to avoid it:
   negative margins, leaving `Theme.popupRing` (4 px) of it visible. The item
   itself shrinks by the same amount (`implicitWidth`, `drawnHeight`), so the
   island keeps its size and the content stays where it was.
+  The frame's corners aren't circles: Ant-Dark's corner is a cubic across a
+  24 px tile with its control points 4 px from the corner, a "squircle".
+  With a circular 26 px radius the ring was thicker at the corners. So the
+  island (and the dark layer behind open overlays, which was a plain square
+  and darkened the frame's corners) is drawn by `IslandShape`, a `Shape`
+  with the same cubic corners in a 20 px tile (`Theme.islandCorner`,
+  `Theme.islandCornerPull`), and runs parallel to the frame. Another Plasma
+  theme has another corner: measure its `dialogs/background.svg` and change
+  those two tokens. `CurveRenderer` antialiases the curves without
+  `layer.enabled`.
 - **A child with `anchors.fill` inside a `Row` breaks the Row**: all its
   content disappears. It happened when the scroll-wheel `MouseArea` was put
   inside `Workspaces`, which was a `Row`, and the desktop dots vanished. Now

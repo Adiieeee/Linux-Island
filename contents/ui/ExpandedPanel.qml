@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Shapes
 import org.kde.kirigami as Kirigami
 import "."
 
@@ -112,7 +113,76 @@ Item {
         overlay = "";
     }
 
-    Rectangle {
+    // the island's outline with Theme.islandCorner corners (not a Rectangle
+    // radius: a circle can't run parallel to the theme's squircle frame).
+    // CurveRenderer antialiases without layer.enabled (hard rule 3)
+    component IslandShape: Shape {
+        id: shp
+        property color fill: Theme.surface
+        readonly property real t: Theme.islandCorner
+        readonly property real c: Theme.islandCorner * Theme.islandCornerPull
+
+        anchors.fill: parent
+        preferredRendererType: Shape.CurveRenderer
+
+        ShapePath {
+            fillColor: shp.fill
+            strokeWidth: -1
+            startX: shp.t
+            startY: 0
+
+            PathLine {
+                x: shp.width - shp.t
+                y: 0
+            }
+            PathCubic {
+                x: shp.width
+                y: shp.t
+                control1X: shp.width - shp.c
+                control1Y: 0
+                control2X: shp.width
+                control2Y: shp.c
+            }
+            PathLine {
+                x: shp.width
+                y: shp.height - shp.t
+            }
+            PathCubic {
+                x: shp.width - shp.t
+                y: shp.height
+                control1X: shp.width
+                control1Y: shp.height - shp.c
+                control2X: shp.width - shp.c
+                control2Y: shp.height
+            }
+            PathLine {
+                x: shp.t
+                y: shp.height
+            }
+            PathCubic {
+                x: 0
+                y: shp.height - shp.t
+                control1X: shp.c
+                control1Y: shp.height
+                control2X: 0
+                control2Y: shp.height - shp.c
+            }
+            PathLine {
+                x: 0
+                y: shp.t
+            }
+            PathCubic {
+                x: shp.t
+                y: 0
+                control1X: 0
+                control1Y: shp.c
+                control2X: shp.c
+                control2Y: 0
+            }
+        }
+    }
+
+    Item {
         id: island
         // fills the window and reaches into Plasma's frame (see reach())
         anchors.fill: parent
@@ -120,9 +190,11 @@ Item {
         anchors.bottomMargin: -root.reachBottom
         anchors.leftMargin: -root.reachLeft
         anchors.rightMargin: -root.reachRight
-        radius: Theme.expandedRadius
-        color: Theme.surface
         clip: true
+
+        IslandShape {
+            z: -1
+        }
 
         // ── notificación entrante ──
         // franja fija abajo, se suma al alto del panel sin tapar lo de arriba
@@ -558,9 +630,9 @@ Item {
 
         // ── vistas superpuestas ──
         // cuelgan de la isla entera, no del recuadro interior, si no queda un borde sin oscurecer
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
+        // same outline as the island, or its corners would darken Plasma's frame
+        IslandShape {
+            fill: "#000000"
             opacity: root.overlay !== "" ? 0.55 : 0
             visible: opacity > 0
             z: 4
