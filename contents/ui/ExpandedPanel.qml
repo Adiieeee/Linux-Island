@@ -395,6 +395,34 @@ Item {
                                     font.weight: Font.Bold
                                     elide: Text.ElideRight
                                 }
+
+                                // current settings at a glance: screen or window,
+                                // system audio, microphone. on = dim, off = faint + "_off" glyph
+                                Row {
+                                    topPadding: 4
+                                    spacing: 8
+
+                                    Text {
+                                        text: Recorder.mode === "w" ? "web_asset" : "desktop_windows"
+                                        color: Theme.fgDim
+                                        font.family: Theme.fontIcons
+                                        font.pixelSize: 15
+                                    }
+
+                                    Text {
+                                        text: Recorder.systemAudio ? "volume_up" : "volume_off"
+                                        color: Recorder.systemAudio ? Theme.fgDim : Theme.fgFaint
+                                        font.family: Theme.fontIcons
+                                        font.pixelSize: 15
+                                    }
+
+                                    Text {
+                                        text: Recorder.microphone ? "mic" : "mic_off"
+                                        color: Recorder.microphone ? Theme.fgDim : Theme.fgFaint
+                                        font.family: Theme.fontIcons
+                                        font.pixelSize: 15
+                                    }
+                                }
                             }
                         }
 
