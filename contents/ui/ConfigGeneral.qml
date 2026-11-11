@@ -137,7 +137,7 @@ Kirigami.FormLayout {
 
     QQC2.Label {
         Kirigami.FormData.label: ""
-        text: page.esp ? "A los lados del reloj, mientras hay música o video sonando o en pausa." : "On both sides of the clock, while music or video is playing or paused."
+        text: page.esp ? "En la muesca de la isla, mientras hay música o video sonando o en pausa. Apagado: solo la fecha." : "In the island's notch, while music or video is playing or paused. Off: just the date."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20
@@ -152,7 +152,7 @@ Kirigami.FormLayout {
 
     QQC2.Label {
         Kirigami.FormData.label: ""
-        text: page.esp ? "En lugar del reloj mientras se canta una línea. Para encontrarla se envían a lrclib.net el título, el artista, el álbum y la duración de la canción." : "In place of the clock while a line is sung. To find them, the song's title, artist, album and length are sent to lrclib.net."
+        text: page.esp ? "En el centro de la muesca mientras se canta una línea (♪ entre líneas, ♫ si la canción no tiene letra; apagado: la fecha). Para encontrarla se envían a lrclib.net el título, el artista, el álbum y la duración de la canción." : "In the middle of the notch while a line is sung (♪ between lines, ♫ for a song without lyrics; off: the date). To find them, the song's title, artist, album and length are sent to lrclib.net."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20
