@@ -24,7 +24,7 @@ Row {
         color: Theme.fg
         font.family: Theme.fontDots
         font.features: Theme.numFeatures
-        font.pixelSize: 17
+        font.pixelSize: Theme.islandClock
         font.weight: Font.Bold
     }
 

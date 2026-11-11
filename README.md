@@ -61,7 +61,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The small island shows synced lyrics. While a line is being sung, the
   island widens to a fixed width (`Theme.lyricsWidth`, 280 px for the
   middle, the same for every line, so it doesn't resize on each one) and the
-  line takes the clock's place, in an 11 px font (`Theme.labelMedium`). At
+  line takes the clock's place, in an 11 px font (`Theme.labelMedium`).
+  The clock itself is 15 px (`Theme.islandClock`, down from 17). At
   13 and 12 px too few words fitted, and most lines slid, which was tiring
   to read. A line too long for that width waits a moment, then slides once to
   show its end within the time it's sung. Each new line fades in from below
