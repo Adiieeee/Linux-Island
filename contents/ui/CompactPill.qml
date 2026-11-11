@@ -108,17 +108,20 @@ Item {
     // enough to stay inside its round ends
     readonly property real inset: Math.round(capsuleHeight * 0.15)
     readonly property real tile: capsuleHeight - 2 * inset
-    // from the capsule's ends they sit further in than from its top and
-    // bottom: at the plain inset they crowded the round ends
+    // the waveform sits further from the right end than from the top and
+    // bottom: at the plain inset it crowded the round end. the art stays at
+    // the plain inset, close to the left end
     readonly property real edge: inset + 6
     readonly property int gap: 16
     // sides when only the clock shows
     readonly property int padding: 12
 
-    // what the art and the waveform take, or the padding beside a lone clock
-    readonly property real sides: root.media ? 2 * (root.edge + root.tile + root.gap) : 2 * root.padding
+    // what the art and the waveform take on each side, or the padding beside
+    // a lone clock
+    readonly property real leftSide: root.media ? root.inset + root.tile + root.gap : root.padding
+    readonly property real rightSide: root.media ? root.edge + root.tile + root.gap : root.padding
 
-    implicitWidth: root.sides + root.middleWidth
+    implicitWidth: root.leftSide + root.middleWidth + root.rightSide
     implicitHeight: Theme.collapsedHeight
 
     Behavior on implicitWidth {
@@ -178,7 +181,7 @@ Item {
 
         // ── album art, round ──
         MediaPart {
-            x: root.edge
+            x: root.inset
             anchors.verticalCenter: parent.verticalCenter
             width: root.tile
             height: root.tile
@@ -217,8 +220,9 @@ Item {
         // from the centre instead of running over the art
         Item {
             id: middle
-            anchors.centerIn: parent
-            width: Math.max(0, capsule.width - root.sides)
+            x: root.leftSide
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.max(0, capsule.width - root.leftSide - root.rightSide)
             height: parent.height
             clip: true
 
@@ -244,7 +248,7 @@ Item {
                         text: Lyrics.track
                         running: peekLayer.visible
                         scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
-                        font.pixelSize: Theme.bodySmall
+                        font.pixelSize: Theme.labelMedium
                         font.weight: Font.Bold
                     }
                     MarqueeText {
@@ -254,7 +258,7 @@ Item {
                         running: peekLayer.visible
                         scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
                         color: Theme.fgDim
-                        font.pixelSize: Theme.labelMedium
+                        font.pixelSize: Theme.labelSmall
                     }
                 }
             }

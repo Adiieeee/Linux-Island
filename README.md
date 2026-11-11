@@ -36,9 +36,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   later plan). The capsule is as tall as the panel: the panel insets every
   applet by its theme's margins (4 px above and below with Ant-Dark), and the
   capsule reaches past its slot by that much (`CompactPill.reach`, capped at
-  the theme margin so a floating panel isn't overshot). The art and the
-  waveform sit 6 px further from the capsule's round ends than from its top
-  and bottom (`CompactPill.edge`), so they don't crowd the curve.
+  the theme margin so a floating panel isn't overshot). The waveform sits
+  6 px further from the capsule's right end than from its top and bottom
+  (`CompactPill.edge`), so it doesn't crowd the curve; the album art stays
+  close to the left end.
 - The small island's waveform follows the real audio. Five bars show the
   level of everything the speakers play: the newest level in the middle bar,
   older ones moving out to both sides, so a beat looks like a pulse leaving
@@ -50,10 +51,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   rest low and dim. Before, four bars moved on a fixed animation whatever
   was playing. See "The real waveform" below.
 - The small island shows synced lyrics. While a line is being sung, the
-  island widens to a fixed width (`Theme.lyricsWidth`, 260 px for the
+  island widens to a fixed width (`Theme.lyricsWidth`, 320 px for the
   middle, the same for every line, so it doesn't resize on each one) and the
-  line takes the clock's place, in a 12 px font (`Theme.bodySmall`; 13 px
-  fitted too few words). A line too long for that width waits a moment, then slides once to
+  line takes the clock's place, in an 11 px font (`Theme.labelMedium`). At
+  13 and 12 px too few words fitted, and most lines slid, which was tiring
+  to read. A line too long for that width waits a moment, then slides once to
   show its end within the time it's sung. Each new line fades in from below
   while the old one fades out upwards. During the intro, the outro and
   instrumental breaks of 4 seconds or more the island shrinks back to the
