@@ -39,8 +39,12 @@ QtObject {
         elapsed = 0;
         const file = `${root.folder}/rec-${Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss")}.mp4`;
         root.lastFile = file;
+        // spectacle has no CLI flag for audio: it reads "record system audio" and
+        // "record microphone" from its own config, both off by default. write the
+        // island's toggles there first (this overwrites spectacle's own setting)
+        const audio = `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordSystemAudio --type bool ${root.systemAudio}; ` + `kwriteconfig6 --file spectaclerc --group GuiConfig --key videoRecordMicrophone --type bool ${root.microphone}; `;
         // "s" = pantalla, la palabra entera "screen" spectacle no la reconoce
-        Exec.run(`mkdir -p '${root.folder}'; spectacle --background --record=s --output='${file}'`);
+        Exec.run(`${audio}mkdir -p '${root.folder}'; spectacle --background --record=s --output='${file}'`);
         recording = true;
     }
 

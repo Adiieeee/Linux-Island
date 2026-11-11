@@ -87,6 +87,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   recording view. Before, the whole card opened the view first, so starting
   took two clicks, and a click anywhere on the card stopped a running
   recording.
+- Recordings include sound. The **System audio** and **Microphone** toggles
+  didn't reach Spectacle, so recordings were silent. See "Recordings had no
+  sound" below.
 
 ## Install
 
@@ -416,7 +419,7 @@ Two rules to avoid it:
 
 ## Things that were broken and aren't anymore
 
-Four things had been ported wrong. All of them were found by checking which
+Several things had been ported wrong. All of them were found by checking which
 API Plasma really exposes, not which API Quickshell had.
 
 ### The player couldn't seek
@@ -491,6 +494,26 @@ again starts it.
 It was left over from the Hyprland version, where `wf-recorder` does accept
 an FPS value. Spectacle doesn't, so the property had been removed from the
 service but the row still tried to write it. It's hidden now.
+
+### Recordings had no sound
+
+The **System audio** and **Microphone** toggles in the recording view only
+set `Recorder.systemAudio` / `Recorder.microphone`; nothing passed them to
+Spectacle. A recording made while music played had a single h264 stream and
+no audio stream at all (`ffprobe`). Spectacle 6.8 can record both, but has
+**no command-line flag** for it: it reads `videoRecordSystemAudio` and
+`videoRecordMicrophone` from `[GuiConfig]` in `~/.config/spectaclerc`
+(both off by default, see `/usr/share/config.kcfg/spectacle.kcfg`).
+
+`Recorder.start()` now writes the two toggles there with `kwriteconfig6`
+right before launching Spectacle. Side effects worth knowing:
+
+- The island's toggles overwrite Spectacle's own "Record system audio" and
+  "Record microphone" settings every time a recording starts.
+- A Spectacle instance that is already running (its window open) keeps the
+  config it loaded and ignores the new values.
+- MP4 can carry audio. Only GIF and WebP can't, and the island always records
+  to `.mp4`.
 
 ## The player's liquid background
 
