@@ -55,9 +55,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   stays readable. With just the clock it's plain black again; the change
   fades over `Theme.durLong`. Each layer is one more `ShapePath` over the
   notch's outline (a radial gradient per blob), so the colour follows the
-  notch's curves without a clip or a mask, which would need a layer. Unlike
-  the card's blobs, these don't move: an always-visible panel widget
-  animating every frame would keep the panel repainting. Like the card, it
+  notch's curves without a clip or a mask, which would need a layer. The
+  blobs copy the card's: 1.4 times the width across, stacked in the same
+  order, each centred halfway along the path the card's blob travels. The
+  first version used smaller blobs with the cover's first colour alone at
+  the left end, and showed colours the card hides (a blue the card covers
+  with tan and maroon). Unlike the card's blobs, these don't move, so the
+  two match on average rather than frame by frame: an always-visible panel
+  widget animating every frame would keep the panel repainting. Like the card, it
   bends the monochrome rule in `Theme.qml` on purpose. A very light cover
   comes out mid-grey.
 - The small island's waveform follows the real audio. Five bars show the

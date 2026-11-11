@@ -55,8 +55,15 @@ Shape {
     }
 
     // one blob of colour: a radial gradient centred at cx (a fraction of the
-    // width), wider than the island so the three blend into one mass. the
-    // stops follow the media card's curve, 1 - e^(-1.15·(1 - t²)): it fills
+    // width). size, places and stacking copy the media card's blobs, so the
+    // island looks like the card: each is 1.4 times the width across (radius
+    // 0.7), centred where the card's blob is halfway along its path, stacked
+    // in the card's order (tones[0] at the bottom, mostly covered by the
+    // other two). an earlier layout (smaller blobs, tones[0] alone at the
+    // left end) showed colours the card hides, e.g. a blue the card covered
+    // with tan and maroon. the card's blobs move and these don't, so the two
+    // match on average, not frame by frame. the stops follow the card's
+    // curve, 1 - e^(-1.15·(1 - t²)): it fills
     // most of the blob and only fades to nothing at the edge
     component Blob: ShapePath {
         id: blob
@@ -68,7 +75,7 @@ Shape {
         fillGradient: RadialGradient {
             centerX: shp.width * blob.cx
             centerY: shp.height / 2
-            centerRadius: shp.width * 0.55
+            centerRadius: shp.width * 0.7
             focalX: centerX
             focalY: centerY
 
@@ -112,16 +119,18 @@ Shape {
         }
     }
 
+    // MediaCard's blobs travel 0.15 ↔ 0.55, 0.75 ↔ 0.35 and 0.45 ↔ 0.85 of
+    // the width
     Blob {
-        cx: 0.15
+        cx: 0.35
         tone: shp.tones[0] ?? shp.fill
     }
     Blob {
-        cx: 0.85
+        cx: 0.55
         tone: shp.tones[1] ?? shp.fill
     }
     Blob {
-        cx: 0.5
+        cx: 0.65
         tone: shp.tones[2] ?? shp.fill
     }
 
