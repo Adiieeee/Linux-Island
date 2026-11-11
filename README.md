@@ -48,6 +48,18 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   without a layer. On a panel at the bottom of the screen it hangs from the
   bottom edge instead. It only looks attached to the edge on a panel that
   isn't floating.
+- While a song with album art plays or is paused, the small island takes
+  the cover's colours, like the media card in the control center: three
+  soft blobs in the cover's palette (`Kirigami.ImageColors`, the same three
+  colours the card uses) under the same 45% dark veil, so the white text
+  stays readable. With just the clock it's plain black again; the change
+  fades over `Theme.durLong`. Each layer is one more `ShapePath` over the
+  notch's outline (a radial gradient per blob), so the colour follows the
+  notch's curves without a clip or a mask, which would need a layer. Unlike
+  the card's blobs, these don't move: an always-visible panel widget
+  animating every frame would keep the panel repainting. Like the card, it
+  bends the monochrome rule in `Theme.qml` on purpose. A very light cover
+  comes out mid-grey.
 - The small island's waveform follows the real audio. Five bars show the
   level of everything the speakers play: the newest level in the middle bar,
   older ones moving out to both sides, so a beat looks like a pulse leaving

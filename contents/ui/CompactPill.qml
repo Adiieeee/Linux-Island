@@ -33,6 +33,32 @@ Item {
     readonly property bool media: Cfg.showMini && player !== null && playback !== Mpris.PlaybackStatus.Stopped
     readonly property string artUrl: player?.artUrl ?? ""
 
+    // ── the cover's colours, for the tint (as on the media card) ──
+    // ImageColors needs the loaded Image, not the URL: given a remote URL it
+    // returns grey
+    Image {
+        id: artImg
+        source: root.artUrl
+        asynchronous: true
+        sourceSize.width: 92
+        sourceSize.height: 92
+        visible: false
+    }
+
+    Kirigami.ImageColors {
+        id: paleta
+        source: artImg.status === Image.Ready ? artImg : null
+    }
+
+    // the palette's real colours by area, like MediaCard.tonos (highlight and
+    // average are computed and can invent a colour that isn't on the cover)
+    readonly property var tones: {
+        const p = paleta.palette;
+        if (!p || p.length === 0)
+            return [paleta.dominant, paleta.dominant, paleta.dominant];
+        return [p[0].color, p[Math.min(1, p.length - 1)].color, p[Math.min(2, p.length - 1)].color];
+    }
+
     // ── what the middle shows ──
     // "peek": a new song's title and artist, for a moment. "lyric": a line
     // is being sung (Lyrics.wide). both only while playing. "clock":
@@ -183,9 +209,13 @@ Item {
         anchors.topMargin: -root.reach
         anchors.bottomMargin: -root.reach
 
+        // tinted with the cover's colours while a song with art plays or is
+        // paused; plain black with just the clock
         NotchShape {
             anchors.fill: parent
             flipped: root.bottomEdge
+            tones: root.tones
+            tint: root.media && artImg.status === Image.Ready ? 1 : 0
         }
 
         // ── album art, round ──
