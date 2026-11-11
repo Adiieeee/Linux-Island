@@ -50,9 +50,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   rest low and dim. Before, four bars moved on a fixed animation whatever
   was playing. See "The real waveform" below.
 - The small island shows synced lyrics. While a line is being sung, the
-  island widens to a fixed width (`Theme.lyricsWidth`, the same for every
-  line, so it doesn't resize on each one) and the line takes the clock's
-  place. A line too long for that width waits a moment, then slides once to
+  island widens to a fixed width (`Theme.lyricsWidth`, 260 px for the
+  middle, the same for every line, so it doesn't resize on each one) and the
+  line takes the clock's place, in a 12 px font (`Theme.bodySmall`; 13 px
+  fitted too few words). A line too long for that width waits a moment, then slides once to
   show its end within the time it's sung. Each new line fades in from below
   while the old one fades out upwards. During the intro, the outro and
   instrumental breaks of 4 seconds or more the island shrinks back to the

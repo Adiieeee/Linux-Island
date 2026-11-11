@@ -244,7 +244,7 @@ Item {
                         text: Lyrics.track
                         running: peekLayer.visible
                         scrollMs: Theme.peekDuration - 2 * Theme.marqueeHold
-                        font.pixelSize: Theme.bodyMedium
+                        font.pixelSize: Theme.bodySmall
                         font.weight: Font.Bold
                     }
                     MarqueeText {

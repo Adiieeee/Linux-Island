@@ -64,7 +64,7 @@ Item {
         opacity: current ? root.progress : 1 - root.progress
         visible: opacity > 0
         running: root.running && current
-        font.pixelSize: Theme.bodyMedium
+        font.pixelSize: Theme.bodySmall
         font.weight: Font.Medium
     }
 

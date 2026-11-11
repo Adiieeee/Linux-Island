@@ -131,7 +131,7 @@ QtObject {
     readonly property int collapsedWidth: 460
     // the panel island's middle while it shows a lyric line instead of the
     // clock; the same for every line, so the island doesn't resize on each
-    readonly property int lyricsWidth: 200
+    readonly property int lyricsWidth: 260
     readonly property int expandedWidth: 580
     // se suma a la isla, no reemplaza, así lo de arriba sigue visible
     readonly property int notifStrip: 62
