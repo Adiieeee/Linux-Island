@@ -94,7 +94,7 @@ Item {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     text: popup.mode === "wifi" ? Cfg.t("RED") : Cfg.t("DISPOSITIVOS")
-                    color: Theme.fgFaint
+                    color: Theme.fgDim
                     font.family: Theme.font
                     font.pixelSize: Theme.labelSmall
                     font.letterSpacing: Theme.labelSpacing
@@ -398,7 +398,7 @@ Item {
                                     return "mouse";
                                 return "bluetooth";
                             }
-                            color: cr.didFail ? Theme.alert : cr.isConnected ? Theme.invertedFg : Theme.fgFaint
+                            color: cr.didFail ? Theme.alert : cr.isConnected ? Theme.invertedFg : Theme.fgDim
                             font.family: Theme.fontIcons
                             font.pixelSize: 18
 
@@ -495,7 +495,7 @@ Item {
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                         text: "expand_more"
-                        color: cr.abierto || detMa.containsMouse ? Theme.fg : Theme.fgFaint
+                        color: cr.abierto || detMa.containsMouse ? Theme.fg : Theme.fgDim
                         font.family: Theme.fontIcons
                         font.pixelSize: 18
 
@@ -637,7 +637,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: passIn.text === ""
                             text: Cfg.t("Contraseña")
-                            color: Theme.fgFaint
+                            color: Theme.fgDim
                             font.family: Theme.font
                             font.pixelSize: Theme.bodySmall
                         }
@@ -686,7 +686,7 @@ Item {
             }
 
             component SectionLabel: Text {
-                color: Theme.fgFaint
+                color: Theme.fgDim
                 font.family: Theme.font
                 font.pixelSize: Theme.labelSmall
                 font.weight: Font.Medium
@@ -783,7 +783,7 @@ Item {
                                 topPadding: 8
                                 bottomPadding: 8
                                 text: Cfg.t("Buscando…")
-                                color: Theme.fgFaint
+                                color: Theme.fgDim
                                 font.family: Theme.font
                                 font.pixelSize: Theme.bodySmall
                             }
@@ -819,7 +819,7 @@ Item {
                 topPadding: 10
                 bottomPadding: 10
                 text: popup.mode === "wifi" ? Cfg.t("Wi-Fi apagado") : Cfg.t("Bluetooth apagado")
-                color: Theme.fgFaint
+                color: Theme.fgDim
                 font.family: Theme.font
                 font.pixelSize: Theme.bodySmall
             }
