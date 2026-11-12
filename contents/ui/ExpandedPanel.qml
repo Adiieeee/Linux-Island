@@ -344,7 +344,7 @@ Item {
 
                         // ── weather, at the header's right end ──
                         // top line: the temperature in the clock's digits
-                        // (Theme.weatherTemp, 21 px) with the condition's
+                        // (Theme.weatherTemp, 20 px) with the condition's
                         // icon (the seconds' size, 22 px) at
                         // the far right; under it the description, styled
                         // like the date's CALENDAR line. both lines are

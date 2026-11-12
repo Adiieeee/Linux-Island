@@ -146,17 +146,17 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   30 % (`Theme.mediaTrackAlpha`), which reads over any cover. Compared on
   dark, blue, red and light cover backgrounds at 22, 30 and 38 %.
 - The weather sits at the right end of the control center's header, which
-  was empty: on top the temperature in the clock's digits, 21 px
+  was empty: on top the temperature in the clock's digits, 20 px
   (`Theme.weatherTemp`), with the condition's icon (22 px, the seconds'
   size) at the far right, and the description below, styled like the
   date's **CALENDAR** line. (The icon first stood to the left of both
   lines, which looked odd.) The header keeps its fixed 44 px, so the rest
   of the control center doesn't move; measured offscreen, every row sits
   at the same place with or without the weather. The two lines have no gap
-  between them, so the block (43 px) fits the header; with a 1 px gap and
+  between them, so the block (42 px) fits the header; with a 1 px gap and
   a 22 px temperature it was 45 and poked out. (The temperature went 22 →
   18, on the worry that the weather pushed the layout down, which it
-  doesn't, then back to 22, then 21.) It's flush right as the clock is flush left,
+  doesn't, then back to 22, then 21, then 20.) It's flush right as the clock is flush left,
   takes only the room the date button leaves, and a long description ends
   in "…". Until wttr.in answers (or offline) it's hidden and the header
   looks as before. It uses the existing `Weather` service (wttr.in every
