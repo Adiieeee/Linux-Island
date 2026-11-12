@@ -25,6 +25,22 @@ Item {
 
     implicitWidth: Theme.expandedWidth - reachLeft - reachRight
 
+    // main.qml closes the control center once neither this nor the notch
+    // holds the pointer. HoverHandler stays hovered while a press that began
+    // inside is held, so dragging a slider past the edge doesn't count as
+    // leaving; it lets go on release
+    readonly property bool engaged: popupHover.hovered || typing
+    // a text field has the keyboard (the wifi password): stay open while
+    // the user types, wherever the pointer is
+    readonly property bool typing: {
+        const f = root.Window.activeFocusItem;
+        return !!f && f.echoMode !== undefined;
+    }
+
+    HoverHandler {
+        id: popupHover
+    }
+
     // plasma dibuja el popup del tamaño que le pidamos, sale del alto real del contenido
     // this item's height that fits the content; the island adds the reach back
     readonly property real drawnHeight: mainColumn.implicitHeight + 14 + 12 - reachTop - reachBottom

@@ -87,6 +87,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   ignores a quick pass across the top of the screen). Hovering only opens it; a click on the
   notch still toggles it, and after a click closes it the pointer, still
   on the notch, doesn't open it again, since the wait starts on entering.
+- The control center closes on its own once the pointer has been off both
+  the notch and the popup for 400 ms (`Theme.hoverCloseDelay`), however it
+  was opened. The wait leaves time to cross from the notch into the popup
+  or to slip past its edge and come back. It stays open while a slider
+  dragged past the edge is still held (a `HoverHandler` keeps `hovered`
+  until the press is released) and while the Wi-Fi password field has the
+  keyboard, wherever the pointer is (`ExpandedPanel.engaged`).
 - Hovering the island no longer shows Plasma's tooltip with the time and
   the weather. `toolTipMainText` and `toolTipSubText` are set to empty
   strings on purpose: left unset, Plasma shows the applet's name instead.

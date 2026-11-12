@@ -125,6 +125,10 @@ QtObject {
     // opens: 300 felt slow; 100 still ignores a quick pass across the top
     // of the screen
     readonly property int hoverOpenDelay: 100
+    // how long the pointer may be off both the notch and the control center
+    // before it closes: time to cross from the notch into the popup, or to
+    // slip past its edge and come back
+    readonly property int hoverCloseDelay: 400
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10

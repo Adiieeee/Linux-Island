@@ -28,6 +28,8 @@ Item {
     // the pointer rested on the notch for Theme.hoverOpenDelay: main.qml
     // opens the popup (only opens, never closes)
     signal openRequested
+    // the pointer is on the notch: main.qml keeps the control center open
+    readonly property bool notchHovered: notchMa.containsMouse
 
     // ── media ──
     // no buttons here: previous/play/next live in the control center.
@@ -448,6 +450,7 @@ Item {
         // entering, so after a click closes the popup the pointer, still on
         // the notch, doesn't open it again
         MouseArea {
+            id: notchMa
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor

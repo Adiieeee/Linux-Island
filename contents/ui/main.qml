@@ -143,6 +143,14 @@ PlasmoidItem {
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 
+    // the control center closes on its own once the pointer has been off
+    // both the notch and the popup for Theme.hoverCloseDelay
+    Timer {
+        interval: Theme.hoverCloseDelay
+        running: root.expanded && !(root.compactRepresentationItem?.notchHovered ?? false) && !(root.fullRepresentationItem?.engaged ?? false)
+        onTriggered: root.expanded = false
+    }
+
     // no tooltip: hovering the island used to show the time and weather after
     // a moment. both empty, explicitly: left unset, Plasma falls back to the
     // applet's name and still shows one
@@ -173,6 +181,9 @@ PlasmoidItem {
         // the whole island: desktop dots · notch · (room for the clock). it
         // takes the slot's height and the notch reaches past it to the
         // panel's edges on its own
+        // read by the close timer above
+        readonly property bool notchHovered: compactPill.notchHovered
+
         CompactPill {
             id: compactPill
             anchors.centerIn: parent
