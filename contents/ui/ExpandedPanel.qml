@@ -294,6 +294,7 @@ Item {
 
                         // la fecha abre el calendario, mismo sistema de overlay que wifi/bt
                         Rectangle {
+                            id: fechaBtn
                             anchors.left: bigClock.right
                             anchors.leftMargin: 8
                             anchors.verticalCenter: parent.verticalCenter
@@ -338,6 +339,59 @@ Item {
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: root.openOverlay("cal")
+                            }
+                        }
+
+                        // ── weather, at the header's right end ──
+                        // the condition's icon, then the temperature in the
+                        // clock's digits (the seconds' size) over the
+                        // description, styled like the date's CALENDAR line.
+                        // it takes what's left of the date button and the
+                        // description elides past that; hidden until
+                        // wttr.in has answered (offline it stays empty)
+                        Row {
+                            id: tiempo
+                            readonly property real room: parent.width - (fechaBtn.x + fechaBtn.width) - 12
+                            // flush right, as the clock is flush left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 8
+                            visible: Weather.ready && tiempo.room > 60
+
+                            Text {
+                                id: tiempoIcon
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: Weather.icon
+                                color: Theme.fg
+                                font.family: Theme.fontIcons
+                                font.pixelSize: 28
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 1
+
+                                Text {
+                                    anchors.right: parent.right
+                                    text: Weather.temp
+                                    color: Theme.fg
+                                    font.family: Theme.fontDots
+                                    font.features: Theme.numFeatures
+                                    font.pixelSize: Theme.displaySmall
+                                    font.weight: Font.Bold
+                                }
+
+                                Text {
+                                    anchors.right: parent.right
+                                    width: Math.min(implicitWidth, tiempo.room - tiempoIcon.width - tiempo.spacing)
+                                    horizontalAlignment: Text.AlignRight
+                                    text: Weather.desc.trim().toUpperCase()
+                                    color: Theme.fgDim
+                                    font.family: Theme.font
+                                    font.pixelSize: Theme.labelSmall
+                                    font.letterSpacing: Theme.labelSpacing
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
                     }
