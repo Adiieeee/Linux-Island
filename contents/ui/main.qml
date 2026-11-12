@@ -171,16 +171,29 @@ PlasmoidItem {
     }
 
     // ── a fullscreen window on the island's screen ──
-    // for "Keep the notch over games": the active window is fullscreen (a
-    // game, a video) on the screen the island's panel is on. read from the
-    // same tasks model, recomputed when the active window or any window's
-    // state changes (a binding can't see the model's dataChanged)
+    // for "Keep the notch over games": a fullscreen window (a game, a video)
+    // covers the screen the island's panel is on, by KWin's rule (see
+    // game.js). read from the same tasks model, recomputed when the active
+    // window or any window's state changes (a binding can't see the
+    // model's dataChanged)
     property bool gameOnIsland: false
 
     function refreshGame() {
-        const i = tasks.activeTask;
         const island = root.compactRepresentationItem?.screenRect ?? null;
-        root.gameOnIsland = i.valid && Game.gameOnIsland(tasks.data(i, TaskManager.AbstractTasksModel.IsFullScreen), tasks.data(i, TaskManager.AbstractTasksModel.ScreenGeometry), island);
+        const active = tasks.activeTask;
+        const windows = [];
+        let activeIndex = -1;
+        for (let r = 0; r < tasks.count; r++) {
+            const idx = tasks.index(r, 0);
+            windows.push({
+                fullScreen: tasks.data(idx, TaskManager.AbstractTasksModel.IsFullScreen),
+                minimized: tasks.data(idx, TaskManager.AbstractTasksModel.IsMinimized),
+                screen: tasks.data(idx, TaskManager.AbstractTasksModel.ScreenGeometry)
+            });
+            if (active.valid && active.row === r)
+                activeIndex = r;
+        }
+        root.gameOnIsland = Game.gameOnIsland(windows, activeIndex, island);
     }
 
     Connections {

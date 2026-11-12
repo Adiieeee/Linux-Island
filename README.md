@@ -728,7 +728,10 @@ Right-click the island → **Configure Linux Island…**. Options:
   control center, and the cover isn't loaded a second time for its colours.
 - **Keep the notch over games** (off by default, `notchOverGames`): while a
   game or a video is fullscreen on the island's screen, the notch floats
-  above it, so the lyrics stay in view. The pin button in the control
+  above it, so the lyrics stay in view. It follows KWin's rule for when a
+  fullscreen window covers the panels: while it's the active window, or
+  while the active window is on another screen (a video fullscreen on one
+  screen while typing on the other). The pin button in the control
   center's bottom row, next to the lyrics button, flips it too (filled
   while on; it started as a gamepad), and so does the widget's keyboard shortcut: right-click the
   island → **Configure Linux Island…** → **Keyboard Shortcuts** and set one
