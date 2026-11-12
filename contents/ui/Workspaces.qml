@@ -10,10 +10,10 @@ import "."
 Item {
     id: root
 
-    // clicking a dot switches to that desktop and the wheel steps through
-    // them. off for now: the island's left side shows the dots only, and
-    // the author has other plans for clicking them
-    property bool interactive: false
+    // clicking a dot switches to that desktop. the wheel, which steps
+    // through them, stays off: only clicking was asked for
+    property bool clickable: true
+    property bool scrollable: false
 
     implicitWidth: dots.implicitWidth
     implicitHeight: dots.implicitHeight
@@ -98,10 +98,16 @@ Item {
                     }
                 }
 
+                // half the row spacing on each side, so neighbouring hit
+                // areas meet without overlapping, and taller than the 8 px
+                // dot so it's easy to hit
                 MouseArea {
                     anchors.fill: parent
-                    anchors.margins: -4
-                    enabled: root.interactive
+                    anchors.leftMargin: -dots.spacing / 2
+                    anchors.rightMargin: -dots.spacing / 2
+                    anchors.topMargin: -8
+                    anchors.bottomMargin: -8
+                    enabled: root.clickable
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.activate(parent.modelData)
                 }
@@ -113,7 +119,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         anchors.margins: -4
-        enabled: root.interactive
+        enabled: root.scrollable
         acceptedButtons: Qt.NoButton
         onWheel: wheel => root.step(wheel.angleDelta.y > 0 ? -1 : 1)
     }

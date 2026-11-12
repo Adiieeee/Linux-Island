@@ -42,9 +42,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   itself. They're all in the text colour (white by default), because greys
   got lost on a light wallpaper, and their shape tells them apart: the
   current desktop is a long pill, a desktop with windows a filled dot, an
-  empty one a ring. For now they don't react to clicks or the wheel
-  (`Workspaces.interactive` is off); switching desktops from them is planned
-  differently. Both sides of the notch take the same width, the wider of
+  empty one a ring. Clicking a dot switches to that desktop
+  (`Workspaces.clickable`); each dot's hit area is 24 px tall and reaches
+  halfway to its neighbours, so the small dots are easy to hit. The wheel
+  doesn't step through desktops (`Workspaces.scrollable` is off). Both sides of the notch take the same width, the wider of
   the two plus a 12 px gap, so the notch and the popup under it stay in the
   middle of the screen.
 - The clock moved out of the notch to its right, on the panel, in white
@@ -67,7 +68,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   sits 1 px right of its inset (`Theme.artNudge`).
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
-  a click on the dots or the empty space beside the notch does nothing.
+  a click on the dots switches desktop and a click on the empty space beside
+  the notch does nothing.
 - The small island is shaped like a laptop's or an iPhone X's notch instead
   of a capsule (`NotchShape.qml`): flat along the screen's top edge, round
   bottom corners (`Theme.notchCorner`, 14 px), and a small concave flare at
@@ -361,7 +363,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   systems don't ship under that name (only `qdbus6`), so it silently did
   nothing. It now uses `busctl`, like the lock entry in the power panel. Clicking or scrolling the desktop dots
   had the same `qdbus` problem and now sets KWin's `current` desktop with
-  `busctl set-property` (that code is kept, switched off for now).
+  `busctl set-property` (clicking is on, the wheel is still off).
 - On the recording card in the main view, the round button starts recording
   right away (and stops it while recording). The rest of the card opens the
   recording view. Before, the whole card opened the view first, so starting
