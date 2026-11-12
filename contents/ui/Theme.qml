@@ -147,6 +147,9 @@ QtObject {
     // room above than below (♫ 16 px over 14, text 13 over 12 in a 34 px
     // notch); the album art and the waveform were even and stay put
     readonly property int opticalLift: 1
+    // the desktop dots and everything in the notch (art, middle, waveform)
+    // sit this much higher still; the clock doesn't
+    readonly property int notchLift: 2
     readonly property int expandedWidth: 580
     readonly property int expandedRadius: shapeXl
     // how much of Plasma's popup frame (the theme's translucent, blurred dialog

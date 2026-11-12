@@ -220,6 +220,7 @@ Item {
         anchors.right: capsule.left
         anchors.rightMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: -Theme.notchLift
     }
 
     Clock {
@@ -292,6 +293,7 @@ Item {
         MediaPart {
             x: root.ear + root.inset
             anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenterOffset: -Theme.notchLift
             width: root.tile
             height: root.tile
 
@@ -331,7 +333,7 @@ Item {
             id: middle
             x: root.leftSide
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -Theme.opticalLift
+            anchors.verticalCenterOffset: -(Theme.opticalLift + Theme.notchLift)
             width: Math.max(0, capsule.width - root.leftSide - root.rightSide)
             height: parent.height
             clip: true
@@ -428,6 +430,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: root.ear + root.edge
             anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenterOffset: -Theme.notchLift
             width: root.tile
             height: Math.round(root.tile * 0.75)
 

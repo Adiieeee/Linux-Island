@@ -61,8 +61,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   above the true centre (`Theme.opticalLift`). Measured on a screenshot of
   the panel, their ink had more room above than below (♫ 16 px over 14 at
   the screen's scale, text 13 over 12 in a 34 px notch), which read as the
-  content hanging low; now it's 12 over 13. The album art (6 over 6) and
-  the waveform were already even and stay where they are.
+  content hanging low; now it's 12 over 13. On top of that, the desktop
+  dots and everything in the notch (art, middle, waveform) sit 2 px higher
+  (`Theme.notchLift`); the clock stays at the 1 px lift.
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots or the empty space beside the notch does nothing.
