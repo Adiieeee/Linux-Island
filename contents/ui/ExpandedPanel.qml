@@ -82,6 +82,11 @@ Item {
             if (root.Window.window && root.Window.window.visible) {
                 root.nudge = 1;
                 nudgeBack.restart();
+            } else {
+                // every opening starts on the main view, not on whatever
+                // overlay (notifications, Wi-Fi…) was up when it closed.
+                // done once the window is hidden, so the switch isn't seen
+                root.closeOverlay();
             }
         }
     }

@@ -126,6 +126,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   Plasma's `visible: opacity > 0` binding. Other widgets keep their mark.
   If a Plasma update renames the property, nothing is found and the line
   just comes back.
+- The control center always opens on its main view. It used to come back
+  on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
+  The overlay is reset once the popup window is hidden, so the switch
+  never shows while it closes.
 - Hovering the island no longer shows Plasma's tooltip with the time and
   the weather. `toolTipMainText` and `toolTipSubText` are set to empty
   strings on purpose: left unset, Plasma shows the applet's name instead.
