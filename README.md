@@ -474,9 +474,14 @@ island's width (lyrics), the tray's (the Caps Lock icon), the spacing.
 The island itself is symmetric (dots and clock 12–13 px from the notch, the
 notch in the middle of the widget); a widget that re-centred itself was
 tried and dropped in favour of fixing the panel. To cancel the phantom
-spacing, give the first widget after the right spacer an extra left margin
-(with Panel Colorizer: a Global Override with that margin, applied to that
-widget). It sits next to the empty spacer, so nothing visibly moves.
+spacing, add margins to the widgets on the right of the right spacer (with
+Panel Colorizer: Global Overrides with those margins, applied to those
+widgets). Only their total counts, not which widget or side they go on.
+Panel Colorizer paints a widget's background over its margins too, so
+margins all on one side widen that widget's pill on that side and push its
+icon off-centre; spread them where they even out the pills instead. Spacers
+can't take them: Panel Colorizer skips spacers by default ("blacklist
+spacers"), and with that off they'd get a pill of their own.
 
 The margin has to be smaller than the spacing. The layout takes the extra
 room out of both spacers, not just the right one, and the left one (the
