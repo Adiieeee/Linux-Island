@@ -457,6 +457,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   instead of counting forever.
 - The power panel has no **Lock** entry: the bottom row already has a lock
   button.
+- In the power panel, **Sleep** comes first and **Log out** second.
 
 ## Install
 
@@ -794,7 +795,7 @@ around it.
 ## Power panel
 
 The button with the power icon, in the bottom row of the island, opens a
-panel with: log out, sleep, hibernate, restart and shut down. Sleep and
+panel with: sleep, log out, hibernate, restart and shut down. Sleep and
 hibernate only show up if the machine supports them (checked with
 `CanSuspend` and `CanHibernate` on `org.freedesktop.PowerManagement`).
 

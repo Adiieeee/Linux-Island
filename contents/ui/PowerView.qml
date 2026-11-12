@@ -286,19 +286,19 @@ Item {
                         spacing: 6
 
             Opcion {
-                icono: "logout"
-                titulo: Cfg.t("CERRAR SESIÓN")
-                detalle: Cfg.t("Cierra los programas abiertos")
-                comando: "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logout"
-                pesada: true
-            }
-
-            Opcion {
                 icono: "bedtime"
                 titulo: Cfg.t("SUSPENDER")
                 detalle: Cfg.t("Se apaga la pantalla, todo queda como está")
                 comando: "busctl --user call org.freedesktop.PowerManagement /org/freedesktop/PowerManagement org.freedesktop.PowerManagement Suspend"
                 visible: popup.puedeSuspender
+            }
+
+            Opcion {
+                icono: "logout"
+                titulo: Cfg.t("CERRAR SESIÓN")
+                detalle: Cfg.t("Cierra los programas abiertos")
+                comando: "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logout"
+                pesada: true
             }
 
             Opcion {
