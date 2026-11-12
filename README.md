@@ -446,21 +446,38 @@ in before, or you'll end up with two.
 
 **Between two panel spacers it isn't exactly centred.** In a shared,
 full-width panel with an expanding spacer on each side of the island,
-Plasma's spacers try to centre whatever sits between them, but they compute
-from the other widgets' size *hints*, not their real widths, and they don't
-recompute when widgets are reordered. Measured on the author's top panel
-(1600 px): the notch's centre sat at x 788–790, 10–12 px left; the spacers'
-widths drifted (534/372, later 536/400) with nothing changed; and the Caps
-Lock icon appearing in the system tray moved the island too. The cause, as
-the author found: **Panel Colorizer set to hide itself outside edit mode**
-sat in the left group. Hidden, it still counted with its size in the
-spacers' sums, so they made room for a widget that isn't drawn and pushed
-the island off centre by half of that. (Moving it while testing seemed to
-change nothing only because the spacers don't recompute when widgets are
-reordered.) Keep such a hidden widget out of the groups beside the spacers,
-or place one on each side. The island itself is symmetric (dots and clock
-12–13 px from the notch, the notch in the middle of the widget). A widget
-that re-centred itself was tried and dropped once the cause was known.
+Plasma's spacer (`org.kde.plasma.panelspacer`) sizes itself to centre what
+sits between the two: half the containment's width, minus the size hints
+of the widgets on its side, minus half of those between the spacers. A
+widget's hint is its `Layout.preferredWidth` (clamped to its minimum and
+maximum) plus the layout's spacing. Logged from inside plasmashell on the
+author's top panel, that formula has three flaws:
+
+- **It counts the panel layout's own `Repeater`.** The Repeater that
+  creates the applets is a visible, 0 px child of the layout, last in
+  order, so it lands in the right-hand group and adds one spacing to it.
+  The layout itself skips it, so nothing is drawn there. With Panel
+  Colorizer's spacing at 18 px this alone pushed the island 8 px right
+  (logged spacer sizes 581 and 427; without the phantom the right one
+  would be 445).
+- **It ignores `Layout` margins.** Panel Colorizer puts its widget margins
+  on `Layout.leftMargin`/`rightMargin`. With 4 + 4 px on every widget, two
+  on the left and three on the right, the right group was underestimated
+  more and the island sat 7–12 px left.
+- **It uses the containment's width (1600) rather than the layout's
+  (1588).** Both spacers ask for a little more than there is, and the
+  layout shrinks them in proportion to their size, so the larger one loses
+  more. Worth 1–2 px.
+
+The size of the error changes with everything the formula reads: the
+island's width (lyrics), the tray's (the Caps Lock icon), the spacing.
+The island itself is symmetric (dots and clock 12–13 px from the notch, the
+notch in the middle of the widget); a widget that re-centred itself was
+tried and dropped in favour of fixing the panel. To cancel the phantom
+spacing, give the first widget after the right spacer an extra left margin
+the size of the spacing (with Panel Colorizer: a Global Override with that
+margin, applied to that widget). It sits next to the empty spacer, so
+nothing visibly moves.
 
 ## Growing in place: tried, didn't work
 
