@@ -142,14 +142,17 @@ QtObject {
     // middle's width while it shows
     readonly property int noteSize: 9
     readonly property int noteWidth: 20
-    // the notch's middle (date, lyrics, notes) and the clock beside it sit
-    // this far above the true centre. measured on screen, their ink had more
-    // room above than below (♫ 16 px over 14, text 13 over 12 in a 34 px
-    // notch); the album art and the waveform were even and stay put
-    readonly property int opticalLift: 1
-    // the desktop dots and everything in the notch (art, middle, waveform)
-    // sit this much higher still; the clock doesn't
-    readonly property int notchLift: 2
+    // how far above the true centre each part of the panel island sits,
+    // tuned by eye on screen. the text and notes first went up 1 px (their
+    // ink had more room above than below: ♫ 16 px over 14, text 13 over 12
+    // in a 34 px notch), then everything was set part by part
+    readonly property int dotsLift: 1     // desktop dots
+    readonly property int artLift: 2      // album art
+    readonly property int middleLift: 2   // date, lyrics, notes
+    readonly property int waveLift: 1     // waveform
+    readonly property int clockLift: 1    // clock
+    // and the album art this far right of its plain inset
+    readonly property int artNudge: 1
     readonly property int expandedWidth: 580
     readonly property int expandedRadius: shapeXl
     // how much of Plasma's popup frame (the theme's translucent, blurred dialog

@@ -220,7 +220,7 @@ Item {
         anchors.right: capsule.left
         anchors.rightMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -Theme.notchLift
+        anchors.verticalCenterOffset: -Theme.dotsLift
     }
 
     Clock {
@@ -228,7 +228,7 @@ Item {
         anchors.left: capsule.right
         anchors.leftMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -Theme.opticalLift
+        anchors.verticalCenterOffset: -Theme.clockLift
     }
 
     // art and waveform come in and out together with the width
@@ -291,9 +291,9 @@ Item {
 
         // ── album art, round ──
         MediaPart {
-            x: root.ear + root.inset
+            x: root.ear + root.inset + Theme.artNudge
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -Theme.notchLift
+            anchors.verticalCenterOffset: -Theme.artLift
             width: root.tile
             height: root.tile
 
@@ -333,7 +333,7 @@ Item {
             id: middle
             x: root.leftSide
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -(Theme.opticalLift + Theme.notchLift)
+            anchors.verticalCenterOffset: -Theme.middleLift
             width: Math.max(0, capsule.width - root.leftSide - root.rightSide)
             height: parent.height
             clip: true
@@ -430,7 +430,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: root.ear + root.edge
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -Theme.notchLift
+            anchors.verticalCenterOffset: -Theme.waveLift
             width: root.tile
             height: Math.round(root.tile * 0.75)
 
