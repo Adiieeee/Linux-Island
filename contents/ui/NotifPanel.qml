@@ -106,7 +106,7 @@ Item {
                     textFormat: Text.PlainText
                     color: Theme.fg
                     font.family: Theme.font
-                    font.pixelSize: Theme.bodySmall
+                    font.pixelSize: Theme.bodyMedium
                     font.weight: Font.Medium
                     elide: Text.ElideRight
                 }
@@ -129,9 +129,11 @@ Item {
                 width: parent.width
                 text: entry.text
                 textFormat: Text.PlainText
-                color: Theme.fgVariant
+                // the message itself, easy to read: as bright as the title,
+                // one size below it (it was 10 px in the dim grey)
+                color: Theme.fg
                 font.family: Theme.font
-                font.pixelSize: Theme.labelSmall
+                font.pixelSize: Theme.bodySmall
                 wrapMode: Text.Wrap
                 maximumLineCount: entry.lines
                 elide: Text.ElideRight
