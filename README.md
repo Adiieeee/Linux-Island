@@ -171,10 +171,16 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the browser's own player doesn't show up next to the extension's.
 - Clicking the media card's album art or title opens the player and closes
   the control center: it asks the player to show itself (MPRIS `Raise`).
-  Spotify comes to the front. A browser brings its window forward; whether
-  it also switches to the tab that's playing is up to the browser
-  (Firefox-based ones such as Zen do). A player that can't be raised
-  (`canRaise` false) ignores the click.
+  Spotify comes to the front; Firefox-based browsers such as Zen also
+  switch to the tab that's playing. On Wayland a browser isn't allowed to
+  bring its own window forward (KWin's focus stealing prevention), so Zen
+  switched the tab but stayed behind other windows. A quarter of a second
+  after `Raise`, the card activates the player's window itself through
+  Plasma's task manager (`TaskManager.TasksModel.requestActivate`, which
+  plasmashell may use): the window of the player's process, or failing
+  that of its app, preferring one that's demanding attention, else the
+  one used last. A player that can't be raised (`canRaise` false) ignores
+  the click.
 - The media card in the control center has arrows at its left and right
   edges to switch between players, shown only when there's more than one.
   Only players with something loaded count: a track, playing or paused. A

@@ -1,6 +1,7 @@
 import QtQuick
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.mpris as Mpris
+import org.kde.taskmanager as TaskManager
 import "."
 
 // tarjeta del reproductor: carátula, controles, onda
@@ -16,6 +17,53 @@ Item {
     // the art or the title was clicked and the player was asked to show
     // itself: the control center closes (ExpandedPanel → main.qml)
     signal raised
+
+    // ── the player's window ──
+    // the player being raised (an existing container, not created here)
+    property var raising: null
+
+    TaskManager.TasksModel {
+        id: tasks
+        groupMode: TaskManager.TasksModel.GroupDisabled
+    }
+
+    // bring the player's window to the front: its windows are the ones of
+    // its process (AppPid = the MPRIS player's pid), or failing that of its
+    // app (AppId = its desktop entry). with several, the one demanding
+    // attention (it just asked to be shown), else the one used last
+    function activateWindow(p): void {
+        if (!p)
+            return;
+        const pid = Number(p.instancePid ?? 0);
+        const entry = String(p.desktopEntry ?? "").toLowerCase();
+        const R = TaskManager.AbstractTasksModel;
+        let byPid = [], byApp = [];
+        for (let i = 0; i < tasks.count; i++) {
+            const idx = tasks.index(i, 0);
+            if (!tasks.data(idx, R.IsWindow))
+                continue;
+            const appId = String(tasks.data(idx, R.AppId) ?? "").toLowerCase();
+            if (pid > 0 && Number(tasks.data(idx, R.AppPid)) === pid)
+                byPid.push(idx);
+            else if (entry !== "" && (appId === entry || appId.indexOf(entry) >= 0))
+                byApp.push(idx);
+        }
+        const found = byPid.length > 0 ? byPid : byApp;
+        if (found.length === 0)
+            return;
+        let best = found[0];
+        for (const idx of found) {
+            if (tasks.data(idx, R.IsDemandingAttention)) {
+                best = idx;
+                break;
+            }
+            const t = tasks.data(idx, R.LastActivated);
+            const bt = tasks.data(best, R.LastActivated);
+            if (t && (!bt || new Date(t) > new Date(bt)))
+                best = idx;
+        }
+        tasks.requestActivate(best);
+    }
 
     // shuffle and repeat, as the player reports them. Unknown = the player
     // doesn't have them (browsers usually), and the buttons stay hidden
@@ -422,9 +470,13 @@ Item {
 
         // ── open the player ──
         // a click on the art or the title asks the player to show itself
-        // (MPRIS Raise): Spotify's window; a browser's window, and
-        // Firefox-based ones (Zen) also switch to the tab that plays.
-        // players that can't be raised (canRaise false) ignore it
+        // (MPRIS Raise): Spotify's window; Firefox-based browsers (Zen) also
+        // switch to the tab that plays. on Wayland a browser isn't allowed
+        // to bring its own window forward (KWin's focus stealing
+        // prevention): Zen switched the tab but stayed behind. so a moment
+        // later the card activates the player's window itself, through
+        // Plasma's task manager, which plasmashell may do. players that
+        // can't be raised (canRaise false) ignore the click
         MouseArea {
             anchors.left: art.left
             anchors.top: art.top
@@ -433,7 +485,20 @@ Item {
             enabled: root.player?.canRaise ?? false
             cursorShape: Qt.PointingHandCursor
             onClicked: {
+                root.raising = root.player;
                 root.player.Raise();
+                raiseLater.restart();
+            }
+        }
+
+        // after Raise has switched the tab, so a browser window that asked to
+        // be shown is marked as demanding attention
+        Timer {
+            id: raiseLater
+            interval: 250
+            onTriggered: {
+                root.activateWindow(root.raising);
+                root.raising = null;
                 root.raised();
             }
         }
