@@ -216,6 +216,14 @@ PlasmoidItem {
     toolTipMainText: ""
     toolTipSubText: ""
 
+    // the widget's keyboard shortcut (Configure → Keyboard Shortcuts; Meta+Space
+    // is the suggested one) flips "Keep the notch over games" instead of
+    // opening the control center: in a game it only shows or hides the
+    // floating notch and never takes the game's focus. the control center
+    // opens by moving the pointer onto a notch
+    activationTogglesExpanded: false
+    Plasmoid.onActivated: Plasmoid.configuration.notchOverGames = !Plasmoid.configuration.notchOverGames
+
     // an Item, not a MouseArea: only the notch opens the popup, on hover
     // (CompactPill), not the desktop dots or the empty space beside it
     compactRepresentation: Item {
