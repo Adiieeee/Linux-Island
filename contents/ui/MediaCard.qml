@@ -17,6 +17,69 @@ Item {
     // itself: the control center closes (ExpandedPanel → main.qml)
     signal raised
 
+    // shuffle and repeat, as the player reports them. Unknown = the player
+    // doesn't have them (browsers usually), and the buttons stay hidden
+    readonly property int shuffle: player?.shuffle ?? Mpris.ShuffleStatus.Unknown
+    readonly property int loop: player?.loopStatus ?? Mpris.LoopStatus.Unknown
+
+    // a small round toggle beside the transport buttons: white with a dot
+    // under it while on, the card's dim grey while off
+    component ModeButton: Rectangle {
+        id: mb
+
+        property string icon: ""
+        property bool on: false
+        signal activated
+
+        width: 28
+        height: 28
+        radius: height / 2
+        anchors.verticalCenter: parent.verticalCenter
+        color: mbMa.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+        scale: mbMa.pressed ? 0.94 : mbMa.containsMouse ? 1.08 : 1.0
+
+        Behavior on color {
+            ColorAnimation {
+                duration: Theme.durShort
+            }
+        }
+        Behavior on scale {
+            NumberAnimation {
+                duration: Theme.durShort
+                easing.type: Easing.Bezier
+                easing.bezierCurve: Theme.emphasizedDecel
+            }
+        }
+
+        Text {
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: -1
+            text: mb.icon
+            color: mb.on ? Theme.fg : Theme.mediaDim
+            font.family: Theme.fontIcons
+            font.pixelSize: 16
+        }
+
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 2
+            width: 3
+            height: 3
+            radius: 1.5
+            color: Theme.fg
+            visible: mb.on
+        }
+
+        MouseArea {
+            id: mbMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: mb.activated()
+        }
+    }
+
     // room for the arrows at both edges, only with more than one player
     property int side: Media.canStep ? 22 : 0
     Behavior on side {
@@ -374,6 +437,13 @@ Item {
             anchors.verticalCenter: art.verticalCenter
             spacing: 2
 
+            ModeButton {
+                visible: root.shuffle !== Mpris.ShuffleStatus.Unknown
+                icon: "shuffle"
+                on: root.shuffle === Mpris.ShuffleStatus.On
+                onActivated: root.player.shuffle = on ? Mpris.ShuffleStatus.Off : Mpris.ShuffleStatus.On
+            }
+
             Repeater {
                 model: 3
 
@@ -438,6 +508,21 @@ Item {
                                 p.Previous();
                         }
                     }
+                }
+            }
+
+            // off → repeat all → repeat one, like Spotify's own button
+            ModeButton {
+                visible: root.loop !== Mpris.LoopStatus.Unknown
+                icon: root.loop === Mpris.LoopStatus.Track ? "repeat_one" : "repeat"
+                on: root.loop === Mpris.LoopStatus.Playlist || root.loop === Mpris.LoopStatus.Track
+                onActivated: {
+                    if (root.loop === Mpris.LoopStatus.None)
+                        root.player.loopStatus = Mpris.LoopStatus.Playlist;
+                    else if (root.loop === Mpris.LoopStatus.Playlist)
+                        root.player.loopStatus = Mpris.LoopStatus.Track;
+                    else
+                        root.player.loopStatus = Mpris.LoopStatus.None;
                 }
             }
         }

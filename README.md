@@ -150,6 +150,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   so the island showed a paused YouTube while Spotify played. A single
   `Media` singleton now owns the MPRIS model and reads the multiplexer row's
   player directly (`Media.active`); the island and the media card use it.
+- The media card has shuffle and repeat buttons beside previous and next,
+  for players that have them (Spotify; browsers usually don't, and then
+  they're hidden). On is white with a dot under the icon, off is the card's
+  dim grey. Repeat cycles off → repeat all → repeat one (`repeat_one`), like
+  Spotify's own button. They set the player's MPRIS `Shuffle` and
+  `LoopStatus`, which Spotify accepts (tested: it reports the new value
+  back).
 - Clicking the media card's album art or title opens the player and closes
   the control center: it asks the player to show itself (MPRIS `Raise`).
   Spotify comes to the front. A browser brings its window forward; whether
