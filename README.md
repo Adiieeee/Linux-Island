@@ -251,7 +251,16 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   that text; one that only expires or is read stays as it is. The source
   model also takes every urgency and the ones that arrived during Do Not
   Disturb. Up to 100 are kept, in memory, so a plasmashell restart starts
-  from what Plasma still has. The **CLEAR** button is as bright as **MUTE**
+  from what Plasma still has. The list is grouped in folders, one per app
+  (`Notifs.groups`): an app with several notifications shows one row with
+  its newest, its time and a count, and opens with a click to list them
+  all, so one busy chat doesn't fill the list; an app with one shows it
+  directly. The cross on a folder clears that app. Each notification shows
+  its title (a chat's sender), two lines of its text, its time, and for a
+  browser's notification the site or extension behind it ("LINE"). The
+  list scrolls with the wheel or a drag once it's taller than 300 px, with
+  the same thin scroll bar as the Wi-Fi list; before, it had no scrolling
+  and ran past the island's bottom. The **CLEAR** button is as bright as **MUTE**
   next to it; with nothing to clear it used to drop to 40% opacity and
   looked switched off. It still does nothing then.
 - The strip that showed a new notification at the bottom of the control

@@ -73,12 +73,21 @@ QtObject {
                 }
             }
         }
+        const appName = root.at(row, NM.Notifications.ApplicationNameRole) ?? "";
+        const desktopEntry = root.at(row, NM.Notifications.DesktopEntryRole) ?? "";
+        const created = root.at(row, NM.Notifications.CreatedRole);
         root.history.insert(0, {
             nid: id,
             summary: summary,
             body: body,
             applicationIconName: root.at(row, NM.Notifications.ApplicationIconNameRole) ?? "",
-            applicationName: root.at(row, NM.Notifications.ApplicationNameRole) ?? ""
+            applicationName: appName,
+            // the site or extension behind a browser's notification (LINE in
+            // Chromium), when the browser says
+            originName: root.at(row, NM.Notifications.OriginNameRole) ?? "",
+            created: created ? new Date(created).getTime() : Date.now(),
+            // the folder it goes in: one per app
+            appKey: appName || desktopEntry || ""
         });
         if (root.history.count > root.limit)
             root.history.remove(root.limit, root.history.count - root.limit);
@@ -110,6 +119,44 @@ QtObject {
             root.capture(e.row);
     }
 
+    // the history in folders, one per app, the app with the newest
+    // notification first: [{ key, name, icon, items: [entry, ...] }], items
+    // newest first. plain data, rebuilt whenever the history changes
+    property var groups: []
+
+    function regroup(): void {
+        const order = [];
+        const byKey = {};
+        for (let i = 0; i < root.history.count; i++) {
+            const e = root.history.get(i);
+            const item = {
+                nid: e.nid,
+                summary: e.summary,
+                body: e.body,
+                originName: e.originName,
+                created: e.created
+            };
+            if (!(e.appKey in byKey)) {
+                byKey[e.appKey] = {
+                    key: e.appKey,
+                    name: e.applicationName,
+                    icon: e.applicationIconName,
+                    items: []
+                };
+                order.push(e.appKey);
+            }
+            byKey[e.appKey].items.push(item);
+        }
+        root.groups = order.map(k => byKey[k]);
+    }
+
+    readonly property Connections watchHistory: Connections {
+        target: root.history
+        function onCountChanged() {
+            Qt.callLater(root.regroup);
+        }
+    }
+
     readonly property Connections watch: Connections {
         target: root.model
 
@@ -129,14 +176,35 @@ QtObject {
             root.captureRows(0, root.model.count - 1);
     })
 
-    function dismissAt(row: int): void {
-        const id = root.history.get(row).nid;
-        root.history.remove(row);
-        // and from Plasma's history, if it's still there
+    // close Plasma's own copy too, if it still has one
+    function closeSource(id: int): void {
         for (let r = 0; r < root.model.count; r++) {
             if (root.at(r, NM.Notifications.IdRole) === id) {
                 root.model.close(root.model.index(r, 0));
+                return;
+            }
+        }
+    }
+
+    function dismiss(id: int): void {
+        for (let i = 0; i < root.history.count; i++) {
+            if (root.history.get(i).nid === id) {
+                root.history.remove(i);
                 break;
+            }
+        }
+        root.closeSource(id);
+    }
+
+    // a whole folder
+    function dismissApp(key: string): void {
+        for (let i = root.history.count - 1; i >= 0; i--) {
+            // read before removing: the object get() returns follows the row
+            const e = root.history.get(i);
+            const id = e.nid;
+            if (e.appKey === key) {
+                root.history.remove(i);
+                root.closeSource(id);
             }
         }
     }

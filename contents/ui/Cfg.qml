@@ -95,6 +95,7 @@ QtObject {
             "Bluetooth apagado": ["Bluetooth apagado", "Bluetooth off"],
             "CALENDARIO": ["CALENDARIO", "CALENDAR"],
             "EN LA BANDEJA": ["EN LA BANDEJA", "IN THE TRAY"],
+            "OTRA": ["Otra", "Other"],
             "HOY": ["HOY", "TODAY"],
             "Semana": ["Semana", "Week"],
             "GRABACIÓN": ["GRABACIÓN", "RECORDING"],

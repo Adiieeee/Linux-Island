@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import org.kde.kirigami as Kirigami
 import org.kde.notificationmanager as NM
@@ -12,6 +14,192 @@ Item {
     implicitHeight: col.implicitHeight + 44
 
     readonly property int count: Notifs.count
+    // the list scrolls past this height
+    readonly property int listMax: 300
+
+    // the folders opened (app key → true), reassigned so bindings see it
+    property var openApps: ({})
+
+    function toggle(key: string): void {
+        const next = Object.assign({}, popup.openApps);
+        next[key] = !next[key];
+        popup.openApps = next;
+    }
+
+    // "09:41" today, "11 Nov" before
+    function when(ms: real): string {
+        const d = new Date(ms);
+        const today = new Date();
+        if (d.toDateString() === today.toDateString())
+            return Qt.formatDateTime(d, "HH:mm");
+        return Cfg.locale.toString(d, "d MMM");
+    }
+
+    // one notification, or a folder's own row
+    component Entry: Rectangle {
+        id: entry
+
+        property string icon: ""
+        property string title: ""
+        property string text: ""
+        property string detail: ""
+        property int lines: 2
+        property int badge: 0
+        property bool indent: false
+        property bool expandable: false
+        property bool expanded: false
+        signal activated
+        signal dismissed
+
+        width: parent ? parent.width : 0
+        height: Math.max(52, texts.implicitHeight + 16)
+        radius: Theme.shapeMd
+        color: entryMa.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+
+        Behavior on color {
+            ColorAnimation {
+                duration: Theme.durShort
+            }
+        }
+
+        Kirigami.Icon {
+            id: entryIcon
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            implicitWidth: 26
+            implicitHeight: 26
+            source: entry.icon
+            visible: !entry.indent && entry.icon !== ""
+        }
+
+        Text {
+            anchors.centerIn: entryIcon
+            visible: !entry.indent && entry.icon === ""
+            text: "notifications"
+            color: Theme.fgFaint
+            font.family: Theme.fontIcons
+            font.pixelSize: 20
+        }
+
+        Column {
+            id: texts
+            anchors.left: parent.left
+            // inside an open folder there's no icon, but the text stays
+            // lined up with the folder's
+            anchors.leftMargin: 46
+            anchors.right: tail.left
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 1
+
+            Item {
+                width: parent.width
+                height: titleText.implicitHeight
+
+                Text {
+                    id: titleText
+                    anchors.left: parent.left
+                    anchors.right: detailText.left
+                    anchors.rightMargin: detailText.text !== "" ? 8 : 0
+                    text: entry.title
+                    color: Theme.fg
+                    font.family: Theme.font
+                    font.pixelSize: Theme.bodySmall
+                    font.weight: Font.Medium
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    id: detailText
+                    anchors.right: parent.right
+                    anchors.baseline: titleText.baseline
+                    width: Math.min(implicitWidth, parent.width * 0.45)
+                    text: entry.detail
+                    color: Theme.fgFaint
+                    font.family: Theme.fontDots
+                    font.features: Theme.numFeatures
+                    font.pixelSize: Theme.labelSmall
+                    elide: Text.ElideLeft
+                }
+            }
+
+            Text {
+                width: parent.width
+                text: entry.text
+                color: Theme.fgVariant
+                font.family: Theme.font
+                font.pixelSize: Theme.labelSmall
+                wrapMode: Text.Wrap
+                maximumLineCount: entry.lines
+                elide: Text.ElideRight
+                visible: text !== ""
+            }
+        }
+
+        MouseArea {
+            id: entryMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: entry.expandable ? Qt.PointingHandCursor : Qt.ArrowCursor
+            onClicked: entry.activated()
+        }
+
+        // the count and the arrow on a folder, then the dismiss cross
+        Row {
+            id: tail
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 8
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: entry.badge > 0
+                width: Math.max(20, badgeText.implicitWidth + 10)
+                height: 18
+                radius: height / 2
+                color: Theme.surfaceHigh
+
+                Text {
+                    id: badgeText
+                    anchors.centerIn: parent
+                    text: entry.badge
+                    color: Theme.fg
+                    font.family: Theme.fontDots
+                    font.features: Theme.numFeatures
+                    font.pixelSize: Theme.labelSmall
+                    font.weight: Font.Medium
+                }
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: entry.expandable
+                text: entry.expanded ? "expand_less" : "expand_more"
+                color: Theme.fgDim
+                font.family: Theme.fontIcons
+                font.pixelSize: 18
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: "close"
+                color: dismissMa.containsMouse ? Theme.fg : Theme.fgFaint
+                font.family: Theme.fontIcons
+                font.pixelSize: 16
+
+                MouseArea {
+                    id: dismissMa
+                    anchors.fill: parent
+                    anchors.margins: -6
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: entry.dismissed()
+                }
+            }
+        }
+    }
 
     Column {
         id: col
@@ -176,108 +364,93 @@ Item {
         }
 
         // ── lista ──
-        // the island's own copy of the notifications (Notifs.history), with
-        // the same role names as Plasma's model: Plasma drops the ones their
-        // app closes, which was most chat messages
-        Column {
+        // the island's own copy of the notifications, one folder per app
+        // (Notifs.groups): an app with several shows one row with its newest
+        // and a count, and opens to list them all; an app with one shows it
+        // straight away. it scrolls (wheel or drag) past listMax, like the
+        // Wi-Fi list. bodies get two lines and each row its time, and a
+        // browser's notification the site behind it (LINE in Chromium)
+        Item {
             width: parent.width
-            spacing: 2
+            height: Math.min(popup.listMax, lista.contentHeight)
+            visible: popup.count > 0
 
-            Repeater {
-                model: Notifs.history
+            Flickable {
+                id: lista
+                anchors.fill: parent
+                contentHeight: dentro.implicitHeight
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                flickDeceleration: 3500
 
-                Rectangle {
-                    id: nrow
-                    required property int index
-                    required property string summary
-                    required property string body
-                    required property string applicationIconName
+                Column {
+                    id: dentro
+                    // room for the scroll bar
+                    width: lista.width - 8
+                    spacing: 2
 
-                    width: col.width
-                    height: 56
-                    radius: Theme.shapeMd
-                    color: nrowMa.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+                    Repeater {
+                        model: Notifs.groups
 
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: Theme.durShort
+                        Column {
+                            id: group
+                            required property var modelData
+                            readonly property bool folder: modelData.items.length > 1
+                            readonly property bool open: folder && popup.openApps[modelData.key] === true
+
+                            width: dentro.width
+                            spacing: 2
+
+                            // the folder's own row: the app, how many, the newest
+                            Entry {
+                                visible: group.folder
+                                icon: group.modelData.icon
+                                title: group.modelData.name || Cfg.t("OTRA")
+                                text: group.modelData.items[0].summary + (group.modelData.items[0].body !== "" ? " · " + group.modelData.items[0].body : "")
+                                detail: popup.when(group.modelData.items[0].created)
+                                lines: 1
+                                badge: group.modelData.items.length
+                                expandable: true
+                                expanded: group.open
+                                onActivated: popup.toggle(group.modelData.key)
+                                onDismissed: Notifs.dismissApp(group.modelData.key)
+                            }
+
+                            Repeater {
+                                model: !group.folder || group.open ? group.modelData.items : []
+
+                                Entry {
+                                    required property var modelData
+                                    // inside an open folder: no icon, indented
+                                    indent: group.folder
+                                    icon: group.folder ? "" : group.modelData.icon
+                                    title: modelData.summary || group.modelData.name
+                                    text: modelData.body
+                                    detail: (modelData.originName !== "" && modelData.originName !== group.modelData.name ? modelData.originName + " · " : "") + popup.when(modelData.created)
+                                    onDismissed: Notifs.dismiss(modelData.nid)
+                                }
+                            }
                         }
                     }
+                }
+            }
 
-                    Kirigami.Icon {
-                        id: nicon
-                        anchors.left: parent.left
-                        anchors.leftMargin: 10
-                        anchors.verticalCenter: parent.verticalCenter
-                        implicitWidth: 26
-                        implicitHeight: 26
-                        source: nrow.applicationIconName
-                        visible: nrow.applicationIconName !== ""
-                    }
+            // where the list is, while it's longer than the space
+            Rectangle {
+                anchors.right: parent.right
+                anchors.rightMargin: 1
+                width: 3
+                radius: 1.5
+                color: Theme.fgFaint
 
-                    Text {
-                        anchors.centerIn: nicon
-                        visible: !nicon.visible
-                        text: "notifications"
-                        color: Theme.fgFaint
-                        font.family: Theme.fontIcons
-                        font.pixelSize: 20
-                    }
+                visible: lista.contentHeight > lista.height
+                height: Math.max(24, lista.height * (lista.height / lista.contentHeight))
+                y: (lista.contentHeight <= lista.height) ? 0 : (lista.contentY / (lista.contentHeight - lista.height)) * (lista.height - height)
 
-                    Column {
-                        anchors.left: nicon.right
-                        anchors.leftMargin: 10
-                        anchors.right: ndismiss.left
-                        anchors.rightMargin: 6
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 1
-
-                        Text {
-                            width: parent.width
-                            text: nrow.summary
-                            color: Theme.fg
-                            font.family: Theme.font
-                            font.pixelSize: Theme.bodySmall
-                            font.weight: Font.Medium
-                            elide: Text.ElideRight
-                        }
-
-                        Text {
-                            width: parent.width
-                            text: nrow.body
-                            color: Theme.fgVariant
-                            font.family: Theme.font
-                            font.pixelSize: Theme.labelSmall
-                            elide: Text.ElideRight
-                            visible: text !== ""
-                        }
-                    }
-
-                    Text {
-                        id: ndismiss
-                        anchors.right: parent.right
-                        anchors.rightMargin: 10
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "close"
-                        color: dismissMa.containsMouse ? Theme.fg : Theme.fgFaint
-                        font.family: Theme.fontIcons
-                        font.pixelSize: 16
-
-                        MouseArea {
-                            id: dismissMa
-                            anchors.fill: parent
-                            anchors.margins: -6
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Notifs.dismissAt(nrow.index)
-                        }
-                    }
-
-                    MouseArea {
-                        id: nrowMa
-                        anchors.fill: parent
-                        anchors.rightMargin: 30
-                        hoverEnabled: true
+                opacity: lista.moving ? 0.9 : 0.25
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: Theme.durMedium
                     }
                 }
             }
