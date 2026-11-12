@@ -97,17 +97,38 @@ Item {
                     }
                 }
 
+                // hover halo: the same translucent state layer as the control
+                // center's buttons, 4 px around the dot and following its
+                // width. z -1 puts it behind the dot. not on the current
+                // desktop, where a click does nothing
+                Rectangle {
+                    z: -1
+                    anchors.centerIn: parent
+                    width: parent.width + 8
+                    height: parent.height + 8
+                    radius: height / 2
+                    color: parent.focused || !hit.containsMouse ? Qt.alpha(Theme.fg, 0) : Qt.alpha(Theme.fg, hit.pressed ? Theme.statePressed : Theme.stateHover)
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: Theme.durShort
+                        }
+                    }
+                }
+
                 // half the row spacing on each side, so neighbouring hit
                 // areas meet without overlapping, and taller than the 8 px
                 // dot so it's easy to hit
                 MouseArea {
+                    id: hit
                     anchors.fill: parent
                     anchors.leftMargin: -dots.spacing / 2
                     anchors.rightMargin: -dots.spacing / 2
                     anchors.topMargin: -8
                     anchors.bottomMargin: -8
                     enabled: root.clickable
-                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    cursorShape: parent.focused ? Qt.ArrowCursor : Qt.PointingHandCursor
                     onClicked: root.activate(parent.modelData)
                 }
             }
