@@ -133,6 +133,10 @@ QtObject {
     // before the popup's enter, and with no wait at all that moment in
     // between would close it
     readonly property int hoverCloseDelay: 50
+    // a notch that appeared under a resting pointer (the floating one, when
+    // the shortcut shows it or a game goes fullscreen) waits this long, and
+    // for the pointer to leave it, before hovering it can open anything
+    readonly property int hoverArmDelay: 300
     // after hover opens the control center, an activation of its window
     // this soon is KWin's own on showing it, and the keyboard goes back to
     // the window the user was typing in; a later one is the user clicking

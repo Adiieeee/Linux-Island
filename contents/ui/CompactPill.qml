@@ -239,6 +239,24 @@ Item {
     // the dots and the clock stay
     property bool asleep: false
 
+    // hovering opens the control center only once the pointer has come in
+    // from outside. a notch that appears under a resting pointer would
+    // otherwise open it by itself (offscreen the cursor sat at 0,0, inside
+    // the new window, and it did). main.qml disarms the floating notch when
+    // it appears; it re-arms when the pointer leaves it, or after
+    // Theme.hoverArmDelay if the pointer isn't on it
+    property bool hoverArmed: true
+    function disarmHover() {
+        root.hoverArmed = false;
+        hoverArm.restart();
+    }
+    Timer {
+        id: hoverArm
+        interval: Theme.hoverArmDelay
+        onTriggered: if (!notchMa.containsMouse)
+            root.hoverArmed = true
+    }
+
     implicitWidth: 2 * root.sideWidth + root.notchWidth
     implicitHeight: Theme.collapsedHeight
 
@@ -481,7 +499,9 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             acceptedButtons: Qt.NoButton
-            onEntered: root.openRequested()
+            onEntered: if (root.hoverArmed)
+                root.openRequested()
+            onExited: root.hoverArmed = true
         }
     }
 }

@@ -243,6 +243,11 @@ PlasmoidItem {
         LayerShell.Window.screenConfiguration: LayerShell.Window.ScreenFromQWindow
         LayerShell.Window.scope: "linuxisland-game-notch"
 
+        // it may appear right under the pointer: don't let that open the
+        // control center (CompactPill.hoverArmed)
+        onVisibleChanged: if (visible)
+            gamePill.disarmHover()
+
         // as tall as the panel's notch; the window is exactly its height,
         // so the pill's reach (to the panel's edges) is 0
         CompactPill {
