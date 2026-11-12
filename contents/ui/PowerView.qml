@@ -64,7 +64,9 @@ Item {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     text: Cfg.t("APAGADO_PANEL")
-                    color: Theme.fgFaint
+                    // fgDim like the Wi-Fi and Bluetooth panels' title;
+                    // fgFaint was too dark
+                    color: Theme.fgDim
                     font.family: Theme.font
                     font.pixelSize: Theme.labelSmall
                     font.letterSpacing: Theme.labelSpacing
@@ -163,7 +165,8 @@ Item {
                             text: op.titulo
                             color: Theme.fg
                             font.family: Theme.font
-                            font.pixelSize: Theme.bodySmall
+                            // 13 px, like the WI-FI / BLUETOOTH header
+                            font.pixelSize: Theme.bodyMedium
                             font.weight: Font.Medium
                             font.letterSpacing: Theme.labelSpacing
                             elide: Text.ElideRight

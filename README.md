@@ -458,6 +458,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - The power panel has no **Lock** entry: the bottom row already has a lock
   button.
 - In the power panel, **Sleep** comes first and **Log out** second.
+- The power panel's option names are 13 px instead of 12, like the
+  **WI-FI** / **BLUETOOTH** header in those panels (`Theme.bodyMedium`). Its
+  **POWER** title uses the brighter `fgDim` grey like the Wi-Fi and Bluetooth
+  panels' title; it was still the dimmer `fgFaint`. The descriptions under
+  each option already used the brightened grey and stay as they are.
 
 ## Install
 
