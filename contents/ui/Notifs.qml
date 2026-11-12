@@ -93,6 +93,9 @@ QtObject {
             summary: summary,
             body: body,
             applicationIconName: root.at(row, NM.Notifications.ApplicationIconNameRole) ?? "",
+            // the notification's own picture (a chat's sender or group photo),
+            // an icon name or a file, when it sends one
+            image: root.at(row, NM.Notifications.IconNameRole) ?? "",
             applicationName: appName,
             // the site or extension behind a browser's notification (LINE in
             // Chromium), when the browser says
@@ -146,7 +149,9 @@ QtObject {
                 summary: e.summary,
                 body: e.body,
                 originName: e.originName,
-                created: e.created
+                created: e.created,
+                // its own picture, else its app's icon
+                picture: e.image || e.applicationIconName
             };
             if (!(e.appKey in byKey)) {
                 byKey[e.appKey] = {

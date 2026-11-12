@@ -310,7 +310,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   all, so one busy chat doesn't fill the list; an app with one shows it
   directly. The cross on a folder clears that app. Each notification shows
   its title (a chat's sender, 13 px), two lines of its text (12 px in the
-  full text colour; it was 10 px grey and hard to read), its time, and for a
+  full text colour; it was 10 px grey and hard to read), its own picture
+  when it sends one (a chat's sender or group photo, from the
+  notification's icon; else the app's icon), smaller inside a folder; at
+  first only the folder's row had a picture, so a chat's photo seemed to
+  vanish after the first message. Then its time, and for a
   browser's notification the site or extension behind it ("LINE"). The
   list scrolls with the wheel or a drag once it's taller than 300 px, with
   the same thin scroll bar as the Wi-Fi list; before, it had no scrolling

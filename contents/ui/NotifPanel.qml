@@ -64,13 +64,14 @@ Item {
 
         Kirigami.Icon {
             id: entryIcon
-            anchors.left: parent.left
-            anchors.leftMargin: 10
+            // centred in the same 46 px column, smaller inside a folder
+            anchors.horizontalCenter: parent.left
+            anchors.horizontalCenterOffset: 23
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: 26
-            implicitHeight: 26
+            implicitWidth: entry.indent ? 20 : 26
+            implicitHeight: entry.indent ? 20 : 26
             source: entry.icon
-            visible: !entry.indent && entry.icon !== ""
+            visible: entry.icon !== ""
         }
 
         Text {
@@ -425,9 +426,11 @@ Item {
 
                                 Entry {
                                     required property var modelData
-                                    // inside an open folder: no icon, indented
+                                    // inside an open folder: a smaller picture under the
+                                    // folder's, each message its own (a chat's sender or
+                                    // group photo when it sends one)
                                     indent: group.folder
-                                    icon: group.folder ? "" : group.modelData.icon
+                                    icon: modelData.picture
                                     title: modelData.summary || group.modelData.name
                                     text: modelData.body
                                     detail: (modelData.originName !== "" && modelData.originName !== group.modelData.name ? modelData.originName + " · " : "") + popup.when(modelData.created)
