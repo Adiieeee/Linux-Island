@@ -45,11 +45,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   empty one a ring. Clicking a dot switches to that desktop
   (`Workspaces.clickable`); each dot's hit area is 24 px tall and reaches
   halfway to its neighbours, so the small dots are easy to hit. Hovering a
-  dot shows a round halo behind it, 4 px around the dot: the same
-  translucent white as the control center's hover (`Theme.stateHover`,
-  `statePressed` while pressed), ringed with a 1.5 px border in the
-  island's black (`Theme.bg`), because the translucent layer alone was
-  barely visible on the panel. The pointer becomes a hand. The current
+  dot turns its border black (the island's `Theme.bg`) and lights a white
+  glow behind it that fades out 6 px past its edge, a little brighter while
+  pressed; the pointer becomes a hand. Two lighter tries came first: the
+  control center's translucent hover layer around the dot was nearly
+  invisible on the panel, and a thin black ring around that layer still
+  got lost on a dark wallpaper. The glow is the one shadow-like effect
+  outside the notch, and like the notch's tint it's a radial gradient on a
+  `Shape`, not a blur (blur crashes plasmashell). The current
   desktop gets neither, since clicking it does nothing. The wheel
   over the dots steps one desktop per notch, up for the left one and down
   for the right one, stopping at the ends (`Workspaces.scrollable`). It

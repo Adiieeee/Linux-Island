@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Shapes
 import org.kde.taskmanager as TaskManager
 import "."
 
@@ -71,6 +72,9 @@ Item {
 
                 readonly property bool focused: desktops.currentDesktop === modelData
                 readonly property bool occupied: root.occupied[modelData] === true
+                // hovered, and not the current desktop, where a click does
+                // nothing
+                readonly property bool lit: !focused && hit.containsMouse
 
                 // all in the text colour, since they sit on the panel and
                 // not on the island: greys got lost on a light wallpaper. the
@@ -82,7 +86,9 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 color: focused || occupied ? Theme.fg : Qt.alpha(Theme.fg, 0)
                 border.width: 1.5
-                border.color: Theme.fg
+                // black on hover, against the white glow behind it. both
+                // colours are opaque, so the fade has no grey flash
+                border.color: lit ? Theme.bg : Theme.fg
 
                 Behavior on width {
                     NumberAnimation {
@@ -96,32 +102,80 @@ Item {
                         duration: Theme.durShort
                     }
                 }
+                Behavior on border.color {
+                    ColorAnimation {
+                        duration: Theme.durShort
+                    }
+                }
 
-                // hover halo, 4 px around the dot and following its width:
-                // the control center's translucent state layer, ringed in the
-                // island's black, since the layer alone barely showed on the
-                // panel. z -1 puts it behind the dot. not on the current
-                // desktop, where a click does nothing
-                Rectangle {
-                    readonly property bool lit: !parent.focused && hit.containsMouse
+                // hover glow: a white radial gradient behind the dot (z -1),
+                // solid under it and fading out 6 px past its edge, so the
+                // black-bordered dot stands out on a dark wallpaper. painted
+                // as a gradient, not a blur: MultiEffect and layer blur crash
+                // plasmashell. only shows while lit, when the dot is a round
+                // 8 px one, so a circle fits. brighter while pressed
+                Shape {
+                    id: glow
+
+                    readonly property real r: width / 2
 
                     z: -1
                     anchors.centerIn: parent
-                    width: parent.width + 8
-                    height: parent.height + 8
-                    radius: height / 2
-                    color: lit ? Qt.alpha(Theme.fg, hit.pressed ? Theme.statePressed : Theme.stateHover) : Qt.alpha(Theme.fg, 0)
-                    border.width: 1.5
-                    border.color: lit ? Theme.bg : Qt.alpha(Theme.bg, 0)
+                    width: 20
+                    height: 20
+                    opacity: parent.lit ? (hit.pressed ? 1 : 0.8) : 0
+                    visible: opacity > 0
 
-                    Behavior on color {
-                        ColorAnimation {
+                    Behavior on opacity {
+                        NumberAnimation {
                             duration: Theme.durShort
                         }
                     }
-                    Behavior on border.color {
-                        ColorAnimation {
-                            duration: Theme.durShort
+
+                    ShapePath {
+                        strokeWidth: -1
+                        // 0.4 is the dot's edge (4 of the 10 px radius); past
+                        // it the alpha falls off like a soft shadow
+                        fillGradient: RadialGradient {
+                            centerX: glow.r
+                            centerY: glow.r
+                            centerRadius: glow.r
+                            focalX: glow.r
+                            focalY: glow.r
+
+                            GradientStop {
+                                position: 0
+                                color: Qt.alpha(Theme.fg, 0.9)
+                            }
+                            GradientStop {
+                                position: 0.4
+                                color: Qt.alpha(Theme.fg, 0.9)
+                            }
+                            GradientStop {
+                                position: 0.55
+                                color: Qt.alpha(Theme.fg, 0.56)
+                            }
+                            GradientStop {
+                                position: 0.7
+                                color: Qt.alpha(Theme.fg, 0.27)
+                            }
+                            GradientStop {
+                                position: 0.85
+                                color: Qt.alpha(Theme.fg, 0.08)
+                            }
+                            GradientStop {
+                                position: 1
+                                color: Qt.alpha(Theme.fg, 0)
+                            }
+                        }
+
+                        PathAngleArc {
+                            centerX: glow.r
+                            centerY: glow.r
+                            radiusX: glow.r
+                            radiusY: glow.r
+                            startAngle: 0
+                            sweepAngle: 360
                         }
                     }
                 }
