@@ -63,6 +63,10 @@ Item {
     // vista activa: "", "wifi", "bt", "rec", "audio", "notif", "cal", "power"
     property string overlay: ""
 
+    // something opened another window (the media card raised its player):
+    // main.qml closes the popup
+    signal closeRequested
+
     // the lyrics button in the bottom row: main.qml flips the showLyrics
     // config key (a view can't write Plasmoid.configuration through Cfg)
     signal lyricsToggled
@@ -326,6 +330,7 @@ Item {
                     // ── reproductor ──
                     MediaCard {
                         width: parent.width
+                        onRaised: root.closeRequested()
                     }
 
                     // ── grabación + medidores ──

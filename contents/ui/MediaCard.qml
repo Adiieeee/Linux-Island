@@ -13,6 +13,10 @@ Item {
     readonly property var player: Media.cardPlayer
     readonly property bool active: player !== null
 
+    // the art or the title was clicked and the player was asked to show
+    // itself: the control center closes (ExpandedPanel → main.qml)
+    signal raised
+
     // room for the arrows at both edges, only with more than one player
     property int side: Media.canStep ? 22 : 0
     Behavior on side {
@@ -341,6 +345,24 @@ Item {
                 font.pixelSize: Theme.bodySmall
                 elide: Text.ElideRight
                 visible: text !== ""
+            }
+        }
+
+        // ── open the player ──
+        // a click on the art or the title asks the player to show itself
+        // (MPRIS Raise): Spotify's window; a browser's window, and
+        // Firefox-based ones (Zen) also switch to the tab that plays.
+        // players that can't be raised (canRaise false) ignore it
+        MouseArea {
+            anchors.left: art.left
+            anchors.top: art.top
+            anchors.bottom: art.bottom
+            anchors.right: controls.left
+            enabled: root.player?.canRaise ?? false
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                root.player.Raise();
+                root.raised();
             }
         }
 

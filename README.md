@@ -150,6 +150,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   so the island showed a paused YouTube while Spotify played. A single
   `Media` singleton now owns the MPRIS model and reads the multiplexer row's
   player directly (`Media.active`); the island and the media card use it.
+- Clicking the media card's album art or title opens the player and closes
+  the control center: it asks the player to show itself (MPRIS `Raise`).
+  Spotify comes to the front. A browser brings its window forward; whether
+  it also switches to the tab that's playing is up to the browser
+  (Firefox-based ones such as Zen do). A player that can't be raised
+  (`canRaise` false) ignores the click.
 - The media card in the control center has arrows at its left and right
   edges to switch between players, shown only when there's more than one.
   Only players with something loaded count: a track, playing or paused. A
