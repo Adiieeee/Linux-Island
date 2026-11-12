@@ -227,6 +227,7 @@ Item {
         anchors.left: capsule.right
         anchors.leftMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: -Theme.opticalLift
     }
 
     // art and waveform come in and out together with the width
@@ -330,6 +331,7 @@ Item {
             id: middle
             x: root.leftSide
             anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenterOffset: -Theme.opticalLift
             width: Math.max(0, capsule.width - root.leftSide - root.rightSide)
             height: parent.height
             clip: true

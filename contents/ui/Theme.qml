@@ -142,6 +142,11 @@ QtObject {
     // middle's width while it shows
     readonly property int noteSize: 9
     readonly property int noteWidth: 20
+    // the notch's middle (date, lyrics, notes) and the clock beside it sit
+    // this far above the true centre. measured on screen, their ink had more
+    // room above than below (♫ 16 px over 14, text 13 over 12 in a 34 px
+    // notch); the album art and the waveform were even and stay put
+    readonly property int opticalLift: 1
     readonly property int expandedWidth: 580
     readonly property int expandedRadius: shapeXl
     // how much of Plasma's popup frame (the theme's translucent, blurred dialog

@@ -57,6 +57,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   turned off. Both are 12 px bold in the clock's font with tabular digits,
   so the date and the clock read as one style. The month follows the
   widget's language.
+- The notch's middle (date, lyrics, notes) and the clock beside it sit 1 px
+  above the true centre (`Theme.opticalLift`). Measured on a screenshot of
+  the panel, their ink had more room above than below (♫ 16 px over 14 at
+  the screen's scale, text 13 over 12 in a 34 px notch), which read as the
+  content hanging low; now it's 12 over 13. The album art (6 over 6) and
+  the waveform were already even and stay where they are.
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots or the empty space beside the notch does nothing.
