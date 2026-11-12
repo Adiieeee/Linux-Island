@@ -65,11 +65,6 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   text and notes had more room above than below (♫ 16 px over 14 at the
   screen's scale, text 13 over 12 in a 34 px notch). The album art also
   sits 1 px right of its inset (`Theme.artNudge`).
-- The notch is centred on the screen even in a shared panel, where the
-  spacers beside it only centre it roughly (it sat 10-12 px left and moved
-  when the Caps Lock icon appeared). See "Between two panel spacers it
-  isn't exactly centred" below. The control center still opens under the
-  widget's slot, so it can be that far off the notch.
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots or the empty space beside the notch does nothing.
@@ -456,22 +451,16 @@ from the other widgets' size *hints*, not their real widths, and they don't
 recompute when widgets are reordered. Measured on the author's top panel
 (1600 px): the notch's centre sat at x 788–790, 10–12 px left; the spacers'
 widths drifted (534/372, later 536/400) with nothing changed; and the Caps
-Lock icon appearing in the system tray moved the island too. Removing the
-hidden Pager or moving the hidden Panel Colorizer changed nothing; moving a
-widget between the groups didn't make the spacers recompute at all. The
-island itself is symmetric (dots and clock 12–13 px from the notch, the
-notch in the middle of the widget). A panel of its own, with the other
-widgets in a left and a right panel, is centred by Plasma exactly, but
-splits the panel (and a blur behind it) in three. So the widget centres
-itself instead (`CompactPill.centreError`): it measures how far its slot's
-centre is from the panel window's (the screen's, for a full-width panel),
-moves the notch, dots and clock back by that much, and adds the same room
-on both sides. The slot's centre doesn't depend on the widget's own width
-(the spacers grow or shrink evenly), so one measurement holds; it's taken
-again 150 ms after the slot moves or resizes (a tray icon appearing, the
-island widening for lyrics), with no polling. Plasma still places the
-control center under the slot, so the popup can sit those 10-12 px off the
-notch.
+Lock icon appearing in the system tray moved the island too. The cause, as
+the author found: **Panel Colorizer set to hide itself outside edit mode**
+sat in the left group. Hidden, it still counted with its size in the
+spacers' sums, so they made room for a widget that isn't drawn and pushed
+the island off centre by half of that. (Moving it while testing seemed to
+change nothing only because the spacers don't recompute when widgets are
+reordered.) Keep such a hidden widget out of the groups beside the spacers,
+or place one on each side. The island itself is symmetric (dots and clock
+12–13 px from the notch, the notch in the middle of the widget). A widget
+that re-centred itself was tried and dropped once the cause was known.
 
 ## Growing in place: tried, didn't work
 

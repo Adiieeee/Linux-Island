@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.ksvg as KSvg
 import org.kde.plasma.private.mpris as Mpris
@@ -120,11 +119,7 @@ Item {
 
     onMediaChanged: root.maybePeek()
     onIsPlayingChanged: root.maybePeek()
-    Component.onCompleted: {
-        root.maybePeek();
-        Qt.callLater(root.findSlot);
-        measureLater.restart();
-    }
+    Component.onCompleted: root.maybePeek()
 
     Connections {
         target: Lyrics
@@ -217,75 +212,7 @@ Item {
     readonly property int sideGap: 12
     readonly property real sideWidth: Math.max(dots.implicitWidth, clock.implicitWidth) + root.sideGap
 
-    // ── centred on the screen, not just in its slot ──
-    // in a shared full-width panel the island sits between two expanding
-    // spacers, which centre it only roughly: they work from the other
-    // widgets' size hints, not their real widths, and don't always
-    // recompute (measured 10-12 px left of centre; the Caps Lock tray icon
-    // moved it too). so the widget measures how far its slot's centre is
-    // from the panel's (the screen's, for a full-width panel), moves the
-    // notch, dots and clock back by that much, and adds the same room on
-    // both sides so nothing spills onto the neighbours. the slot's centre
-    // doesn't depend on the widget's own width (the spacers grow or shrink
-    // evenly), so the measurement holds after the widening. the popup still
-    // follows the slot, so it ends up that far from the notch
-    property real centreError: 0
-    readonly property real centreSlack: Math.abs(root.centreError)
-    // the widget's slot in the panel's layout, which moves when the spacers
-    // change (found once the item is placed)
-    property Item slotItem: null
-
-    function findSlot(): void {
-        let c = root.parent;
-        while (c && c.parent) {
-            if (c.parent instanceof GridLayout) {
-                root.slotItem = c;
-                return;
-            }
-            c = c.parent;
-        }
-        root.slotItem = root.parent;
-    }
-
-    function measureCentre(): void {
-        const w = root.Window.window;
-        if (!root.horizontal || !w || w.width <= 0 || !root.parent) {
-            root.centreError = 0;
-            return;
-        }
-        // the slot's centre: this item is centred in it
-        const p = root.mapToItem(null, 0, 0);
-        const e = Math.round(p.x + root.width / 2 - w.width / 2);
-        if (Math.abs(e - root.centreError) >= 1)
-            root.centreError = e;
-    }
-
-    Timer {
-        id: measureLater
-        interval: 150
-        onTriggered: root.measureCentre()
-    }
-
-    Connections {
-        target: root.slotItem
-        function onXChanged() {
-            measureLater.restart();
-        }
-        function onWidthChanged() {
-            measureLater.restart();
-        }
-    }
-    Connections {
-        target: root.Window.window
-        ignoreUnknownSignals: true
-        function onWidthChanged() {
-            measureLater.restart();
-        }
-    }
-    onWidthChanged: measureLater.restart()
-    onHorizontalChanged: measureLater.restart()
-
-    implicitWidth: 2 * (root.sideWidth + root.centreSlack) + root.notchWidth
+    implicitWidth: 2 * root.sideWidth + root.notchWidth
     implicitHeight: Theme.collapsedHeight
 
     Workspaces {
@@ -345,7 +272,7 @@ Item {
 
     Item {
         id: capsule
-        x: root.sideWidth + root.centreSlack - root.centreError
+        x: root.sideWidth
         width: root.notchWidth
         anchors.top: parent.top
         anchors.bottom: parent.bottom
