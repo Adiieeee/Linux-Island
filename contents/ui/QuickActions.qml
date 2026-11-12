@@ -206,7 +206,7 @@ Row {
     // the notch floats over a fullscreen game on the island's screen
     // (the "Keep the notch over games" setting)
     ActionButton {
-        icon: Icons.game
+        icon: Icons.pin
         on: Cfg.notchOverGames
         onActivated: root.gameNotchToggled()
     }

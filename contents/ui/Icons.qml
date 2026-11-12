@@ -28,8 +28,9 @@ QtObject {
     readonly property string prev: "skip_previous"
     readonly property string music: "music_note"
     readonly property string lyrics: "lyrics"
-    // the notch over fullscreen games (Cfg.notchOverGames)
-    readonly property string game: "sports_esports"
+    // the notch over fullscreen games (Cfg.notchOverGames): pinned on top.
+    // the gamepad (sports_esports) it started with didn't fit
+    readonly property string pin: "push_pin"
 
     readonly property string close: "close"
     readonly property string bell: "notifications"
