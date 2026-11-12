@@ -88,6 +88,19 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   opening it meant a click closed it. The notch's `MouseArea` accepts no
   buttons, so clicks fall through to the panel, and the pointer stays the
   plain arrow.
+- Opening the control center on hover no longer takes the keyboard from
+  the app being typed in. KWin activates every window it shows, so the
+  popup still gets the keyboard for a moment, and gets it handed back: on
+  entering the notch the active window is remembered (Plasma's
+  `TaskManager.TasksModel`, its `WinIdList`), and if the popup becomes
+  active within 500 ms (`Theme.keyboardReturnWindow`), that window is
+  activated again. A later activation, a click into the popup to type the
+  Wi-Fi password, keeps the keyboard there. `Qt.WindowDoesNotAcceptFocus`
+  on the popup was tried first and doesn't work: Qt drops
+  `requestActivate()`, but a test window with the flag still came up
+  active, since KWin activates it on showing it. `hideOnWindowDeactivate`
+  is off, or Plasma would close the popup the moment it lost focus; the
+  hover timer closes it instead, so clicking outside no longer does.
 - The control center closes on its own as soon as the pointer is off both
   the notch and the popup, however it was opened. It waits 50 ms
   (`Theme.hoverCloseDelay`), too short to notice: 400 and 200 ms felt slow,

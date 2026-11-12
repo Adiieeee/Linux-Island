@@ -127,6 +127,11 @@ QtObject {
     // before the popup's enter, and with no wait at all that moment in
     // between would close it
     readonly property int hoverCloseDelay: 50
+    // after hover opens the control center, an activation of its window
+    // this soon is KWin's own on showing it, and the keyboard goes back to
+    // the window the user was typing in; a later one is the user clicking
+    // into it. KWin activates a shown window within a frame or two
+    readonly property int keyboardReturnWindow: 500
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10

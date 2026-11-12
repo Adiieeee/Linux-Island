@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
+import org.kde.taskmanager as TaskManager
 import "."
 
 // isla dinámica para plasma: píldora en el panel + panel emergente al clic
@@ -143,6 +144,59 @@ PlasmoidItem {
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 
+    // ── the keyboard stays where the user was typing ──
+    // opening on hover must not take the keyboard. KWin activates every
+    // window it shows (Qt.WindowDoesNotAcceptFocus didn't stop it: tested,
+    // Qt drops requestActivate() but KWin activates the window on show
+    // anyway), so the popup does get it, and is handed straight back: on
+    // entering the notch the active window is remembered, and if the popup
+    // becomes active within Theme.keyboardReturnWindow after that, the
+    // remembered window is activated again. a later activation, a click
+    // into the popup (the wifi password), keeps the keyboard in the popup.
+    // Plasma would close its popup as soon as it lost focus, so that's off;
+    // the hover timer below closes it
+    hideOnWindowDeactivate: false
+
+    TaskManager.TasksModel {
+        id: tasks
+        groupMode: TaskManager.TasksModel.GroupDisabled
+    }
+
+    // the window id of whoever had the keyboard when hover opened the popup;
+    // empty when there's nothing to hand back
+    property string keyboardOwner: ""
+
+    function rememberKeyboardOwner() {
+        const i = tasks.activeTask;
+        const ids = i.valid ? tasks.data(i, TaskManager.AbstractTasksModel.WinIdList) : null;
+        root.keyboardOwner = ids && ids.length ? String(ids[0]) : "";
+        if (root.keyboardOwner)
+            keyboardReturn.restart();
+    }
+
+    function giveKeyboardBack() {
+        const owner = root.keyboardOwner;
+        root.keyboardOwner = "";
+        keyboardReturn.stop();
+        if (!owner)
+            return;
+        for (let r = 0; r < tasks.count; r++) {
+            const idx = tasks.index(r, 0);
+            const ids = tasks.data(idx, TaskManager.AbstractTasksModel.WinIdList);
+            if (ids && ids.length && String(ids[0]) === owner) {
+                tasks.requestActivate(idx);
+                return;
+            }
+        }
+    }
+
+    // past this, a popup activation is the user's own click, not the show
+    Timer {
+        id: keyboardReturn
+        interval: Theme.keyboardReturnWindow
+        onTriggered: root.keyboardOwner = ""
+    }
+
     // the control center closes on its own once the pointer has been off
     // both the notch and the popup for Theme.hoverCloseDelay
     Timer {
@@ -213,12 +267,21 @@ PlasmoidItem {
             height: compact.height
             horizontal: compact.horizontal
             bottomEdge: Plasmoid.location === PlasmaCore.Types.BottomEdge
-            onOpenRequested: root.expanded = true
+            onOpenRequested: {
+                if (root.expanded)
+                    return;
+                root.rememberKeyboardOwner();
+                root.expanded = true;
+            }
         }
     }
 
     fullRepresentation: ExpandedPanel {
         id: full
+
+        // the popup took the keyboard when it showed: hand it back
+        onWindowActiveChanged: if (windowActive && root.keyboardOwner)
+            root.giveKeyboardBack()
 
         onLyricsToggled: Plasmoid.configuration.showLyrics = !Plasmoid.configuration.showLyrics
         onCloseRequested: root.expanded = false

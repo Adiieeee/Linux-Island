@@ -32,6 +32,9 @@ Item {
     // inside is held, so dragging a slider past the edge doesn't count as
     // leaving; it lets go on release
     readonly property bool engaged: popupHover.hovered || typing
+    // the popup window has the keyboard (main.qml hands it back after a
+    // hover-open)
+    readonly property bool windowActive: root.Window.active
     // a text field has the keyboard (the wifi password): stay open while
     // the user types, wherever the pointer is
     readonly property bool typing: {
