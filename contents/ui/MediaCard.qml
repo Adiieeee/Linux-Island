@@ -102,6 +102,15 @@ Item {
     readonly property real length: (player?.length ?? 0) / 1000000
     readonly property real position: (player?.position ?? 0) / 1000000
     readonly property real progress: length > 0 ? Math.max(0, Math.min(1, position / length)) : 0
+    // the player reports where it is and how long the track is. a browser
+    // doesn't always: Zen's own MPRIS player with YouTube reports position 0
+    // and no length on some videos, and on the others stops reporting both
+    // after any seek (measured: 56 s, Seek +3 s, then 0 s and no length from
+    // then on, while the video plays on). the bar then jumped to the start.
+    // without a length it's plain and can't be clicked, and the times are
+    // hidden. the Plasma Integration browser extension reports the video's
+    // real time (see README)
+    readonly property bool timed: length > 0
 
     // refresca posición mientras suena
     Timer {
@@ -579,7 +588,7 @@ Item {
                             width: Math.max(1.5, wave.barW - 1.5)
                             height: Math.max(2, wave.height * (wave.pattern[index] ?? 0.3))
                             radius: width / 2
-                            color: (index / wave.barCount) <= root.progress ? Theme.primary : Theme.containerHighest
+                            color: root.timed && (index / wave.barCount) <= root.progress ? Theme.primary : Theme.containerHighest
 
                             Behavior on color {
                                 ColorAnimation {
@@ -595,7 +604,7 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                enabled: root.active && (root.player?.canSeek ?? false)
+                enabled: root.active && root.timed && (root.player?.canSeek ?? false)
                 onClicked: mouse => {
                     const p = root.player;
                     if (!p || root.length <= 0)
@@ -614,6 +623,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
             text: root.fmt(root.position)
+            visible: root.timed
             color: Theme.mediaDim
             font.family: Theme.fontDots
             font.features: Theme.numFeatures
@@ -627,6 +637,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
             text: root.fmt(root.length)
+            visible: root.timed
             color: Theme.mediaDim
             font.family: Theme.fontDots
             font.features: Theme.numFeatures

@@ -157,6 +157,18 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   Spotify's own button. They set the player's MPRIS `Shuffle` and
   `LoopStatus`, which Spotify accepts (tested: it reports the new value
   back).
+- The media card's progress bar doesn't pretend when the player gives no
+  time. Zen's own MPRIS player with YouTube reports position 0 and no
+  length on some videos, and on the others stops reporting both after any
+  seek (measured: at 56 s, a 3 s seek, then position 0 and no length from
+  then on while the video kept playing). Clicking the bar then made it
+  jump to the start. Without a length the bar is now plain grey, can't be
+  clicked, and the times are hidden. For a seekable bar with browser video,
+  install the **Plasma Integration** extension in the browser (the
+  `plasma-browser-integration` package is the host side): it reports the
+  video element's real time and length. In a Firefox-based browser, also
+  set `media.hardwaremediakeys.enabled` to `false` in `about:config`, so
+  the browser's own player doesn't show up next to the extension's.
 - Clicking the media card's album art or title opens the player and closes
   the control center: it asks the player to show itself (MPRIS `Raise`).
   Spotify comes to the front. A browser brings its window forward; whether
