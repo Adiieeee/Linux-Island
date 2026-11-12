@@ -89,7 +89,6 @@ Item {
                 id: op
                 property string icono: ""
                 property string titulo: ""
-                property string detalle: ""
                 // ends the session or powers off: red icon
                 property bool pesada: false
 
@@ -125,36 +124,22 @@ Item {
                         font.pixelSize: 20
                     }
 
-                    Column {
+                    // just the name, no description line under it
+                    Text {
                         anchors.left: opIcon.right
                         anchors.leftMargin: 12
                         anchors.right: parent.right
                         anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 0
-
-                        Text {
-                            width: parent.width
-                            text: op.titulo
-                            color: Theme.fg
-                            font.family: Theme.font
-                            // 13 px, like the WI-FI / BLUETOOTH header. sentence
-                            // case ("Shut down"), so no labelSpacing: that's
-                            // for all-caps labels
-                            font.pixelSize: Theme.bodyMedium
-                            font.weight: Font.Medium
-                            elide: Text.ElideRight
-                        }
-
-                        Text {
-                            width: parent.width
-                            visible: op.detalle !== ""
-                            text: op.detalle
-                            color: Theme.fgVariant
-                            font.family: Theme.font
-                            font.pixelSize: Theme.labelSmall
-                            elide: Text.ElideRight
-                        }
+                        text: op.titulo
+                        color: Theme.fg
+                        font.family: Theme.font
+                        // 13 px, like the WI-FI / BLUETOOTH header. sentence
+                        // case ("Shut down"), so no labelSpacing: that's for
+                        // all-caps labels
+                        font.pixelSize: Theme.bodyMedium
+                        font.weight: Font.Medium
+                        elide: Text.ElideRight
                     }
 
                     MouseArea {
@@ -189,7 +174,6 @@ Item {
             Opcion {
                 icono: "bedtime"
                 titulo: Cfg.t("SUSPENDER")
-                detalle: Cfg.t("Se apaga la pantalla, todo queda como está")
                 visible: popup.session.canSuspend
                 onTriggered: {
                     popup.session.suspend();
@@ -200,7 +184,6 @@ Item {
             Opcion {
                 icono: "logout"
                 titulo: Cfg.t("CERRAR SESIÓN")
-                detalle: Cfg.t("Cierra los programas abiertos")
                 pesada: true
                 onTriggered: {
                     popup.session.requestLogout(Sessions.SessionManagement.Default);
@@ -211,7 +194,6 @@ Item {
             Opcion {
                 icono: "downloading"
                 titulo: Cfg.t("HIBERNAR")
-                detalle: Cfg.t("Guarda todo en el disco y apaga")
                 visible: popup.session.canHibernate
                 pesada: true
                 onTriggered: {
@@ -223,7 +205,6 @@ Item {
             Opcion {
                 icono: "restart_alt"
                 titulo: Cfg.t("REINICIAR")
-                detalle: Cfg.t("Apaga y vuelve a arrancar")
                 pesada: true
                 onTriggered: {
                     popup.session.requestReboot(Sessions.SessionManagement.Default);
@@ -234,7 +215,6 @@ Item {
             Opcion {
                 icono: "power_settings_new"
                 titulo: Cfg.t("APAGAR")
-                detalle: Cfg.t("Apaga el equipo")
                 pesada: true
                 onTriggered: {
                     popup.session.requestShutdown(Sessions.SessionManagement.Default);

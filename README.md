@@ -462,12 +462,16 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   **WI-FI** / **BLUETOOTH** header in those panels (`Theme.bodyMedium`). Its
   **POWER** title uses the brighter `fgDim` grey like the Wi-Fi and Bluetooth
   panels' title; it was still the dimmer `fgFaint`. The descriptions under
-  each option already used the brightened grey and stay as they are.
+  each option already used the brightened grey (they were dropped later,
+  see below).
 - In the power panel, log out, restart and shut down show KDE's own
   confirmation screen, with its countdown and Cancel, instead of the
   panel's own **YES** / **CANCEL** row. See "Power panel".
 - The power panel's option names are in sentence case ("Shut down", not
   "SHUT DOWN"), without the extra letter spacing all-caps labels get.
+- The power panel's options show just their name: the small description
+  line under each one ("Powers off the computer", …) is gone. The rows
+  stay 44 px tall, with the name centred.
 - The power panel is as tall as its rows, with the same 14 px margin
   below the last one as on the other sides. It added 30 px of its own on
   top of the overlay box's padding, which left an empty strip at the

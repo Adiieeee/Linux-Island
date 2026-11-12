@@ -137,15 +137,10 @@ QtObject {
             // apagado
             "APAGADO_PANEL": ["APAGADO", "POWER"],
             "CERRAR SESIÓN": ["Cerrar sesión", "Log out"],
-            "Cierra los programas abiertos": ["Cierra los programas abiertos", "Closes the open programs"],
             "SUSPENDER": ["Suspender", "Sleep"],
-            "Se apaga la pantalla, todo queda como está": ["Se apaga la pantalla, todo queda como está", "Screen off, everything stays as it is"],
             "HIBERNAR": ["Hibernar", "Hibernate"],
-            "Guarda todo en el disco y apaga": ["Guarda todo en el disco y apaga", "Saves everything to disk and powers off"],
             "REINICIAR": ["Reiniciar", "Restart"],
-            "Apaga y vuelve a arrancar": ["Apaga y vuelve a arrancar", "Powers off and starts again"],
             "APAGAR": ["Apagar", "Shut down"],
-            "Apaga el equipo": ["Apaga el equipo", "Powers off the computer"],
 
             // grabación
             "GRABACIÓN DE PANTALLA": ["GRABACIÓN DE PANTALLA", "SCREEN RECORDING"],
