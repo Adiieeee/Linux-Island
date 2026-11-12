@@ -146,8 +146,6 @@ QtObject {
             "Apaga y vuelve a arrancar": ["Apaga y vuelve a arrancar", "Powers off and starts again"],
             "APAGAR": ["APAGAR", "SHUT DOWN"],
             "Apaga el equipo": ["Apaga el equipo", "Powers off the computer"],
-            "SÍ": ["SÍ", "YES"],
-            "MEJOR NO": ["MEJOR NO", "CANCEL"],
 
             // grabación
             "GRABACIÓN DE PANTALLA": ["GRABACIÓN DE PANTALLA", "SCREEN RECORDING"],

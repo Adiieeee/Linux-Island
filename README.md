@@ -463,6 +463,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   **POWER** title uses the brighter `fgDim` grey like the Wi-Fi and Bluetooth
   panels' title; it was still the dimmer `fgFaint`. The descriptions under
   each option already used the brightened grey and stay as they are.
+- In the power panel, log out, restart and shut down show KDE's own
+  confirmation screen, with its countdown and Cancel, instead of the
+  panel's own **YES** / **CANCEL** row. See "Power panel".
 
 ## Install
 
@@ -801,19 +804,21 @@ around it.
 
 The button with the power icon, in the bottom row of the island, opens a
 panel with: sleep, log out, hibernate, restart and shut down. Sleep and
-hibernate only show up if the machine supports them (checked with
-`CanSuspend` and `CanHibernate` on `org.freedesktop.PowerManagement`).
+hibernate only show up if the machine supports them (`canSuspend` and
+`canHibernate`; this laptop can't hibernate, so that row stays hidden).
 
-The four heavy options (log out, hibernate, restart and shut down) **ask for
-confirmation in the same row**: the row expands downwards and you have to tap
-"YES". One stray click on a small island shouldn't be able to take the
-machine down.
-
-Nothing uses `systemctl`. Everything goes through Plasma over DBus:
-`org.kde.Shutdown` for log out, restart and shut down,
-and `org.freedesktop.PowerManagement` for sleep and hibernate. That's what KDE's own power menu
-does, so programs get a chance to save and the session closes in order
+Everything goes through Plasma's `SessionManagement`
+(`org.kde.plasma.private.sessions`), the same API KDE's own menus use, not
+`systemctl`: programs get a chance to save and the session closes in order
 instead of everything being killed at once.
+
+**Log out, restart and shut down** show KDE's own confirmation screen, with
+its countdown and Cancel, just like choosing them from KDE's menu. They're
+called with `ConfirmationMode.Default`, which follows System Settings →
+Session → "Ask for confirmation" (on by default); `ForcePrompt` would show
+it even with that turned off. **Sleep and hibernate** run at once, as in KDE.
+The panel used to ask for confirmation itself, in the same row (it expanded
+with **YES** / **CANCEL**); that's gone, KDE's screen does the job.
 
 ## The hover flash on buttons
 

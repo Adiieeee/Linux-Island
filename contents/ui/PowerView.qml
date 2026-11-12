@@ -1,10 +1,13 @@
 import QtQuick
-import org.kde.plasma.plasma5support as P5Support
+import org.kde.plasma.private.sessions as Sessions
 import "."
 
-// panel de apagado: sesión, suspender, hibernar, reiniciar, apagar
-// todo por dbus a plasma, no systemctl a mano: cierra sesión ordenado, avisa a las apps
-// reiniciar/apagar piden confirmar en la misma fila, un clic de más no tira la máquina
+// power panel: sleep, log out, hibernate, restart, shut down. everything goes
+// through Plasma's SessionManagement, the same API as KDE's own menus, not
+// systemctl: the session closes in order and apps get to save. log out,
+// restart and shut down show KDE's own confirmation screen, with its
+// countdown and Cancel (ConfirmationMode.Default follows System Settings'
+// "Ask for confirmation"); sleep and hibernate run at once, as in KDE
 Item {
     id: popup
 
@@ -15,34 +18,9 @@ Item {
 
     implicitHeight: col.implicitHeight + 30
 
-    // fila pidiendo confirmación, "" = ninguna
-    property string confirmando: ""
-
-    // solo se muestran si el equipo puede
-    property bool puedeSuspender: false
-    property bool puedeHibernar: false
-
-    readonly property string cmdPuede: 'busctl --user --json=short call org.freedesktop.PowerManagement /org/freedesktop/PowerManagement org.freedesktop.PowerManagement CanSuspend; echo ---; busctl --user --json=short call org.freedesktop.PowerManagement /org/freedesktop/PowerManagement org.freedesktop.PowerManagement CanHibernate'
-
-    Component.onCompleted: popup.consulta.connectSource(popup.cmdPuede)
-
-    // datasource propio, tipado (no property var, se lo lleva puesto el gc de js)
-    readonly property P5Support.DataSource consulta: P5Support.DataSource {
-        engine: "executable"
-        connectedSources: []
-
-        onNewData: (cmd, data) => {
-            disconnectSource(cmd);
-            const partes = String(data["stdout"] ?? "").split("---");
-            popup.puedeSuspender = partes.length > 0 && partes[0].indexOf("true") >= 0;
-            popup.puedeHibernar = partes.length > 1 && partes[1].indexOf("true") >= 0;
-        }
-    }
-
-    function correr(cmd) {
-        Exec.run(cmd);
-        popup.closed();
-    }
+    // typed, not var (hard rule 1). its canSuspend / canHibernate decide
+    // which rows show, and follow the machine live
+    readonly property Sessions.SessionManagement session: Sessions.SessionManagement {}
 
     Item {
         id: card
@@ -110,27 +88,20 @@ Item {
                 property string icono: ""
                 property string titulo: ""
                 property string detalle: ""
-                property string comando: ""
-                // pide confirmar antes de hacerse
+                // ends the session or powers off: red icon
                 property bool pesada: false
 
-                readonly property bool preguntando: popup.confirmando === op.titulo
+                // the row was clicked; each row's handler does its action
+                signal triggered
 
                 width: lista.width
-                height: preguntando ? 78 : 44
+                height: 44
                 radius: Theme.shapeMd
-                color: opMa.containsMouse || op.preguntando ? Theme.surfaceHigh : Theme.surfaceAlt
+                color: opMa.containsMouse ? Theme.surfaceHigh : Theme.surfaceAlt
 
                 Behavior on color {
                     ColorAnimation {
                         duration: Theme.durShort
-                    }
-                }
-                Behavior on height {
-                    NumberAnimation {
-                        duration: Theme.durMedium
-                        easing.type: Easing.Bezier
-                        easing.bezierCurve: Theme.emphasized
                     }
                 }
 
@@ -188,83 +159,7 @@ Item {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            if (!op.pesada) {
-                                popup.correr(op.comando);
-                                return;
-                            }
-                            popup.confirmando = op.preguntando ? "" : op.titulo;
-                        }
-                    }
-                }
-
-                // ── confirmación ──
-                Row {
-                    anchors.left: parent.left
-                    anchors.leftMargin: 46
-                    anchors.top: fila.bottom
-                    anchors.topMargin: 2
-                    spacing: 6
-                    visible: op.preguntando
-
-                    Rectangle {
-                        width: siTxt.implicitWidth + 24
-                        height: 28
-                        radius: height / 2
-                        color: siMa.containsMouse ? Qt.lighter(Theme.alert, 1.15) : Theme.alert
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: Theme.durShort
-                            }
-                        }
-
-                        Text {
-                            id: siTxt
-                            anchors.centerIn: parent
-                            text: Cfg.t("SÍ")
-                            color: Theme.fg
-                            font.family: Theme.font
-                            font.pixelSize: Theme.labelSmall
-                            font.weight: Font.Medium
-                            font.letterSpacing: Theme.labelSpacing
-                        }
-
-                        MouseArea {
-                            id: siMa
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: popup.correr(op.comando)
-                        }
-                    }
-
-                    Rectangle {
-                        width: noTxt.implicitWidth + 24
-                        height: 28
-                        radius: height / 2
-                        color: noMa.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
-                        border.width: 1
-                        border.color: Theme.outline
-
-                        Text {
-                            id: noTxt
-                            anchors.centerIn: parent
-                            text: Cfg.t("MEJOR NO")
-                            color: Theme.fg
-                            font.family: Theme.font
-                            font.pixelSize: Theme.labelSmall
-                            font.weight: Font.Medium
-                            font.letterSpacing: Theme.labelSpacing
-                        }
-
-                        MouseArea {
-                            id: noMa
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: popup.confirmando = ""
-                        }
+                        onClicked: op.triggered()
                     }
                 }
             }
@@ -292,41 +187,56 @@ Item {
                 icono: "bedtime"
                 titulo: Cfg.t("SUSPENDER")
                 detalle: Cfg.t("Se apaga la pantalla, todo queda como está")
-                comando: "busctl --user call org.freedesktop.PowerManagement /org/freedesktop/PowerManagement org.freedesktop.PowerManagement Suspend"
-                visible: popup.puedeSuspender
+                visible: popup.session.canSuspend
+                onTriggered: {
+                    popup.session.suspend();
+                    popup.closed();
+                }
             }
 
             Opcion {
                 icono: "logout"
                 titulo: Cfg.t("CERRAR SESIÓN")
                 detalle: Cfg.t("Cierra los programas abiertos")
-                comando: "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logout"
                 pesada: true
+                onTriggered: {
+                    popup.session.requestLogout(Sessions.SessionManagement.Default);
+                    popup.closed();
+                }
             }
 
             Opcion {
                 icono: "downloading"
                 titulo: Cfg.t("HIBERNAR")
                 detalle: Cfg.t("Guarda todo en el disco y apaga")
-                comando: "busctl --user call org.freedesktop.PowerManagement /org/freedesktop/PowerManagement org.freedesktop.PowerManagement Hibernate"
-                visible: popup.puedeHibernar
+                visible: popup.session.canHibernate
                 pesada: true
+                onTriggered: {
+                    popup.session.hibernate();
+                    popup.closed();
+                }
             }
 
             Opcion {
                 icono: "restart_alt"
                 titulo: Cfg.t("REINICIAR")
                 detalle: Cfg.t("Apaga y vuelve a arrancar")
-                comando: "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logoutAndReboot"
                 pesada: true
+                onTriggered: {
+                    popup.session.requestReboot(Sessions.SessionManagement.Default);
+                    popup.closed();
+                }
             }
 
             Opcion {
                 icono: "power_settings_new"
                 titulo: Cfg.t("APAGAR")
                 detalle: Cfg.t("Apaga el equipo")
-                comando: "busctl --user call org.kde.Shutdown /Shutdown org.kde.Shutdown logoutAndShutdown"
                 pesada: true
+                onTriggered: {
+                    popup.session.requestShutdown(Sessions.SessionManagement.Default);
+                    popup.closed();
+                }
             }
                     }
                 }
