@@ -130,6 +130,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   when switching between players or songs. A cover seen before used to
   keep the previous cover's colours (YouTube red → Spotify blue → back to
   YouTube stayed blue). See "The player's liquid background".
+- The media card's progress bars stay visible on dark covers. The part not
+  played yet was an opaque dark grey (`containerHighest`), as dark as the
+  background a dark or deep-blue cover gives; it's now the text colour at
+  30 % (`Theme.mediaTrackAlpha`), which reads over any cover. Compared on
+  dark, blue, red and light cover backgrounds at 22, 30 and 38 %.
 - The control center always opens on its main view. It used to come back
   on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
   The overlay is reset once the popup window is hidden, so the switch

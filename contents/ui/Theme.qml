@@ -136,6 +136,10 @@ QtObject {
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10
     readonly property real statePressed: 0.16
+    // the media card's progress bars, the part not played yet: the text
+    // colour at this opacity, so it reads over any cover colour. the opaque
+    // containerHighest it used was as dark as a dark cover's background
+    readonly property real mediaTrackAlpha: 0.3
 
     // ── medidas de la isla ──
     readonly property int collapsedHeight: 36

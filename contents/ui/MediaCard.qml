@@ -767,7 +767,9 @@ Item {
                             width: Math.max(1.5, wave.barW - 1.5)
                             height: Math.max(2, wave.height * (wave.pattern[index] ?? 0.3))
                             radius: width / 2
-                            color: root.timed && (index / wave.barCount) <= (seekMa.dragging ? seekMa.at : root.progress) ? Theme.primary : Theme.containerHighest
+                            // played: full text colour. not yet: the same colour,
+                            // translucent (same RGB, so the fade has no grey flash)
+                            color: root.timed && (index / wave.barCount) <= (seekMa.dragging ? seekMa.at : root.progress) ? Theme.primary : Qt.alpha(Theme.primary, Theme.mediaTrackAlpha)
 
                             Behavior on color {
                                 ColorAnimation {
