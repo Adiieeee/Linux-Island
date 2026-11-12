@@ -201,8 +201,15 @@ PlasmoidItem {
     // game isn't the active window, so gameOnIsland drops; without this the
     // floating notch would vanish under the pointer as the popup opens
     property bool gameNotchHeld: false
-    onExpandedChanged: if (!root.expanded)
-        root.gameNotchHeld = false
+    onExpandedChanged: {
+        if (root.expanded)
+            return;
+        root.gameNotchHeld = false;
+        // back to the game the control center was opened over
+        const owner = root.gameOwner;
+        root.gameOwner = "";
+        root.activateWindowId(owner);
+    }
 
     // ── the notch over a fullscreen game ──
     // a fullscreen active window sits above Plasma's panels, so the panel's
@@ -247,10 +254,28 @@ PlasmoidItem {
     // empty when there's nothing to hand back
     property string keyboardOwner: ""
 
-    function rememberKeyboardOwner() {
+    // the active window's id, "" when there's none
+    function activeWindowId() {
         const i = tasks.activeTask;
         const ids = i.valid ? tasks.data(i, TaskManager.AbstractTasksModel.WinIdList) : null;
-        root.keyboardOwner = ids && ids.length ? String(ids[0]) : "";
+        return ids && ids.length ? String(ids[0]) : "";
+    }
+
+    function activateWindowId(id) {
+        if (!id)
+            return;
+        for (let r = 0; r < tasks.count; r++) {
+            const idx = tasks.index(r, 0);
+            const ids = tasks.data(idx, TaskManager.AbstractTasksModel.WinIdList);
+            if (ids && ids.length && String(ids[0]) === id) {
+                tasks.requestActivate(idx);
+                return;
+            }
+        }
+    }
+
+    function rememberKeyboardOwner() {
+        root.keyboardOwner = root.activeWindowId();
         if (root.keyboardOwner)
             keyboardReturn.restart();
     }
@@ -259,17 +284,21 @@ PlasmoidItem {
         const owner = root.keyboardOwner;
         root.keyboardOwner = "";
         keyboardReturn.stop();
-        if (!owner)
-            return;
-        for (let r = 0; r < tasks.count; r++) {
-            const idx = tasks.index(r, 0);
-            const ids = tasks.data(idx, TaskManager.AbstractTasksModel.WinIdList);
-            if (ids && ids.length && String(ids[0]) === owner) {
-                tasks.requestActivate(idx);
-                return;
-            }
-        }
+        root.activateWindowId(owner);
     }
+
+    // ── over a game, the keyboard goes back on close instead ──
+    // handing the keyboard straight back doesn't work over a fullscreen
+    // game: KWin keeps a fullscreen window above the panels only while it's
+    // the active one, so the popup taking the keyboard sends the game behind
+    // the panel (the whole panel shows), and handing it back raises the game
+    // above everything again, the control center included (seen live: the
+    // panel and the control center flashed for a frame and were gone).
+    // Plasma's popup can't sit above an active fullscreen window. so when the
+    // control center opens from the floating notch, it keeps the keyboard
+    // and the game waits behind the panel, as when any Plasma popup opens
+    // over a game; when it closes, the game is activated again
+    property string gameOwner: ""
 
     // past this, a popup activation is the user's own click, not the show
     Timer {
@@ -284,9 +313,13 @@ PlasmoidItem {
         if (root.expanded)
             return;
         // opened from the floating notch: keep it up while the control
-        // center is open (see gameNotchHeld)
+        // center is open (see gameNotchHeld), and give the game its keyboard
+        // back only when it closes (see gameOwner)
         root.gameNotchHeld = gameNotch.visible;
-        root.rememberKeyboardOwner();
+        if (root.gameNotchHeld)
+            root.gameOwner = root.activeWindowId();
+        else
+            root.rememberKeyboardOwner();
         root.expanded = true;
     }
 
