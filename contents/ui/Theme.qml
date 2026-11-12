@@ -92,7 +92,6 @@ QtObject {
     readonly property int displayLarge: 40   // reloj del panel
     readonly property int islandClock: 13    // the panel island's clock (17 and 15 looked too big)
     readonly property int displaySmall: 22
-    readonly property int weatherTemp: 18    // the control center's temperature and its icon (22 looked too big)
     readonly property int titleMedium: 16
     readonly property int titleSmall: 14
     readonly property int bodyMedium: 13

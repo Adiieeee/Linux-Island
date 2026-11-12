@@ -344,7 +344,7 @@ Item {
 
                         // ── weather, at the header's right end ──
                         // top line: the temperature in the clock's digits
-                        // (Theme.weatherTemp) with the condition's icon at
+                        // (the seconds' size) with the condition's icon at
                         // the far right; under it the description, styled
                         // like the date's CALENDAR line. both lines are
                         // flush right, as the clock is flush left. it takes
@@ -356,7 +356,9 @@ Item {
                             readonly property real room: parent.width - (fechaBtn.x + fechaBtn.width) - 12
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: 1
+                            // 0, not 1: at the seconds' size the two lines
+                            // are 44 px, exactly the header's height
+                            spacing: 0
                             visible: Weather.ready && tiempo.room > 60
 
                             Row {
@@ -369,7 +371,7 @@ Item {
                                     color: Theme.fg
                                     font.family: Theme.fontDots
                                     font.features: Theme.numFeatures
-                                    font.pixelSize: Theme.weatherTemp
+                                    font.pixelSize: Theme.displaySmall
                                     font.weight: Font.Bold
                                 }
 
@@ -378,7 +380,7 @@ Item {
                                     text: Weather.icon
                                     color: Theme.fg
                                     font.family: Theme.fontIcons
-                                    font.pixelSize: Theme.weatherTemp
+                                    font.pixelSize: Theme.displaySmall
                                 }
                             }
 
