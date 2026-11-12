@@ -65,6 +65,65 @@ Item {
         tasks.requestActivate(best);
     }
 
+    // ── a skip in progress ──
+    // after previous or next, both stay grey and can't be pressed until the
+    // player reports the new track, so a second press doesn't land while a
+    // browser is still loading. measured: YouTube (through the Plasma
+    // Integration extension) reported the new title after ~470 ms and the
+    // loaded video (its length) after ~870 ms; Spotify after 10-20 ms. at
+    // least skipMin, so a double click doesn't skip twice; at most skipMax,
+    // for a player that ignores the command (YouTube sometimes does)
+    readonly property int skipMin: 400
+    readonly property int skipMax: 1500
+    property bool skipping: false
+    property string skipFrom: ""
+    property real skipLength: 0
+    // the new track is in: another title, and its length if the player
+    // gives one (a browser sends the title first, the length once loaded)
+    readonly property bool skipLanded: root.skipping && (root.player?.track ?? "") !== root.skipFrom && (root.length <= 0 || root.length !== root.skipLength)
+
+    function skip(direction: int): void {
+        const p = root.player;
+        if (!p || root.skipping)
+            return;
+        root.skipFrom = p.track ?? "";
+        root.skipLength = root.length;
+        root.skipping = true;
+        skipMinTimer.restart();
+        skipMaxTimer.restart();
+        if (direction > 0)
+            p.Next();
+        else
+            p.Previous();
+    }
+
+    function endSkip(): void {
+        skipMinTimer.stop();
+        skipMaxTimer.stop();
+        root.skipping = false;
+    }
+
+    onSkipLandedChanged: {
+        if (root.skipLanded && !skipMinTimer.running)
+            root.endSkip();
+    }
+    // another player in the card: whatever it was waiting for is moot
+    onPlayerChanged: root.endSkip()
+
+    Timer {
+        id: skipMinTimer
+        interval: root.skipMin
+        onTriggered: {
+            if (root.skipLanded)
+                root.endSkip();
+        }
+    }
+    Timer {
+        id: skipMaxTimer
+        interval: root.skipMax
+        onTriggered: root.endSkip()
+    }
+
     // shuffle and repeat, as the player reports them. Unknown = the player
     // doesn't have them (browsers usually), and the buttons stay hidden
     readonly property int shuffle: player?.shuffle ?? Mpris.ShuffleStatus.Unknown
@@ -531,7 +590,10 @@ Item {
                     radius: height / 2
                     anchors.verticalCenter: parent.verticalCenter
 
-                    color: isPlay ? Theme.fg : bma.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+                    // previous and next wait out a skip (root.skipping)
+                    readonly property bool waiting: !isPlay && root.skipping
+
+                    color: isPlay ? Theme.fg : bma.containsMouse && !waiting ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
                     opacity: root.active ? 1 : 0.38
 
                     // mismo hover/press que los botones de abajo
@@ -559,27 +621,31 @@ Item {
                                 return Icons.next;
                             return root.isPlaying ? Icons.pause : Icons.play;
                         }
-                        color: btn.isPlay ? Theme.surface : Theme.fg
+                        color: btn.isPlay ? Theme.surface : btn.waiting ? Theme.fgFaint : Theme.fg
                         font.family: Theme.fontIcons
                         font.pixelSize: btn.isPlay ? 22 : 18
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Theme.durShort
+                            }
+                        }
                     }
 
                     MouseArea {
                         id: bma
                         anchors.fill: parent
                         hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        enabled: root.active
+                        cursorShape: btn.waiting ? Qt.ArrowCursor : Qt.PointingHandCursor
+                        enabled: root.active && !btn.waiting
                         onClicked: {
                             const p = root.player;
                             if (!p)
                                 return;
                             if (btn.index === 1)
                                 p.PlayPause();
-                            else if (btn.index === 2)
-                                p.Next();
                             else
-                                p.Previous();
+                                root.skip(btn.index === 2 ? 1 : -1);
                         }
                     }
                 }

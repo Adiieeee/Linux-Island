@@ -150,6 +150,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   so the island showed a paused YouTube while Spotify played. A single
   `Media` singleton now owns the MPRIS model and reads the multiplexer row's
   player directly (`Media.active`); the island and the media card use it.
+- After previous or next, both turn grey and can't be pressed until the
+  player reports the new track, so a second press doesn't land while a
+  browser is still loading the next video. Measured: YouTube through the
+  Plasma Integration extension reported the new title after ~470 ms and
+  the loaded video (its length) after ~870 ms; Spotify after 10-20 ms.
+  The wait is at least 0.4 s (a double click doesn't skip twice) and at
+  most 1.5 s, for a player that ignores the command: in the tests YouTube
+  sometimes did, also when the command was sent straight over DBus.
 - The media card has shuffle and repeat buttons beside previous and next,
   for players that have them (Spotify; browsers usually don't, and then
   they're hidden). On is white with a dot under the icon, off is the card's
