@@ -64,11 +64,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   (date, lyrics, notes). It started from a screenshot of the panel: the
   text and notes had more room above than below (♫ 16 px over 14 at the
   screen's scale, text 13 over 12 in a 34 px notch). The album art also
-  sits 1 px right of its inset (`Theme.artNudge`). The middle is centred on
-  the notch, not between the art and the waveform: the art hugs the left
-  side and the waveform sits further from the right, so between them the
-  date read 3.5 px left of the notch's centre (now 0.5 px; it ends up 19 px
-  from the art and 13 px from the waveform).
+  sits 1 px right of its inset (`Theme.artNudge`).
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots or the empty space beside the notch does nothing.

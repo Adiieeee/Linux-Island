@@ -328,13 +328,10 @@ Item {
         // ── middle: date, track peek, lyric line or a note ──
         // as wide as the capsule leaves between art and waveform while the
         // width animates, clipped, so a line widening the island is revealed
-        // from the centre instead of running over the art. centred on the
-        // notch, not between art and waveform: the art hugs the left side and
-        // the waveform sits further from the right, and between them the date
-        // read 3.5 px left of the notch's centre
+        // from the centre instead of running over the art
         Item {
             id: middle
-            x: (capsule.width - width) / 2
+            x: root.leftSide
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: -Theme.middleLift
             width: Math.max(0, capsule.width - root.leftSide - root.rightSide)
