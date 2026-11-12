@@ -13,10 +13,12 @@ Item {
     // and this item shrinks by the same amount so the island keeps its size.
     // the padding is read by name from the popup window: outside a Plasma
     // popup it's undefined and the reach is 0
-    function reach(side) {
+    function pad(side) {
         const w = root.Window.window;
-        const pad = w ? (w[side + "Padding"] ?? 0) : 0;
-        return Math.max(0, pad - Theme.popupRing);
+        return w ? (w[side + "Padding"] ?? 0) : 0;
+    }
+    function reach(side) {
+        return Math.max(0, root.pad(side) - Theme.popupRing);
     }
     readonly property real reachTop: root.reach("top")
     readonly property real reachBottom: root.reach("bottom")
@@ -37,8 +39,13 @@ Item {
         return !!f && f.echoMode !== undefined;
     }
 
+    // on the root, not on a child: a hover-enabled MouseArea blocks hover
+    // to items under it, but not to its parents. the margin stretches it
+    // over Plasma's frame ring around the island, so the pointer coming
+    // down from the notch is inside the moment it reaches the popup window
     HoverHandler {
         id: popupHover
+        margin: Math.max(root.pad("top"), root.pad("bottom"), root.pad("left"), root.pad("right"))
     }
 
     // plasma dibuja el popup del tamaño que le pidamos, sale del alto real del contenido

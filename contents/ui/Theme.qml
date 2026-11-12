@@ -122,9 +122,11 @@ QtObject {
     // how long the panel island shows a new song's title and artist
     readonly property int peekDuration: 4500
     // how long the pointer may be off both the notch and the control center
-    // before it closes: time to cross from the notch into the popup, or to
-    // slip past its edge and come back. 400 felt slow
-    readonly property int hoverCloseDelay: 200
+    // before it closes: as good as instant (400 and 200 felt slow), but not
+    // 0. moving from the notch into the popup, the notch's leave arrives
+    // before the popup's enter, and with no wait at all that moment in
+    // between would close it
+    readonly property int hoverCloseDelay: 50
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10

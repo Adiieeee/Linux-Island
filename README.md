@@ -88,10 +88,17 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   the popup already open from hovering, a click closes it), and after a
   click closes it the pointer, still on the notch, doesn't open it again,
   since only entering the notch opens it.
-- The control center closes on its own once the pointer has been off both
-  the notch and the popup for 200 ms (`Theme.hoverCloseDelay`; 400 ms felt
-  slow), however it was opened. The wait leaves time to cross from the notch into the popup
-  or to slip past its edge and come back. It stays open while a slider
+- The control center closes on its own as soon as the pointer is off both
+  the notch and the popup, however it was opened. It waits 50 ms
+  (`Theme.hoverCloseDelay`), too short to notice: 400 and 200 ms felt slow,
+  and 0 would close it on the way in, because moving from the notch into
+  the popup the notch's leave arrives before the popup's enter. The popup's
+  `HoverHandler` sits on `ExpandedPanel`'s root with a `margin` as wide as
+  Plasma's frame, so the frame ring around the island counts as inside and
+  the pointer coming down from the notch (which reaches the panel's edge)
+  never crosses a strip that counts as outside. It has to be on the root:
+  a hover-enabled `MouseArea` blocks hover to items under it, though not
+  to its parents. It stays open while a slider
   dragged past the edge is still held (a `HoverHandler` keeps `hovered`
   until the press is released) and while the Wi-Fi password field has the
   keyboard, wherever the pointer is (`ExpandedPanel.engaged`).
