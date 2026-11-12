@@ -112,6 +112,19 @@ PlasmoidItem {
         value: Plasmoid.configuration.recMode
     }
 
+    // the meters and the volume are only read while the control center is
+    // open (singletons can't see `expanded` either)
+    Binding {
+        target: SysInfo
+        property: "open"
+        value: root.expanded
+    }
+    Binding {
+        target: Audio
+        property: "open"
+        value: root.expanded
+    }
+
     // folder and mode picked in the recording view (Recorder can't write the config)
     Connections {
         target: Recorder

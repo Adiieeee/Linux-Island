@@ -27,6 +27,10 @@ QtObject {
 
     // con cero, no se consultan los dispositivos
     property int watchers: 0
+    // the control center is open (main.qml binds it to the popup): the
+    // volume is only read then. only its sliders show it, and reading it
+    // every second with the island closed cost ~0.7% of a core
+    property bool open: false
 
     readonly property string volCmd: "wpctl get-volume @DEFAULT_AUDIO_SINK@"
     readonly property string devCmd: 'pactl get-default-sink; echo ---; pactl get-default-source; echo ---; LC_ALL=C pactl list sinks | grep -E "^[[:space:]]*(Name|Description):"; echo ---; LC_ALL=C pactl list sources | grep -E "^[[:space:]]*(Name|Description):"'
@@ -132,7 +136,7 @@ QtObject {
 
     readonly property Timer tick: Timer {
         interval: 1000
-        running: true
+        running: root.open
         repeat: true
         triggeredOnStart: true
         onTriggered: {

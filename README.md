@@ -191,6 +191,15 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   monitors by model name.
   Drag or scroll to adjust. The slider never goes below 1%, because 0 switches
   some backlights off completely.
+- The CPU, RAM and GPU meters and the volume are only read while the
+  control center is open. Before, `nvidia-smi` and the CPU/RAM read ran
+  every 3 seconds and `wpctl` every second with the island closed (together
+  ~1.6% of a core, measured), and `nvidia-smi` kept the NVIDIA GPU awake.
+  Opening starts them at once; the CPU figure gets its second reading
+  0.6 s later instead of 3 s, since it's the difference of two readings.
+  One reading still runs at start, so whether there's a GPU row is known
+  before the island first opens (a row appearing after it opened would
+  resize it).
 - The Bluetooth card names the connected device (e.g. "soundcore R50i NC")
   as soon as it connects, within one network tick (8 s). It used to say
   **ON** until the Bluetooth panel had been opened once, because the device

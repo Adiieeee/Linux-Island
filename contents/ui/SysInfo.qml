@@ -19,6 +19,11 @@ QtObject {
     property int gpuTemp: 0
     property bool gpuAvailable: false
 
+    // the control center is open (main.qml binds it to the popup). the
+    // meters are only read then: polling every 3 s with the island closed
+    // cost ~0.9% of a core, and nvidia-smi kept the NVIDIA GPU awake
+    property bool open: false
+
     property var _prev: null
 
     // cpu + ram. temp por nombre de sensor (k10temp/coretemp), no ruta fija
@@ -99,9 +104,36 @@ QtObject {
 
     readonly property Timer tick: Timer {
         interval: 3000
-        running: true
+        running: root.open
         repeat: true
         triggeredOnStart: true
+        onTriggered: {
+            root.source.connectSource(root.cpuCmd);
+            root.source.connectSource(root.gpuCmd);
+        }
+    }
+
+    // CPU use is the difference between two readings. on opening, the last
+    // one may be minutes old: start over, and take the second reading
+    // shortly after the first instead of 3 s later
+    onOpenChanged: {
+        if (!root.open)
+            return;
+        root._prev = null;
+        root.quick.restart();
+    }
+
+    readonly property Timer quick: Timer {
+        interval: 600
+        onTriggered: root.source.connectSource(root.cpuCmd)
+    }
+
+    // one reading at start anyway: whether there's a GPU row
+    // (gpuAvailable) must be known before the island first opens, or the
+    // row would appear after the popup opened and resize it
+    readonly property Timer boot: Timer {
+        interval: 1
+        running: true
         onTriggered: {
             root.source.connectSource(root.cpuCmd);
             root.source.connectSource(root.gpuCmd);
