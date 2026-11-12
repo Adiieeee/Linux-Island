@@ -218,6 +218,7 @@ Item {
     // hidden. the Plasma Integration browser extension reports the video's
     // real time (see README)
     readonly property bool timed: length > 0
+    readonly property bool canSkip: (player?.canGoPrevious ?? false) || (player?.canGoNext ?? false)
 
     // refresca posición mientras suena
     Timer {
@@ -596,6 +597,12 @@ Item {
                     // false otherwise), and a press then did nothing
                     readonly property bool unavailable: index === 0 ? !(root.player?.canGoPrevious ?? false) : index === 2 ? !(root.player?.canGoNext ?? false) : false
                     readonly property bool waiting: !isPlay && (root.skipping || unavailable)
+
+                    // a player with neither (YouTube outside a playlist) shows
+                    // no previous and next at all; with one of them both stay,
+                    // the missing one grey. kept through a skip, while a browser
+                    // between videos may briefly report neither
+                    visible: isPlay || root.canSkip || root.skipping
 
                     color: isPlay ? Theme.fg : bma.containsMouse && !waiting ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
                     opacity: root.active ? 1 : 0.38

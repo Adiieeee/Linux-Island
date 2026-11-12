@@ -161,7 +161,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   `canGoNext` false): YouTube only offers previous and next inside a
   playlist, so on a single video a press did nothing. That was the "next
   stopped working" in the tests: after the first next, YouTube landed on a
-  video outside the playlist and reported both as unavailable.
+  video outside the playlist and reported both as unavailable. With neither
+  available (YouTube outside a playlist) both buttons are hidden; with one
+  of them both stay and the missing one is grey, so a playlist's first
+  video still shows previous.
 - The media card has shuffle and repeat buttons beside previous and next,
   for players that have them (Spotify; browsers usually don't, and then
   they're hidden). On is white with a dot under the icon, off is the card's
