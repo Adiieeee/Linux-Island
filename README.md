@@ -172,6 +172,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   Spotify's own button. They set the player's MPRIS `Shuffle` and
   `LoopStatus`, which Spotify accepts (tested: it reports the new value
   back).
+- The media card's progress bar can be dragged, not only clicked. While
+  it's held, the bar and the elapsed time follow the pointer, and the seek
+  happens on release; dragging past either end clamps there, so the start
+  of a track is easy to reach. The target is measured against where the
+  player is now (the last reported position plus the time since, since
+  the position is only asked for once a second), because MPRIS here only
+  seeks relative to the current position.
 - The media card's progress bar doesn't pretend when the player gives no
   time. Zen's own MPRIS player with YouTube reports position 0 and no
   length on some videos, and on the others stops reporting both after any

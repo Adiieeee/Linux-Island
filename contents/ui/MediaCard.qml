@@ -220,6 +220,30 @@ Item {
     readonly property bool timed: length > 0
     readonly property bool canSkip: (player?.canGoPrevious ?? false) || (player?.canGoNext ?? false)
 
+    // where the player is now: the last reported position plus the time
+    // since, so a seek lands where it's aimed (the position is only asked
+    // for once a second)
+    property real posAt: 0
+    Connections {
+        target: root.player
+        function onPositionChanged() {
+            root.posAt = Date.now();
+        }
+    }
+    function playhead(): real {
+        const since = root.isPlaying && root.posAt > 0 ? (Date.now() - root.posAt) / 1000 * (root.player?.rate ?? 1) : 0;
+        return Math.max(0, Math.min(root.length, root.position + since));
+    }
+
+    // MPRIS here only seeks relative to where the player is (no SetPosition)
+    function seekTo(seconds: real): void {
+        const p = root.player;
+        if (!p || !root.timed)
+            return;
+        p.Seek(Math.round((seconds - root.playhead()) * 1000000));
+        p.updatePosition();
+    }
+
     // refresca posición mientras suena
     Timer {
         interval: 1000
@@ -730,7 +754,7 @@ Item {
                             width: Math.max(1.5, wave.barW - 1.5)
                             height: Math.max(2, wave.height * (wave.pattern[index] ?? 0.3))
                             radius: width / 2
-                            color: root.timed && (index / wave.barCount) <= root.progress ? Theme.primary : Theme.containerHighest
+                            color: root.timed && (index / wave.barCount) <= (seekMa.dragging ? seekMa.at : root.progress) ? Theme.primary : Theme.containerHighest
 
                             Behavior on color {
                                 ColorAnimation {
@@ -742,19 +766,39 @@ Item {
                 }
             }
 
-            // seek es relativo, no absoluto: calculamos la diferencia contra la posición actual
+            // click or drag: while held the bar and the elapsed time follow the
+            // pointer, and the seek happens on release. dragging past either
+            // end clamps there, so the start is easy to reach
             MouseArea {
+                id: seekMa
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 enabled: root.active && root.timed && (root.player?.canSeek ?? false)
-                onClicked: mouse => {
-                    const p = root.player;
-                    if (!p || root.length <= 0)
-                        return;
-                    const destino = (mouse.x / wave.width) * root.length;
-                    p.Seek(Math.round((destino - root.position) * 1000000));
-                    p.updatePosition();
+                preventStealing: true
+
+                property bool dragging: false
+                // 0..1 along the bar
+                property real at: 0
+
+                function follow(x: real): void {
+                    seekMa.at = Math.max(0, Math.min(1, x / width));
                 }
+
+                onPressed: mouse => {
+                    seekMa.follow(mouse.x);
+                    seekMa.dragging = true;
+                }
+                onPositionChanged: mouse => {
+                    if (seekMa.dragging)
+                        seekMa.follow(mouse.x);
+                }
+                onReleased: {
+                    if (!seekMa.dragging)
+                        return;
+                    seekMa.dragging = false;
+                    root.seekTo(seekMa.at * root.length);
+                }
+                onCanceled: seekMa.dragging = false
             }
         }
 
@@ -764,7 +808,7 @@ Item {
             anchors.leftMargin: 12 + root.side
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
-            text: root.fmt(root.position)
+            text: root.fmt(seekMa.dragging ? seekMa.at * root.length : root.position)
             visible: root.timed
             color: Theme.mediaDim
             font.family: Theme.fontDots
