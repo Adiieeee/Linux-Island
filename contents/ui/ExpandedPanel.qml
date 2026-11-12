@@ -344,7 +344,7 @@ Item {
 
                         // ── weather, at the header's right end ──
                         // top line: the temperature in the clock's digits
-                        // (the seconds' size) with the condition's icon at
+                        // (Theme.weatherTemp) with the condition's icon at
                         // the far right; under it the description, styled
                         // like the date's CALENDAR line. both lines are
                         // flush right, as the clock is flush left. it takes
@@ -369,7 +369,7 @@ Item {
                                     color: Theme.fg
                                     font.family: Theme.fontDots
                                     font.features: Theme.numFeatures
-                                    font.pixelSize: Theme.displaySmall
+                                    font.pixelSize: Theme.weatherTemp
                                     font.weight: Font.Bold
                                 }
 
@@ -378,7 +378,7 @@ Item {
                                     text: Weather.icon
                                     color: Theme.fg
                                     font.family: Theme.fontIcons
-                                    font.pixelSize: Theme.displaySmall
+                                    font.pixelSize: Theme.weatherTemp
                                 }
                             }
 
