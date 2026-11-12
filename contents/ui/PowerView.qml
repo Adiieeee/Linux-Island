@@ -16,7 +16,9 @@ Item {
     // pasado esto se arrastra en vez de seguir estirando la isla
     readonly property int listaMax: 344
 
-    implicitHeight: col.implicitHeight + 30
+    // just the content: ExpandedPanel's overlay box already pads it by 14 px
+    // on every side. the old + 30 left an empty strip under the last row
+    implicitHeight: col.implicitHeight
 
     // typed, not var (hard rule 1). its canSuspend / canHibernate decide
     // which rows show, and follow the machine live
