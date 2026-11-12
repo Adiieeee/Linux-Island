@@ -82,6 +82,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots switches desktop and a click on the empty space beside
   the notch does nothing.
+- Resting the pointer on the notch for 300 ms opens the control center, no
+  click needed (`Theme.hoverOpenDelay`, long enough that crossing the top
+  of the screen doesn't open it). Hovering only opens it; a click on the
+  notch still toggles it, and after a click closes it the pointer, still
+  on the notch, doesn't open it again, since the wait starts on entering.
 - Hovering the island no longer shows Plasma's tooltip with the time and
   the weather. `toolTipMainText` and `toolTipSubText` are set to empty
   strings on purpose: left unset, Plasma shows the applet's name instead.

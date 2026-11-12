@@ -23,8 +23,11 @@ Item {
     // from the bottom instead
     property bool bottomEdge: false
 
-    // a click on the notch (not on the sides): main.qml opens the popup
+    // a click on the notch (not on the sides): main.qml toggles the popup
     signal activated
+    // the pointer rested on the notch for Theme.hoverOpenDelay: main.qml
+    // opens the popup (only opens, never closes)
+    signal openRequested
 
     // ── media ──
     // no buttons here: previous/play/next live in the control center.
@@ -440,11 +443,26 @@ Item {
             }
         }
 
-        // only the notch opens the popup; the dots and the empty sides don't
+        // only the notch opens the popup; the dots and the empty sides don't.
+        // resting on it opens it, a click toggles it. the timer starts on
+        // entering, so after a click closes the popup the pointer, still on
+        // the notch, doesn't open it again
         MouseArea {
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: root.activated()
+            onEntered: hoverOpen.restart()
+            onExited: hoverOpen.stop()
+            onClicked: {
+                hoverOpen.stop();
+                root.activated();
+            }
+
+            Timer {
+                id: hoverOpen
+                interval: Theme.hoverOpenDelay
+                onTriggered: root.openRequested()
+            }
         }
     }
 }
