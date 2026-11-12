@@ -102,6 +102,17 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   dragged past the edge is still held (a `HoverHandler` keeps `hovered`
   until the press is released) and while the Wi-Fi password field has the
   keyboard, wherever the pointer is (`ExpandedPanel.engaged`).
+- Opening the control center no longer draws a pale line along the
+  panel's bottom edge under the island. That's Plasma's "this applet is
+  open" mark (`expandedFeedback` in Plasma's `CompactApplet.qml`, drawn
+  with the theme's `widgets/tabbar` `north-active-tab`; Ant-Dark makes it a
+  3 px `#9bbfbf` line at 80 % opacity). The notch covered it in the middle,
+  so it showed under the dots and the clock. Plasma has no setting for it:
+  the compact representation walks up its parents to the item that has
+  `expandedFeedback` and sets that item's `visible` to false, which drops
+  Plasma's `visible: opacity > 0` binding. Other widgets keep their mark.
+  If a Plasma update renames the property, nothing is found and the line
+  just comes back.
 - Hovering the island no longer shows Plasma's tooltip with the time and
   the weather. `toolTipMainText` and `toolTipSubText` are set to empty
   strings on purpose: left unset, Plasma shows the applet's name instead.

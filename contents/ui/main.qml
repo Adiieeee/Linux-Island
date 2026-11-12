@@ -181,6 +181,28 @@ PlasmoidItem {
         // read by the close timer above
         readonly property bool notchHovered: compactPill.notchHovered
 
+        // Plasma's panel wrapper (CompactApplet.qml) marks an open applet
+        // with its expandedFeedback item: the theme's "active tab" frame,
+        // which Ant-Dark draws as a 3 px pale line along the panel's bottom
+        // edge, showing beside the black notch under the dots and the
+        // clock. there's no setting for it, so it's found up the parent
+        // chain and hidden. assigning visible drops Plasma's
+        // "visible: opacity > 0" binding, so it stays hidden. nothing else
+        // in Plasma reads expandedFeedback; if a Plasma update renames it,
+        // this finds nothing and the line simply comes back
+        function hideExpandedFeedback() {
+            for (let p = compact.parent; p; p = p.parent) {
+                if (p.expandedFeedback !== undefined) {
+                    if (p.expandedFeedback)
+                        p.expandedFeedback.visible = false;
+                    return;
+                }
+            }
+        }
+        // Plasma reparents the compact representation after creating it
+        onParentChanged: hideExpandedFeedback()
+        Component.onCompleted: hideExpandedFeedback()
+
         // the whole island: desktop dots · notch · (room for the clock). it
         // takes the slot's height and the notch reaches past it to the
         // panel's edges on its own
