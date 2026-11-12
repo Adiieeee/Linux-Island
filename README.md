@@ -53,7 +53,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   notch never shifts as it ticks. The **Time** setting now only sets the
   control center's big clock. Inside the notch, today's date takes the
   clock's old place: "11 November 2026" when the notch holds nothing else,
-  "11 NOV 2026" between the album art and the waveform when the lyrics are
+  "11 Nov 2026" between the album art and the waveform when the lyrics are
   turned off. Both are 12 px bold in the clock's font with tabular digits,
   so the date and the clock read as one style. The month follows the
   widget's language.
@@ -120,7 +120,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   with no title to look up) shows two eighth notes joined by one beam (♫),
   like the Windhawk island this follows. Both are drawn as vectors
   (`NoteGlyph.qml`). A video in the browser (YouTube) shows the date
-  ("11 NOV 2026") instead of a note: a video without lyrics isn't a song
+  ("11 Nov 2026") instead of a note: a video without lyrics isn't a song
   without lyrics. Plasma's MPRIS module doesn't give QML the page's
   address, so `Media.isBrowser()` goes by the app (Zen, Firefox, Chrome and
   other browsers by their desktop entry or name). Its lyrics are still
@@ -480,7 +480,7 @@ Right-click the island → **Configure Linux Island…**. Options:
 - **Show synced lyrics** (on by default): the lyric lines in the small
   island. The lyrics button in the control center's bottom row flips the
   same setting. Off, nothing is sent to lrclib.net, and the middle shows the
-  date ("11 NOV 2026") between the art and the waveform, with no title and
+  date ("11 Nov 2026") between the art and the waveform, with no title and
   artist when a song starts.
 - **Weather city**: leave it empty to detect it from your IP.
 
