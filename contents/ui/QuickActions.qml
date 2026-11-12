@@ -21,14 +21,20 @@ Row {
     // powerdevil ata la inhibición a la conexión de quien la pidió, un qdbus suelto no dura nada
     // por eso lo hace coffee.py, que se queda vivo. encender = lanzarlo, apagar = matarlo
     readonly property string coffeeScript: Qt.resolvedUrl("../code/coffee.py").toString().replace("file://", "")
+    // what pkill matches: the helper's own command line, anchored at python3.
+    // a bare "coffee.py" also matched the sh -c running the command, whose
+    // command line holds the script name too, so pkill killed that shell
+    // before it reached python3: the toggle said on and nothing was
+    // inhibited. the full path also leaves the upstream island's helper alone
+    readonly property string coffeeMatch: "^python3 " + root.coffeeScript
 
     function coffeeStart() {
         // sin sh -c propio, plasma ya lo corre en un shell y se comen las comillas
-        Exec.run(`pkill -f coffee.py; python3 "${root.coffeeScript}" >/dev/null 2>&1 &`);
+        Exec.run(`pkill -f "${root.coffeeMatch}"; python3 "${root.coffeeScript}" >/dev/null 2>&1 &`);
     }
 
     function coffeeStop() {
-        Exec.run("pkill -f coffee.py");
+        Exec.run(`pkill -f "${root.coffeeMatch}"`);
     }
 
     // si plasmashell se reinicia con el café puesto, queda un huérfano: se limpia al arrancar

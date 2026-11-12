@@ -371,6 +371,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   English settings page now calls "Spanish".
 - The **COFFEE MODE** label is dim grey while off, like the other labels in
   the main view. It was the only one in full white.
+- Coffee mode works: while it's on, the screen doesn't dim, turn off or
+  lock on its own, and the computer doesn't suspend on its own. Before, the
+  toggle turned on but the helper never started, so nothing was inhibited
+  (see "Coffee mode didn't inhibit anything" below). PowerDevil applies a
+  new inhibition about 5 seconds after it's requested.
 - The lock button in the bottom row works. It called `qdbus`, which Plasma 6
   systems don't ship under that name (only `qdbus6`), so it silently did
   nothing. It now uses `busctl`, like the lock entry in the power panel. Clicking or scrolling the desktop dots
@@ -938,6 +943,30 @@ Now `contents/code/coffee.py` handles it. It requests three inhibitions
 alive with the connection open. On = launch it, off = kill it. When the
 widget starts, it kills any leftover instance so the toggle and reality
 match.
+
+3. Even so, the helper never ran from the widget. Turning it on ran
+   `pkill -f coffee.py; python3 …/coffee.py &`, and the executable
+   DataSource runs that through `sh -c`, so the shell's own command line
+   contains "coffee.py" too. `pkill -f` matched that shell and killed it
+   (exit 143, SIGTERM) before it reached `python3`. The toggle showed on and
+   nothing was inhibited. `pkill` now matches `^python3 <full path to
+   coffee.py>` (`QuickActions.coffeeMatch`): only the helper's command line
+   starts with `python3`, and the full path also leaves the upstream
+   island's helper alone. The same trap waits for any `pkill -f <name>` run
+   in a command line that also contains `<name>`.
+
+To check it, read PowerDevil's `ActiveInhibitions` property while coffee
+mode is on (allow about 5 s: PowerDevil delays new inhibitions):
+
+```bash
+busctl --user get-property org.kde.Solid.PowerManagement \
+  /org/kde/Solid/PowerManagement/PolicyAgent \
+  org.kde.Solid.PowerManagement.PolicyAgent ActiveInhibitions
+```
+
+It lists `"idle"` (screen), `"sleep"` and `"sleep:idle"` for "Linux Island"
+while on, and none of them after turning it off. The older
+`ListInhibitions` method is deprecated and doesn't show them.
 
 ### Recording didn't start
 
