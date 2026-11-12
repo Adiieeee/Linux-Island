@@ -185,6 +185,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   that of its app, preferring one that's demanding attention, else the
   one used last. A player that can't be raised (`canRaise` false) ignores
   the click.
+- When several players play at once, the island follows Spotify first,
+  then a browser (YouTube), then anything else. Plasma's own pick keeps
+  the one that started first, so YouTube stayed in the island while
+  Spotify played too. With one player playing, or none, Plasma's pick
+  stands (the playing one, else the last active). `Media.pick()` holds the
+  rule as a plain function, tested with fake players.
 - The media card in the control center has arrows at its left and right
   edges to switch between players, shown only when there's more than one.
   Only players with something loaded count: a track, playing or paused. A

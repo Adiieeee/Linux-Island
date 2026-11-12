@@ -32,6 +32,9 @@ QtObject {
         // lone YouTube video, and they led to an empty "Nothing playing"
         readonly property bool loaded: (container?.track ?? "") !== "" && (container?.playbackStatus ?? Mpris.PlaybackStatus.Stopped) !== Mpris.PlaybackStatus.Stopped
         onLoadedChanged: Qt.callLater(root.rebuild)
+        // which one the island follows can change when one starts or stops
+        readonly property bool playing: (container?.playbackStatus ?? Mpris.PlaybackStatus.Stopped) === Mpris.PlaybackStatus.Playing
+        onPlayingChanged: Qt.callLater(root.rebuild)
     }
 
     readonly property Instantiator rows: Instantiator {
@@ -65,12 +68,41 @@ QtObject {
         }
         root.muxRow = mux;
         root.players = list;
+
+        root.preferred = root.pick(list, mux?.container ?? null);
         // a picked player that went away: back to following active
         if (root.picked && list.indexOf(root.picked) < 0)
             root.picked = null;
     }
 
-    readonly property var active: root.muxRow?.container ?? (root.players.length > 0 ? root.players[0] : null)
+    // the island follows Plasma's pick (the player that's playing, else the
+    // last active one), except when several play at once: then Spotify
+    // first, then a browser (YouTube), then the rest. Plasma would keep the
+    // one that started first, so YouTube stayed while Spotify played too
+    property var preferred: null
+
+    // several playing at once: the best ranked, or Plasma's pick if it
+    // ranks as high. one or none playing: null, Plasma's pick stands
+    function pick(list, muxC) {
+        const playing = list.filter(c => c.playbackStatus === Mpris.PlaybackStatus.Playing);
+        if (playing.length < 2)
+            return null;
+        playing.sort((a, b) => root.rank(a) - root.rank(b));
+        if (muxC && playing.indexOf(muxC) >= 0 && root.rank(muxC) === root.rank(playing[0]))
+            return muxC;
+        return playing[0];
+    }
+
+    function rank(p): int {
+        const app = String(p?.desktopEntry ?? "").toLowerCase();
+        if (app.indexOf("spotify") >= 0)
+            return 0;
+        if (root.isBrowser(p))
+            return 1;
+        return 2;
+    }
+
+    readonly property var active: root.preferred ?? root.muxRow?.container ?? (root.players.length > 0 ? root.players[0] : null)
 
     // the card's own pick through its arrows; null = follow active
     property var picked: null
