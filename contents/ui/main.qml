@@ -1,5 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Window
+import org.kde.layershell as LayerShell
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
 import org.kde.taskmanager as TaskManager
@@ -194,6 +196,44 @@ PlasmoidItem {
         }
     }
 
+    // ── the notch over a fullscreen game ──
+    // a fullscreen active window sits above Plasma's panels, so the panel's
+    // notch is covered. this is a copy of just the notch in its own window,
+    // on layer-shell's Overlay layer (above fullscreen windows), pinned to
+    // the top edge of the island's screen. it never takes the keyboard, so
+    // the game keeps it (prototyped outside plasmashell first: drawn above
+    // a fullscreen window, hover and clicks reach it, the fullscreen window
+    // stays active and gets every key)
+    Window {
+        id: gameNotch
+
+        visible: Cfg.notchOverGames && root.gameOnIsland
+        screen: root.compactRepresentationItem?.islandScreen ?? null
+        // the larger of the notch's width and the width it's heading to:
+        // a growing notch isn't clipped, and the window is never much wider
+        // than the notch, so it doesn't swallow the game's clicks around it
+        width: Math.ceil(Math.max(gamePill.notchWidth, gamePill.notchTarget))
+        height: root.compactRepresentationItem?.notchHeight ?? Theme.collapsedHeight
+        color: "transparent"
+
+        LayerShell.Window.layer: LayerShell.Window.LayerOverlay
+        LayerShell.Window.anchors: LayerShell.Window.AnchorTop
+        LayerShell.Window.keyboardInteractivity: LayerShell.Window.KeyboardInteractivityNone
+        LayerShell.Window.exclusionZone: -1
+        LayerShell.Window.screenConfiguration: LayerShell.Window.ScreenFromQWindow
+        LayerShell.Window.scope: "linuxisland-game-notch"
+
+        // as tall as the panel's notch; the window is exactly its height,
+        // so the pill's reach (to the panel's edges) is 0
+        CompactPill {
+            id: gamePill
+            notchOnly: true
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: implicitWidth
+            height: parent.height
+        }
+    }
+
     // the window id of whoever had the keyboard when hover opened the popup;
     // empty when there's nothing to hand back
     property string keyboardOwner: ""
@@ -280,6 +320,10 @@ PlasmoidItem {
         // coordinates, the same space as TaskManager's ScreenGeometry
         readonly property rect screenRect: Qt.rect(compact.Screen.virtualX, compact.Screen.virtualY, compact.Screen.width, compact.Screen.height)
         onScreenRectChanged: root.refreshGame()
+        // the floating notch's window goes on this screen, as tall as this
+        // notch (the panel's thickness: it reaches the panel's edges)
+        readonly property var islandScreen: compact.Window.window ? compact.Window.window.screen : null
+        readonly property real notchHeight: compactPill.capsuleHeight
 
         // Plasma's panel wrapper (CompactApplet.qml) marks an open applet
         // with its expandedFeedback item: the theme's "active tab" frame,
