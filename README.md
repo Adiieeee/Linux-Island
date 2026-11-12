@@ -735,8 +735,9 @@ Right-click the island → **Configure Linux Island…**. Options:
   (Meta+Space is free on a default Plasma). The shortcut only flips this
   setting, so in a game it never takes the game's focus; it no longer opens
   the control center (`activationTogglesExpanded: false`), which opens by
-  moving the pointer onto the notch. (Being built: the setting, the button
-  and the shortcut exist, the floating notch comes in the next commits.)
+  moving the pointer onto the notch, the floating one included: hovering it
+  opens the control center like the panel's notch, and it stays up while
+  the control center is open. (New, still being tested on the desktop.)
 - **Show synced lyrics** (on by default): the lyric lines in the small
   island. The lyrics button in the control center's bottom row flips the
   same setting. Off, nothing is sent to lrclib.net, and the middle shows the

@@ -196,6 +196,14 @@ PlasmoidItem {
         }
     }
 
+    // the control center was opened from the floating notch. the popup
+    // isn't a window in the tasks model, and while it has the keyboard the
+    // game isn't the active window, so gameOnIsland drops; without this the
+    // floating notch would vanish under the pointer as the popup opens
+    property bool gameNotchHeld: false
+    onExpandedChanged: if (!root.expanded)
+        root.gameNotchHeld = false
+
     // ── the notch over a fullscreen game ──
     // a fullscreen active window sits above Plasma's panels, so the panel's
     // notch is covered. this is a copy of just the notch in its own window,
@@ -207,7 +215,7 @@ PlasmoidItem {
     Window {
         id: gameNotch
 
-        visible: Cfg.notchOverGames && root.gameOnIsland
+        visible: Cfg.notchOverGames && (root.gameOnIsland || (root.expanded && root.gameNotchHeld))
         screen: root.compactRepresentationItem?.islandScreen ?? null
         // the larger of the notch's width and the width it's heading to:
         // a growing notch isn't clipped, and the window is never much wider
@@ -231,6 +239,7 @@ PlasmoidItem {
             anchors.horizontalCenter: parent.horizontalCenter
             width: implicitWidth
             height: parent.height
+            onOpenRequested: root.openFromNotch()
         }
     }
 
@@ -269,11 +278,23 @@ PlasmoidItem {
         onTriggered: root.keyboardOwner = ""
     }
 
+    // the pointer reached a notch (the panel's or the one over a game):
+    // open the control center, and hand the keyboard back afterwards
+    function openFromNotch() {
+        if (root.expanded)
+            return;
+        // opened from the floating notch: keep it up while the control
+        // center is open (see gameNotchHeld)
+        root.gameNotchHeld = gameNotch.visible;
+        root.rememberKeyboardOwner();
+        root.expanded = true;
+    }
+
     // the control center closes on its own once the pointer has been off
-    // both the notch and the popup for Theme.hoverCloseDelay
+    // the notches and the popup for Theme.hoverCloseDelay
     Timer {
         interval: Theme.hoverCloseDelay
-        running: root.expanded && !(root.compactRepresentationItem?.notchHovered ?? false) && !(root.fullRepresentationItem?.engaged ?? false)
+        running: root.expanded && !(root.compactRepresentationItem?.notchHovered ?? false) && !gamePill.notchHovered && !(root.fullRepresentationItem?.engaged ?? false)
         onTriggered: root.expanded = false
     }
 
@@ -357,12 +378,7 @@ PlasmoidItem {
             height: compact.height
             horizontal: compact.horizontal
             bottomEdge: Plasmoid.location === PlasmaCore.Types.BottomEdge
-            onOpenRequested: {
-                if (root.expanded)
-                    return;
-                root.rememberKeyboardOwner();
-                root.expanded = true;
-            }
+            onOpenRequested: root.openFromNotch()
         }
     }
 
