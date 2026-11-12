@@ -728,8 +728,10 @@ Right-click the island → **Configure Linux Island…**. Options:
   control center, and the cover isn't loaded a second time for its colours.
 - **Keep the notch over games** (off by default, `notchOverGames`): while a
   game or a video is fullscreen on the island's screen, the notch floats
-  above it, so the lyrics stay in view. (Being built: the setting exists,
-  the floating notch comes in the next commits.)
+  above it, so the lyrics stay in view. The gamepad button in the control
+  center's bottom row, next to the lyrics button, flips it too (filled
+  while on). (Being built: the setting and the button exist, the floating
+  notch comes in the next commits.)
 - **Show synced lyrics** (on by default): the lyric lines in the small
   island. The lyrics button in the control center's bottom row flips the
   same setting. Off, nothing is sent to lrclib.net, and the middle shows the

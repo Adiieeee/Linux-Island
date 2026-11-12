@@ -18,6 +18,10 @@ Row {
     // writes the config)
     signal lyricsToggled
 
+    // …and this to keep the notch over fullscreen games or not (main.qml
+    // writes the config)
+    signal gameNotchToggled
+
     // powerdevil ata la inhibición a la conexión de quien la pidió, un qdbus suelto no dura nada
     // por eso lo hace coffee.py, que se queda vivo. encender = lanzarlo, apagar = matarlo
     readonly property string coffeeScript: Qt.resolvedUrl("../code/coffee.py").toString().replace("file://", "")
@@ -197,6 +201,14 @@ Row {
         icon: Icons.lyrics
         on: Cfg.showLyrics
         onActivated: root.lyricsToggled()
+    }
+
+    // the notch floats over a fullscreen game on the island's screen
+    // (the "Keep the notch over games" setting)
+    ActionButton {
+        icon: Icons.game
+        on: Cfg.notchOverGames
+        onActivated: root.gameNotchToggled()
     }
 
     ActionButton {

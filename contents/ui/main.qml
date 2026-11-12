@@ -289,6 +289,7 @@ PlasmoidItem {
             root.giveKeyboardBack()
 
         onLyricsToggled: Plasmoid.configuration.showLyrics = !Plasmoid.configuration.showLyrics
+        onGameNotchToggled: Plasmoid.configuration.notchOverGames = !Plasmoid.configuration.notchOverGames
         onCloseRequested: root.expanded = false
 
         // smaller than Theme.expandedWidth by the part of Plasma's frame the

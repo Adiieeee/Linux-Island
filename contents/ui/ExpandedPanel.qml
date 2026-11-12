@@ -101,6 +101,8 @@ Item {
     // the lyrics button in the bottom row: main.qml flips the showLyrics
     // config key (a view can't write Plasmoid.configuration through Cfg)
     signal lyricsToggled
+    // the game button next to it: main.qml flips notchOverGames
+    signal gameNotchToggled
 
     function openOverlay(name) {
         overlay = name;
@@ -588,6 +590,7 @@ Item {
                         onRequestNotifs: root.openOverlay("notif")
                         onRequestPower: root.openOverlay("power")
                         onLyricsToggled: root.lyricsToggled()
+                        onGameNotchToggled: root.gameNotchToggled()
                     }
                 }
             }
