@@ -122,8 +122,9 @@ QtObject {
     // how long the panel island shows a new song's title and artist
     readonly property int peekDuration: 4500
     // how long the pointer rests on the notch before the control center
-    // opens: long enough that crossing the top of the screen doesn't open it
-    readonly property int hoverOpenDelay: 300
+    // opens: 300 felt slow; 100 still ignores a quick pass across the top
+    // of the screen
+    readonly property int hoverOpenDelay: 100
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10
