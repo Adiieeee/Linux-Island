@@ -86,4 +86,10 @@ QtObject {
             "392": "thunderstorm",
             "395": "weather_snowy"
         })
+
+    // after sunset: a moon instead of the sun (Weather.day)
+    readonly property var weatherNight: ({
+            "113": "clear_night",
+            "116": "partly_cloudy_night"
+        })
 }

@@ -161,6 +161,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   cloud if nothing matches), and the 16 standard codes for freezing rain,
   sleet, snow and ice pellets that were missing from `Icons.weather` are
   in (`weather_snowy`, `weather_mix`).
+- At night the weather shows a moon: clear is `clear_night` and partly
+  cloudy `partly_cloudy_night`, instead of a sun. Day or night comes from
+  wttr.in's sunrise and sunset for the place, compared with this
+  computer's clock at each reading (every 15 minutes), so it's right for
+  the place the computer is in (found by IP when **Weather city** is
+  empty), not for a city in another time zone.
 - The control center always opens on its main view. It used to come back
   on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
   The overlay is reset once the popup window is hidden, so the switch

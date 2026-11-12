@@ -12,22 +12,48 @@ QtObject {
     property string code: ""
     property string city: ""
     property bool ready: false
+    // between sunrise and sunset at the last reading, from wttr.in's
+    // astronomy. compared with this machine's clock, so it's right for the
+    // place the computer is in (the default, found by IP), not for a
+    // Weather city in another time zone
+    property bool day: true
 
-    readonly property string icon: root.iconFor(root.code, root.desc)
+    readonly property string icon: root.iconFor(root.code, root.desc, root.day)
 
-    function iconFor(code, desc) {
+    function iconFor(code, desc, day) {
         if (code === "")
             return "";
+        if (!day && Icons.weatherNight[code])
+            return Icons.weatherNight[code];
         if (Icons.weather[code])
             return Icons.weather[code];
         // a code outside the standard 48 (wttr.in sent 149, "Smoky haze"):
         // guess from the description, first match wins
-        const guesses = [[/thunder/i, "thunderstorm"], [/snow|blizzard/i, "weather_snowy"], [/sleet|ice|freezing/i, "weather_mix"], [/rain|drizzle|shower|precip/i, "rainy"], [/fog/i, "foggy"], [/mist|haze|smok|dust|sand/i, "mist"], [/overcast|cloud/i, "cloud"], [/sun|clear/i, "sunny"]];
+        const guesses = [[/thunder/i, "thunderstorm"], [/snow|blizzard/i, "weather_snowy"], [/sleet|ice|freezing/i, "weather_mix"], [/rain|drizzle|shower|precip/i, "rainy"], [/fog/i, "foggy"], [/mist|haze|smok|dust|sand/i, "mist"], [/overcast|cloud/i, "cloud"], [/sun|clear/i, day ? "sunny" : "clear_night"]];
         for (const g of guesses) {
             if (g[0].test(desc))
                 return g[1];
         }
         return "cloud";
+    }
+
+    // "05:25 AM" → minutes after midnight; NaN for anything else ("No sunrise")
+    function minutesOf(text) {
+        const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(text).trim());
+        if (!m)
+            return NaN;
+        const h = Number(m[1]) % 12 + (m[3].toUpperCase() === "PM" ? 12 : 0);
+        return h * 60 + Number(m[2]);
+    }
+
+    function isDay(sunrise, sunset) {
+        const rise = root.minutesOf(sunrise);
+        const set = root.minutesOf(sunset);
+        if (isNaN(rise) || isNaN(set))
+            return true;
+        const now = new Date();
+        const t = now.getHours() * 60 + now.getMinutes();
+        return t >= rise && t < set;
     }
 
     function fetch() {
@@ -43,6 +69,8 @@ QtObject {
                 root.code = cur.weatherCode;
                 const area = d.nearest_area && d.nearest_area[0];
                 root.city = area ? area.areaName[0].value : "";
+                const astro = d.weather && d.weather[0] && d.weather[0].astronomy && d.weather[0].astronomy[0];
+                root.day = astro ? root.isDay(astro.sunrise, astro.sunset) : true;
                 root.ready = true;
             } catch (e) {}
         };
