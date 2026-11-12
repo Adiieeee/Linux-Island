@@ -490,8 +490,25 @@ about 0.6 of its own width. On the author's panel (spacing 18) the phantom's
 7.5 px needed a 12 px margin, which measured the island's centre at exactly
 800 of 1600; 18 px put it about 4 px left. How much the spacers shrink
 doesn't depend on the island's width, so the island stays centred within
-a pixel as it widens for lyrics. To check, print each panel widget's
-geometry (23 is the panel's id):
+a pixel as it widens for lyrics.
+
+The share isn't a fixed 60 %: below their preferred sizes, Qt's layout
+engine shrinks each item by `desired · (available/desired_total)^(desired/desired_total)`,
+with `desired = preferred − minimum` (a spacer's minimum is 1 px). Replaying
+that with the spacer formula gives the logged sizes to a pixel (553/405 at
+spacing 18, margin 12), and this total margin for the author's panel at each
+Panel Colorizer spacing:
+
+| Spacing | 4 | 6 | 8 | 10 | 12 | 14 | 18 |
+|---|---|---|---|---|---|---|---|
+| Total margin on the right-hand widgets | 2 | 3 | 5 | 6 | 8 | 9 | 12 |
+| Island's centre with no margin (of 800) | 801 | 802 | 803 | 804 | 805 | 806 | 808 |
+
+Panel Colorizer keeps the spacing per preset. With preset autoloading
+(one preset while a window touches the panel, another otherwise), give
+both the same spacing: the margins are global, so they can only match one.
+
+To check, print each panel widget's geometry (23 is the panel's id):
 
 ```bash
 busctl --user call org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell evaluateScript s 'var p = panels().filter(function (x) { return x.id == 23; })[0]; print(p.widgets().map(function (w) { var g = w.geometry; return w.type + " x " + g.x + " w " + g.width + " centre " + (g.x + g.width / 2); }).join("\n"));'
