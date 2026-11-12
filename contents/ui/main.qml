@@ -157,8 +157,8 @@ PlasmoidItem {
     toolTipMainText: ""
     toolTipSubText: ""
 
-    // an Item, not a MouseArea: only the notch takes clicks (CompactPill),
-    // not the desktop dots or the empty space beside it
+    // an Item, not a MouseArea: only the notch opens the popup, on hover
+    // (CompactPill), not the desktop dots or the empty space beside it
     compactRepresentation: Item {
         id: compact
 
@@ -178,12 +178,12 @@ PlasmoidItem {
         implicitWidth: targetWidth
         implicitHeight: Theme.collapsedHeight
 
-        // the whole island: desktop dots · notch · (room for the clock). it
-        // takes the slot's height and the notch reaches past it to the
-        // panel's edges on its own
         // read by the close timer above
         readonly property bool notchHovered: compactPill.notchHovered
 
+        // the whole island: desktop dots · notch · (room for the clock). it
+        // takes the slot's height and the notch reaches past it to the
+        // panel's edges on its own
         CompactPill {
             id: compactPill
             anchors.centerIn: parent
