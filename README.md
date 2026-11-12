@@ -45,9 +45,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   empty one a ring. Clicking a dot switches to that desktop
   (`Workspaces.clickable`); each dot's hit area is 24 px tall and reaches
   halfway to its neighbours, so the small dots are easy to hit. Hovering a
-  dot shows a soft round halo behind it, 4 px around the dot, in the same
+  dot shows a round halo behind it, 4 px around the dot: the same
   translucent white as the control center's hover (`Theme.stateHover`,
-  `statePressed` while pressed), and the pointer becomes a hand. The current
+  `statePressed` while pressed), ringed with a 1.5 px border in the
+  island's black (`Theme.bg`), because the translucent layer alone was
+  barely visible on the panel. The pointer becomes a hand. The current
   desktop gets neither, since clicking it does nothing. The wheel
   over the dots steps one desktop per notch, up for the left one and down
   for the right one, stopping at the ends (`Workspaces.scrollable`). It

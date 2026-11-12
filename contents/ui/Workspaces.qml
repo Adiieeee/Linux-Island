@@ -97,19 +97,29 @@ Item {
                     }
                 }
 
-                // hover halo: the same translucent state layer as the control
-                // center's buttons, 4 px around the dot and following its
-                // width. z -1 puts it behind the dot. not on the current
+                // hover halo, 4 px around the dot and following its width:
+                // the control center's translucent state layer, ringed in the
+                // island's black, since the layer alone barely showed on the
+                // panel. z -1 puts it behind the dot. not on the current
                 // desktop, where a click does nothing
                 Rectangle {
+                    readonly property bool lit: !parent.focused && hit.containsMouse
+
                     z: -1
                     anchors.centerIn: parent
                     width: parent.width + 8
                     height: parent.height + 8
                     radius: height / 2
-                    color: parent.focused || !hit.containsMouse ? Qt.alpha(Theme.fg, 0) : Qt.alpha(Theme.fg, hit.pressed ? Theme.statePressed : Theme.stateHover)
+                    color: lit ? Qt.alpha(Theme.fg, hit.pressed ? Theme.statePressed : Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+                    border.width: 1.5
+                    border.color: lit ? Theme.bg : Qt.alpha(Theme.bg, 0)
 
                     Behavior on color {
+                        ColorAnimation {
+                            duration: Theme.durShort
+                        }
+                    }
+                    Behavior on border.color {
                         ColorAnimation {
                             duration: Theme.durShort
                         }
