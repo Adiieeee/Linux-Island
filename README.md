@@ -132,8 +132,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   where the app launcher's button was. It turns the small island's lyrics on
   and off, the same switch as **Show synced lyrics** in the settings, and
   it's filled white (the inverted pair, like coffee mode) while on. The app
-  launcher wasn't used, so nothing opens it any more; `AppLauncher.qml` and
-  `apps.py` stay in the repo.
+  launcher wasn't used, so it's gone too (`AppLauncher.qml` and the
+  `apps.py` helper that listed the installed apps for it).
 - When a song starts playing, the small island shows its title (12 px bold)
   over its artist (10 px, grey) for 4.5 seconds at the lyrics' width, then the lyrics or
   the date. Every song gets this once, with or without lyrics: a track
@@ -361,7 +361,6 @@ section stays empty, but the rest of the island keeps working:
 | GPU meter | `nvidia-smi` (hidden if missing) |
 | Screen recording | `spectacle` |
 | Coffee mode | `python3` with PyGObject (`gi`) |
-| App launcher (no button opens it at the moment) | `python3` |
 | Weather | internet access to `wttr.in` |
 
 ## In its own panel (recommended)

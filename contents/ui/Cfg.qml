@@ -100,9 +100,6 @@ QtObject {
             "Semana": ["Semana", "Week"],
             "GRABACIÓN": ["GRABACIÓN", "RECORDING"],
             "Nada reproduciéndose": ["Nada reproduciéndose", "Nothing playing"],
-            "APLICACIONES": ["APLICACIONES", "APPS"],
-            "Buscar aplicaciones…": ["Buscar aplicaciones…", "Search apps…"],
-            "Sin resultados": ["Sin resultados", "No results"],
 
             // detalle de red/dispositivo
             "Señal": ["Señal", "Signal"],

@@ -592,8 +592,6 @@ Item {
                                 return calComp;
                             if (root.overlay === "power")
                                 return powerComp;
-                            if (root.overlay === "apps")
-                                return appsComp;
                             return null;
                         }
                     }
@@ -637,13 +635,6 @@ Item {
                     Component {
                         id: powerComp
                         PowerView {
-                            onClosed: root.closeOverlay()
-                        }
-                    }
-
-                    Component {
-                        id: appsComp
-                        AppLauncher {
                             onClosed: root.closeOverlay()
                         }
                     }
