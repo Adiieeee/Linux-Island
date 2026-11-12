@@ -13,7 +13,22 @@ QtObject {
     property string city: ""
     property bool ready: false
 
-    readonly property string icon: Icons.weather[code] ?? ""
+    readonly property string icon: root.iconFor(root.code, root.desc)
+
+    function iconFor(code, desc) {
+        if (code === "")
+            return "";
+        if (Icons.weather[code])
+            return Icons.weather[code];
+        // a code outside the standard 48 (wttr.in sent 149, "Smoky haze"):
+        // guess from the description, first match wins
+        const guesses = [[/thunder/i, "thunderstorm"], [/snow|blizzard/i, "weather_snowy"], [/sleet|ice|freezing/i, "weather_mix"], [/rain|drizzle|shower|precip/i, "rainy"], [/fog/i, "foggy"], [/mist|haze|smok|dust|sand/i, "mist"], [/overcast|cloud/i, "cloud"], [/sun|clear/i, "sunny"]];
+        for (const g of guesses) {
+            if (g[0].test(desc))
+                return g[1];
+        }
+        return "cloud";
+    }
 
     function fetch() {
         const xhr = new XMLHttpRequest();

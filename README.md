@@ -153,6 +153,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   in "…". Until wttr.in answers (or offline) it's hidden and the header
   looks as before. It uses the existing `Weather` service (wttr.in every
   15 minutes; **Weather city** in the settings).
+- The weather always has an icon. Codes wttr.in sends outside the 48
+  standard ones had none: for this laptop's location it sent 149, "Smoky
+  haze", and the header showed the temperature with an empty space. Such
+  a code now gets its icon from the description (thunder, snow, sleet or
+  ice, rain, fog, mist / haze / smoke / dust, cloud, sun or clear; a
+  cloud if nothing matches), and the 16 standard codes for freezing rain,
+  sleet, snow and ice pellets that were missing from `Icons.weather` are
+  in (`weather_snowy`, `weather_mix`).
 - The control center always opens on its main view. It used to come back
   on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
   The overlay is reset once the popup window is hidden, so the switch
