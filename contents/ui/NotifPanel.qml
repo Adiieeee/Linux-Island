@@ -175,13 +175,15 @@ Item {
         }
 
         // ── lista ──
-        // mismo historial que usa plasma, los delegates leen los roles directo
+        // the island's own copy of the notifications (Notifs.history), with
+        // the same role names as Plasma's model: Plasma drops the ones their
+        // app closes, which was most chat messages
         Column {
             width: parent.width
             spacing: 2
 
             Repeater {
-                model: Notifs.model
+                model: Notifs.history
 
                 Rectangle {
                     id: nrow

@@ -226,6 +226,19 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   window's picture is recorded. Sound is still the whole system's (Spectacle
   can't record one app's audio). The mode is saved in the `recMode` config
   key (`s` or `w`) and also applies to the round button on the main card.
+- The notification panel (the bell) keeps every notification. It used to
+  list Plasma's own history, and Plasma removes a notification from that
+  history as soon as the app that sent it closes it. Chat apps do that all
+  the time (ZapZap and LINE in Chromium close theirs once the message is
+  read, or replace them with a newer one), so only things like Claude or a
+  missed call ever showed. `Notifs.history` now copies each notification as
+  it arrives (and the ones already there when plasmashell starts) and keeps
+  it until you dismiss or clear it in the panel. A notification updated in
+  place with new text (a chat's "2 new messages") moves to the top with
+  that text; one that only expires or is read stays as it is. The source
+  model also takes every urgency and the ones that arrived during Do Not
+  Disturb. Up to 100 are kept, in memory, so a plasmashell restart starts
+  from what Plasma still has.
 - The strip that showed a new notification at the bottom of the control
   center for 5 seconds is gone. Plasma's own popups already show every
   notification, and the strip, which grew the island by 62 px while it
