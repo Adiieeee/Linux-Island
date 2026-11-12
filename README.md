@@ -475,9 +475,22 @@ The island itself is symmetric (dots and clock 12–13 px from the notch, the
 notch in the middle of the widget); a widget that re-centred itself was
 tried and dropped in favour of fixing the panel. To cancel the phantom
 spacing, give the first widget after the right spacer an extra left margin
-the size of the spacing (with Panel Colorizer: a Global Override with that
-margin, applied to that widget). It sits next to the empty spacer, so
-nothing visibly moves.
+(with Panel Colorizer: a Global Override with that margin, applied to that
+widget). It sits next to the empty spacer, so nothing visibly moves.
+
+The margin has to be smaller than the spacing. The layout takes the extra
+room out of both spacers, not just the right one, and the left one (the
+larger) gives about 60 % of it, so a margin moves the island left by only
+about 0.6 of its own width. On the author's panel (spacing 18) the phantom's
+7.5 px needed a 12 px margin, which measured the island's centre at exactly
+800 of 1600; 18 px put it about 4 px left. How much the spacers shrink
+doesn't depend on the island's width, so the island stays centred within
+a pixel as it widens for lyrics. To check, print each panel widget's
+geometry (23 is the panel's id):
+
+```bash
+busctl --user call org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell evaluateScript s 'var p = panels().filter(function (x) { return x.id == 23; })[0]; print(p.widgets().map(function (w) { var g = w.geometry; return w.type + " x " + g.x + " w " + g.width + " centre " + (g.x + g.width / 2); }).join("\n"));'
+```
 
 ## Growing in place: tried, didn't work
 
