@@ -444,6 +444,20 @@ whole screen.
 After moving the island into its own panel, remove it from the panel it was
 in before, or you'll end up with two.
 
+**Between two panel spacers it isn't exactly centred.** In a shared,
+full-width panel with an expanding spacer on each side of the island,
+Plasma's spacers try to centre whatever sits between them, but they compute
+from the other widgets' size *hints*, not their real widths, and they don't
+recompute when widgets are reordered. Measured on the author's top panel
+(1600 px): the notch's centre sat at x 788–790, 10–12 px left; the spacers'
+widths drifted (534/372, later 536/400) with nothing changed; and the Caps
+Lock icon appearing in the system tray moved the island too. Removing the
+hidden Pager or moving the hidden Panel Colorizer changed nothing; moving a
+widget between the groups didn't make the spacers recompute at all. The
+island itself is symmetric (dots and clock 12–13 px from the notch, the
+notch in the middle of the widget). A panel of its own, with the other
+widgets in a left and a right panel, is centred by Plasma exactly.
+
 ## Growing in place: tried, didn't work
 
 `Island.qml` is the attempt: a single surface that animates its own width and
