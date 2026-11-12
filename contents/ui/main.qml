@@ -412,6 +412,7 @@ PlasmoidItem {
             horizontal: compact.horizontal
             bottomEdge: Plasmoid.location === PlasmaCore.Types.BottomEdge
             onOpenRequested: root.openFromNotch()
+            asleep: gameNotch.visible
         }
     }
 

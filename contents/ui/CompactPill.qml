@@ -232,6 +232,13 @@ Item {
     // so there's no second TasksModel or ticking clock
     property bool notchOnly: false
 
+    // the floating notch over a game is showing (main.qml): this notch is
+    // hidden and its waveform stops listening. it's under the game anyway,
+    // and while the control center is open over the game the panel shows
+    // through, where it would sit under the floating one as a second notch.
+    // the dots and the clock stay
+    property bool asleep: false
+
     implicitWidth: 2 * root.sideWidth + root.notchWidth
     implicitHeight: Theme.collapsedHeight
 
@@ -296,6 +303,7 @@ Item {
 
     Item {
         id: capsule
+        visible: !root.asleep
         x: root.sideWidth
         width: root.notchWidth
         anchors.top: parent.top
@@ -460,7 +468,7 @@ Item {
 
             LiveWave {
                 anchors.fill: parent
-                live: root.media && root.isPlaying
+                live: root.media && root.isPlaying && !root.asleep
             }
         }
 
