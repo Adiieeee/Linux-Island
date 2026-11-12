@@ -28,6 +28,13 @@ QtObject {
     property var btKnown: []
     property var btNearby: []
 
+    // the control center is open (main.qml binds it to the popup): the
+    // Wi-Fi and Bluetooth state is only read then. it's only shown there,
+    // and the first reading runs as soon as it opens. reading is all this
+    // does: nmcli and bluetoothctl report the state, the drivers and
+    // NetworkManager / bluez work the same either way
+    property bool open: false
+
     // cuántos paneles abiertos, para pedir las listas solo entonces
     property int netWatchers: 0
     property int btWatchers: 0
@@ -276,7 +283,7 @@ QtObject {
 
     readonly property Timer tick: Timer {
         interval: 8000
-        running: true
+        running: root.open
         repeat: true
         triggeredOnStart: true
         onTriggered: {

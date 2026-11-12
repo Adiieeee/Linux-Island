@@ -213,12 +213,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   One reading still runs at start, so whether there's a GPU row is known
   before the island first opens (a row appearing after it opened would
   resize it).
-- The Bluetooth card names the connected device (e.g. "soundcore R50i NC")
-  as soon as it connects, within one network tick (8 s). It used to say
+- The Bluetooth card names the connected device (e.g. "soundcore R50i NC"). It used to say
   **ON** until the Bluetooth panel had been opened once, because the device
   list is only fetched while that panel is open. The regular tick now also
-  runs `bluetoothctl devices Connected`, in the same command as before, so
-  nothing polls more often.
+  runs `bluetoothctl devices Connected`, in the same command as before.
+  That tick (Wi-Fi and Bluetooth state, every 8 s) only runs while the
+  control center is open, like the meters, and its first reading runs as
+  soon as it opens, so the cards are right from the start. It only reads
+  the state: the drivers, NetworkManager and bluez work the same.
 - In the Bluetooth and Wi-Fi panels, a connected device or network is easy to
   spot: its icon sits in a filled disc in the "on" colour (the inverted card
   colour), and its **Connected** line is in the full text colour. Saved and

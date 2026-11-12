@@ -112,8 +112,8 @@ PlasmoidItem {
         value: Plasmoid.configuration.recMode
     }
 
-    // the meters and the volume are only read while the control center is
-    // open (singletons can't see `expanded` either)
+    // the meters, the volume and the Wi-Fi / Bluetooth state are only read
+    // while the control center is open (singletons can't see `expanded`)
     Binding {
         target: SysInfo
         property: "open"
@@ -121,6 +121,11 @@ PlasmoidItem {
     }
     Binding {
         target: Audio
+        property: "open"
+        value: root.expanded
+    }
+    Binding {
+        target: Net
         property: "open"
         value: root.expanded
     }
