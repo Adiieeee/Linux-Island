@@ -131,8 +131,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   and off, the same switch as **Show synced lyrics** in the settings, and
   it's filled white (the inverted pair, like coffee mode) while on. The app
   launcher wasn't used, so nothing opens it any more; `AppLauncher.qml` and
-  `apps.py` stay in the repo. The row reads lyrics, notifications, lock,
-  power (notifications and lock swapped places).
+  `apps.py` stay in the repo.
 - When a song starts playing, the small island shows its title (12 px bold)
   over its artist (10 px, grey) for 4.5 seconds at the lyrics' width, then the lyrics or
   the date. Every song gets this once, with or without lyrics: a track
