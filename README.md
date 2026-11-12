@@ -82,6 +82,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots switches desktop and a click on the empty space beside
   the notch does nothing.
+- Hovering the island no longer shows Plasma's tooltip with the time and
+  the weather. `toolTipMainText` and `toolTipSubText` are set to empty
+  strings on purpose: left unset, Plasma shows the applet's name instead.
 - The small island is shaped like a laptop's or an iPhone X's notch instead
   of a capsule (`NotchShape.qml`): flat along the screen's top edge, round
   bottom corners (`Theme.notchCorner`, 14 px), and a small concave flare at

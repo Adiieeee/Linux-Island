@@ -143,8 +143,11 @@ PlasmoidItem {
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 
-    toolTipMainText: Qt.formatDateTime(new Date(), "HH:mm")
-    toolTipSubText: Weather.ready ? Weather.temp + " · " + Weather.desc : ""
+    // no tooltip: hovering the island used to show the time and weather after
+    // a moment. both empty, explicitly: left unset, Plasma falls back to the
+    // applet's name and still shows one
+    toolTipMainText: ""
+    toolTipSubText: ""
 
     // an Item, not a MouseArea: only the notch takes clicks (CompactPill),
     // not the desktop dots or the empty space beside it
