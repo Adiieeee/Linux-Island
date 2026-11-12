@@ -734,7 +734,11 @@ Right-click the island → **Configure Linux Island…**. Options:
   island → **Configure Linux Island…** → **Keyboard Shortcuts** and set one
   (Meta+Space is free on a default Plasma). The shortcut only flips this
   setting, so in a game it never takes the game's focus; it no longer opens
-  the control center (`activationTogglesExpanded: false`), which opens by
+  the control center. (`activationTogglesExpanded: false` alone isn't
+  enough: Plasma's handler then always expands, "never collapse" rather
+  than "don't open", and live the shortcut flashed the control center and,
+  over a game, the whole panel. `Plasmoid.onActivated` collapses it again
+  in the same signal.) The control center opens by
   moving the pointer onto the notch, the floating one included: hovering it
   opens the control center like the panel's notch, and it stays up while
   the control center is open. (New, still being tested on the desktop.)

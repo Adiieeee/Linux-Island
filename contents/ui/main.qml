@@ -202,6 +202,11 @@ PlasmoidItem {
     // floating notch would vanish under the pointer as the popup opens
     property bool gameNotchHeld: false
     onExpandedChanged: {
+        // Plasma expanding on the shortcut, see Plasmoid.onActivated
+        if (root.expanded && root.activating) {
+            root.expanded = false;
+            return;
+        }
         if (root.expanded)
             return;
         root.gameNotchHeld = false;
@@ -341,9 +346,23 @@ PlasmoidItem {
     // is the suggested one) flips "Keep the notch over games" instead of
     // opening the control center: in a game it only shows or hides the
     // floating notch and never takes the game's focus. the control center
-    // opens by moving the pointer onto a notch
+    // opens by moving the pointer onto a notch.
+    // Plasma can't be told not to expand on activation: its own handler
+    // runs setExpanded(!(expanded && activationTogglesExpanded)), so with
+    // this false it always expands ("never collapse" rather than "don't
+    // open"; first read the other way, and live the shortcut flashed the
+    // control center and, over a game, the whole panel). so an activation
+    // collapses straight back, within the same signal, whichever of
+    // Plasma's handler and this one runs first (activating lets
+    // onExpandedChanged undo an expand that comes after this handler)
     activationTogglesExpanded: false
-    Plasmoid.onActivated: Plasmoid.configuration.notchOverGames = !Plasmoid.configuration.notchOverGames
+    property bool activating: false
+    Plasmoid.onActivated: {
+        Plasmoid.configuration.notchOverGames = !Plasmoid.configuration.notchOverGames;
+        root.activating = true;
+        root.expanded = false;
+        Qt.callLater(() => root.activating = false);
+    }
 
     // an Item, not a MouseArea: only the notch opens the popup, on hover
     // (CompactPill), not the desktop dots or the empty space beside it
