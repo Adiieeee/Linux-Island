@@ -156,8 +156,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   Plasma Integration extension reported the new title after ~470 ms and
   the loaded video (its length) after ~870 ms; Spotify after 10-20 ms.
   The wait is at least 0.4 s (a double click doesn't skip twice) and at
-  most 1.5 s, for a player that ignores the command: in the tests YouTube
-  sometimes did, also when the command was sent straight over DBus.
+  most 1.5 s, for a player that ignores the command. They are also grey
+  while the player says it can't go there (`canGoPrevious` /
+  `canGoNext` false): YouTube only offers previous and next inside a
+  playlist, so on a single video a press did nothing. That was the "next
+  stopped working" in the tests: after the first next, YouTube landed on a
+  video outside the playlist and reported both as unavailable.
 - The media card has shuffle and repeat buttons beside previous and next,
   for players that have them (Spotify; browsers usually don't, and then
   they're hidden). On is white with a dot under the icon, off is the card's

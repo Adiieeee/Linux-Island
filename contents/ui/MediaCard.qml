@@ -590,8 +590,12 @@ Item {
                     radius: height / 2
                     anchors.verticalCenter: parent.verticalCenter
 
-                    // previous and next wait out a skip (root.skipping)
-                    readonly property bool waiting: !isPlay && root.skipping
+                    // previous and next wait out a skip (root.skipping), and are
+                    // off while the player says it can't go there: YouTube only
+                    // offers them inside a playlist (CanGoNext/CanGoPrevious
+                    // false otherwise), and a press then did nothing
+                    readonly property bool unavailable: index === 0 ? !(root.player?.canGoPrevious ?? false) : index === 2 ? !(root.player?.canGoNext ?? false) : false
+                    readonly property bool waiting: !isPlay && (root.skipping || unavailable)
 
                     color: isPlay ? Theme.fg : bma.containsMouse && !waiting ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
                     opacity: root.active ? 1 : 0.38
