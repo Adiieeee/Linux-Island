@@ -741,6 +741,30 @@ processes per second from inside plasmashell. Now volume is checked every
 lists (nearby networks, audio and Bluetooth devices) only while their panel
 is open, tracked with `watchers`.
 
+### An unexplained startup crash (2026-11-12)
+
+The first start after `f439391` (the popup's `HoverHandler` `margin`) and
+`b83c7e5` (no clicks on the notch) crashed twice in a row: the start at
+17:00:13 and KCrash's automatic restart 2 s later, after which KCrash gave
+up and plasmashell stayed down. The next manual `kstart plasmashell` with
+the same code ran fine, as did every start before it that day. Both cores
+died about 2 s into startup, right after Panel Colorizer loaded, with no
+QML warning from this widget in the journal, and with two different
+signatures:
+
+- SIGSEGV in `QV4::Heap::Object::markObjects` under
+  `QV4::MarkStack::drain`, during a JS allocation (the garbage collector
+  met a freed object, like the five crashes above);
+- SIGSEGV in `QQmlPrivate::AOTCompiledContext::getObjectLookup` from an
+  AOT-compiled binding in `liborg_kde_plasmacomponents3.so`, under a deep
+  `QQmlContextData::refreshExpressionsRecursive` (every binding in the
+  engine being re-evaluated).
+
+Nothing in those two commits matches the known causes above, so it's
+logged as unexplained. If it happens again, compare: `coredumpctl list
+plasmashell`, then `coredumpctl info <pid>` for the stack, and the journal
+around it.
+
 ## Power panel
 
 The button with the power icon, in the bottom row of the island, opens a
