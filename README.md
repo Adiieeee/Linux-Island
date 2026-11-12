@@ -130,6 +130,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   when switching between players or songs. A cover seen before used to
   keep the previous cover's colours (YouTube red → Spotify blue → back to
   YouTube stayed blue). See "The player's liquid background".
+- The media card's colour blobs stop moving while the control center is
+  closed and carry on where they were when it opens. Qt kept animating
+  them in the hidden popup, about 144 times a second, for nothing.
 - The media card's progress bars stay visible on dark covers. The part not
   played yet was an opaque dark grey (`containerHighest`), as dark as the
   background a dark or deep-blue cover gives; it's now the text colour at
@@ -1227,6 +1230,15 @@ took effort:
   repainting three gradients every frame for a second, which is extra work
   inside plasmashell. The cover changes instantly anyway, so it isn't
   noticeable.
+- **The blobs pause while the control center is closed.** Qt keeps
+  running animations in a hidden window: measured on this Wayland session,
+  a test window's animation updated ~144 times a second while hidden, the
+  same as while shown. So with any song that has a cover, even paused,
+  plasmashell kept moving the blobs with nobody looking. Their animations
+  now have `paused: !liquido.shown` (the popup window's `visible`). Not
+  `running`: setting that to false and back restarts the swing from its
+  start, so the blobs would jump; `paused` resumes where they stopped
+  (checked: 0 updates while hidden, and the position carries on).
 - **A cover seen before kept the previous cover's colours.** `paleta`'s
   source is `artImg.status === Image.Ready ? artImg : null`, and
   `ImageColors` only recomputes when its source changes. A new cover goes

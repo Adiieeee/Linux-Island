@@ -303,6 +303,13 @@ Item {
             visible: root.artUrl !== ""
             opacity: 1.0
 
+            // the control center's popup is on screen. Qt keeps animating
+            // items in a hidden window (measured: ~144 updates a second
+            // with the window hidden), so the blobs pause while it's closed.
+            // paused, not running: false, which would restart the swing
+            // from its start; paused resumes where it stopped
+            readonly property bool shown: liquido.Window.window?.visible ?? false
+
             component Mancha: Item {
                 id: mancha
                 property color tono: "#808080"
@@ -363,6 +370,7 @@ Item {
                 // los valores son el centro de la mancha, no la esquina (si no, queda siempre afuera)
                 SequentialAnimation on x {
                     running: liquido.visible
+                    paused: !liquido.shown
                     loops: Animation.Infinite
                     NumberAnimation {
                         to: mancha.hastaX - mancha.width / 2
@@ -377,6 +385,7 @@ Item {
                 }
                 SequentialAnimation on y {
                     running: liquido.visible
+                    paused: !liquido.shown
                     loops: Animation.Infinite
                     NumberAnimation {
                         to: mancha.hastaY - mancha.height / 2
