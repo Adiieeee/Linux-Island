@@ -566,7 +566,7 @@ Item {
             Text {
                 width: parent.width
                 text: root.player?.artist ?? ""
-                color: Theme.mediaDim
+                color: Qt.alpha(Theme.fg, Theme.mediaArtistAlpha)
                 font.family: Theme.font
                 font.pixelSize: Theme.bodySmall
                 elide: Text.ElideRight

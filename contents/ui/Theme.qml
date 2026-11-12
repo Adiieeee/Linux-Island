@@ -33,8 +33,13 @@ QtObject {
     readonly property color fgFaint: mezcla(fg, bg, 0.5)
     readonly property color outline: mezcla(bg, fg, 0.165)
     // the media card keeps the original dim grey (#9A9A9A with the defaults);
-    // the brighter text greys above are not meant for it
+    // the brighter text greys above are not meant for it. not for the artist
+    // line though, see mediaArtistAlpha
     readonly property color mediaDim: mezcla(fg, bg, 0.396)
+    // the media card's artist line: the text colour at this opacity. an
+    // opaque grey went muddy and faint over a coloured cover (orange, light);
+    // translucent white takes on the card's colour and stays readable
+    readonly property real mediaArtistAlpha: 0.85
 
     // único color del sistema, solo estados críticos
     readonly property color alert: Cfg.colorAlerta

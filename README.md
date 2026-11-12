@@ -130,6 +130,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   when switching between players or songs. A cover seen before used to
   keep the previous cover's colours (YouTube red → Spotify blue → back to
   YouTube stayed blue). See "The player's liquid background".
+- The media card's artist name is brighter: the text colour at 85 %
+  (`Theme.mediaArtistAlpha`) instead of the opaque `#9A9A9A`, which went
+  faint over orange, red and light covers. Translucent white takes on the
+  card's colour, so it stays readable on any cover and still sits below
+  the title (smaller and not bold). Compared on dark, blue, red, orange and
+  light covers against `fgDim` and 75 %. Times and idle icons keep
+  `mediaDim`.
 - The media card's colour blobs stop moving while the control center is
   closed and carry on where they were when it opens. Qt kept animating
   them in the hidden popup, about 144 times a second, for nothing.
@@ -361,9 +368,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   placeholder) uses the brighter `fgDim`, like the secondary text in the main
   view. The recording view does the same for its unchecked toggle icons and
   the "Saved to …" line, and so does the **CALENDAR** hint under the date
-  (full white on hover). The media card is left as it was: its artist line,
-  times and placeholder icon use their own `Theme.mediaDim` token, which keeps
-  the original `#9A9A9A`.
+  (full white on hover). The media card is left as it was: its times and
+  placeholder icon use their own `Theme.mediaDim` token, which keeps the
+  original `#9A9A9A` (its artist line did too, until it was brightened, see
+  below).
 - The RAM meter shows how much is used next to the percentage, e.g.
   "68%  10.4", in the column where CPU and GPU show their temperature, so
   the three bars stay the same length. The number is in GiB (1024³ bytes),
