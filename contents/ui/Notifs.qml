@@ -51,10 +51,22 @@ QtObject {
         return root.model.data(root.model.index(row, 0), role);
     }
 
+    // a body with markup comes from Plasma as an XHTML fragment ("<?xml
+    // version="1.0"?><html>…"); shown as is, ZapZap's messages read as that
+    // code. the island shows plain text: tags dropped, line breaks kept,
+    // entities turned back into characters (&amp; last). a body without that
+    // wrapper is already plain text and stays as it is ("a < b > c")
+    function plain(text): string {
+        const s = String(text ?? "");
+        if (!/^\s*<\?xml|<html[\s>]/i.test(s))
+            return s.trim();
+        return s.replace(/<\?xml[^>]*\?>/gi, "").replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|div|li)>/gi, "\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&#0*39;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    }
+
     function capture(row: int): void {
         const id = root.at(row, NM.Notifications.IdRole) ?? 0;
         const summary = root.at(row, NM.Notifications.SummaryRole) ?? "";
-        const body = root.at(row, NM.Notifications.BodyRole) ?? "";
+        const body = root.plain(root.at(row, NM.Notifications.BodyRole));
         const key = summary + "\u001f" + body;
         if (id && root.seen[id] === key)
             return;

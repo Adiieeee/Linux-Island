@@ -103,6 +103,7 @@ Item {
                     anchors.right: detailText.left
                     anchors.rightMargin: detailText.text !== "" ? 8 : 0
                     text: entry.title
+                    textFormat: Text.PlainText
                     color: Theme.fg
                     font.family: Theme.font
                     font.pixelSize: Theme.bodySmall
@@ -127,6 +128,7 @@ Item {
             Text {
                 width: parent.width
                 text: entry.text
+                textFormat: Text.PlainText
                 color: Theme.fgVariant
                 font.family: Theme.font
                 font.pixelSize: Theme.labelSmall

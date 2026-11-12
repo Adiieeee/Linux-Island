@@ -313,7 +313,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   browser's notification the site or extension behind it ("LINE"). The
   list scrolls with the wheel or a drag once it's taller than 300 px, with
   the same thin scroll bar as the Wi-Fi list; before, it had no scrolling
-  and ran past the island's bottom. The **CLEAR** button is as bright as **MUTE**
+  and ran past the island's bottom. A body with formatting (bold, links)
+  comes from Plasma as an XHTML fragment that starts with
+  `<?xml version="1.0"?>`; shown as is, ZapZap's messages read as that
+  code. The copy keeps plain text instead: tags dropped, line breaks kept,
+  `&amp;` and friends turned back into characters. A body without that
+  wrapper is already plain and stays as it is. The **CLEAR** button is as bright as **MUTE**
   next to it; with nothing to clear it used to drop to 40% opacity and
   looked switched off. It still does nothing then.
 - The strip that showed a new notification at the bottom of the control
