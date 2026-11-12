@@ -65,6 +65,11 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   text and notes had more room above than below (♫ 16 px over 14 at the
   screen's scale, text 13 over 12 in a 34 px notch). The album art also
   sits 1 px right of its inset (`Theme.artNudge`).
+- The notch is centred on the screen even in a shared panel, where the
+  spacers beside it only centre it roughly (it sat 10-12 px left and moved
+  when the Caps Lock icon appeared). See "Between two panel spacers it
+  isn't exactly centred" below. The control center still opens under the
+  widget's slot, so it can be that far off the notch.
 - Only the notch opens the control center. The compact representation is a
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots or the empty space beside the notch does nothing.
@@ -456,7 +461,17 @@ hidden Pager or moving the hidden Panel Colorizer changed nothing; moving a
 widget between the groups didn't make the spacers recompute at all. The
 island itself is symmetric (dots and clock 12–13 px from the notch, the
 notch in the middle of the widget). A panel of its own, with the other
-widgets in a left and a right panel, is centred by Plasma exactly.
+widgets in a left and a right panel, is centred by Plasma exactly, but
+splits the panel (and a blur behind it) in three. So the widget centres
+itself instead (`CompactPill.centreError`): it measures how far its slot's
+centre is from the panel window's (the screen's, for a full-width panel),
+moves the notch, dots and clock back by that much, and adds the same room
+on both sides. The slot's centre doesn't depend on the widget's own width
+(the spacers grow or shrink evenly), so one measurement holds; it's taken
+again 150 ms after the slot moves or resizes (a tray icon appearing, the
+island widening for lyrics), with no polling. Plasma still places the
+control center under the slot, so the popup can sit those 10-12 px off the
+notch.
 
 ## Growing in place: tried, didn't work
 
