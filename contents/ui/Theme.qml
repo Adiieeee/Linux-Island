@@ -121,10 +121,6 @@ QtObject {
     readonly property int marqueeHold: 700
     // how long the panel island shows a new song's title and artist
     readonly property int peekDuration: 4500
-    // how long the pointer rests on the notch before the control center
-    // opens: 300 felt slow; 100 still ignores a quick pass across the top
-    // of the screen
-    readonly property int hoverOpenDelay: 100
     // how long the pointer may be off both the notch and the control center
     // before it closes: time to cross from the notch into the popup, or to
     // slip past its edge and come back

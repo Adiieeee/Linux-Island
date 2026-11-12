@@ -25,8 +25,8 @@ Item {
 
     // a click on the notch (not on the sides): main.qml toggles the popup
     signal activated
-    // the pointer rested on the notch for Theme.hoverOpenDelay: main.qml
-    // opens the popup (only opens, never closes)
+    // the pointer entered the notch: main.qml opens the popup (only opens,
+    // never closes)
     signal openRequested
     // the pointer is on the notch: main.qml keeps the control center open
     readonly property bool notchHovered: notchMa.containsMouse
@@ -446,26 +446,16 @@ Item {
         }
 
         // only the notch opens the popup; the dots and the empty sides don't.
-        // resting on it opens it, a click toggles it. the timer starts on
-        // entering, so after a click closes the popup the pointer, still on
-        // the notch, doesn't open it again
+        // entering it opens it at once, a click toggles it. only entering
+        // opens, so after a click closes the popup the pointer, still on the
+        // notch, doesn't open it again
         MouseArea {
             id: notchMa
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onEntered: hoverOpen.restart()
-            onExited: hoverOpen.stop()
-            onClicked: {
-                hoverOpen.stop();
-                root.activated();
-            }
-
-            Timer {
-                id: hoverOpen
-                interval: Theme.hoverOpenDelay
-                onTriggered: root.openRequested()
-            }
+            onEntered: root.openRequested()
+            onClicked: root.activated()
         }
     }
 }

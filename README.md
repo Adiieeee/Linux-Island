@@ -82,11 +82,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   plain `Item` and `CompactPill` puts the click area on the notch alone, so
   a click on the dots switches desktop and a click on the empty space beside
   the notch does nothing.
-- Resting the pointer on the notch for 100 ms opens the control center, no
-  click needed (`Theme.hoverOpenDelay`; 300 ms felt slow, and 100 still
-  ignores a quick pass across the top of the screen). Hovering only opens it; a click on the
-  notch still toggles it, and after a click closes it the pointer, still
-  on the notch, doesn't open it again, since the wait starts on entering.
+- Moving the pointer onto the notch opens the control center at once, no
+  click needed. It started with a 300 ms wait, then 100 ms; both felt slow.
+  Hovering only opens it; a click on the notch still toggles it (so with
+  the popup already open from hovering, a click closes it), and after a
+  click closes it the pointer, still on the notch, doesn't open it again,
+  since only entering the notch opens it.
 - The control center closes on its own once the pointer has been off both
   the notch and the popup for 400 ms (`Theme.hoverCloseDelay`), however it
   was opened. The wait leaves time to cross from the notch into the popup
