@@ -238,7 +238,9 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   that text; one that only expires or is read stays as it is. The source
   model also takes every urgency and the ones that arrived during Do Not
   Disturb. Up to 100 are kept, in memory, so a plasmashell restart starts
-  from what Plasma still has.
+  from what Plasma still has. The **CLEAR** button is as bright as **MUTE**
+  next to it; with nothing to clear it used to drop to 40% opacity and
+  looked switched off. It still does nothing then.
 - The strip that showed a new notification at the bottom of the control
   center for 5 seconds is gone. Plasma's own popups already show every
   notification, and the strip, which grew the island by 62 px while it

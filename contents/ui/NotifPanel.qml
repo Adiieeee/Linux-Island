@@ -121,8 +121,9 @@ Item {
                 width: (parent.width - 8) * 0.38
                 height: 46
                 radius: Theme.shapeLg
+                // as bright as MUTE next to it, also with nothing to clear (then
+                // it just doesn't react): at 40% opacity it looked switched off
                 color: clearMa.containsMouse ? Theme.surfaceHigh : Theme.surfaceAlt
-                opacity: popup.count > 0 ? 1 : 0.4
 
                 Behavior on color {
                     ColorAnimation {
