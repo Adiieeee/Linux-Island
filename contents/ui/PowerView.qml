@@ -138,10 +138,11 @@ Item {
                             text: op.titulo
                             color: Theme.fg
                             font.family: Theme.font
-                            // 13 px, like the WI-FI / BLUETOOTH header
+                            // 13 px, like the WI-FI / BLUETOOTH header. sentence
+                            // case ("Shut down"), so no labelSpacing: that's
+                            // for all-caps labels
                             font.pixelSize: Theme.bodyMedium
                             font.weight: Font.Medium
-                            font.letterSpacing: Theme.labelSpacing
                             elide: Text.ElideRight
                         }
 
