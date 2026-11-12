@@ -343,36 +343,28 @@ Item {
                         }
 
                         // ── weather, at the header's right end ──
-                        // the condition's icon, then the temperature in the
-                        // clock's digits (the seconds' size) over the
-                        // description, styled like the date's CALENDAR line.
-                        // it takes what's left of the date button and the
+                        // top line: the temperature in the clock's digits
+                        // (the seconds' size) with the condition's icon at
+                        // the far right; under it the description, styled
+                        // like the date's CALENDAR line. both lines are
+                        // flush right, as the clock is flush left. it takes
+                        // what's left of the date button and the
                         // description elides past that; hidden until
                         // wttr.in has answered (offline it stays empty)
-                        Row {
+                        Column {
                             id: tiempo
                             readonly property real room: parent.width - (fechaBtn.x + fechaBtn.width) - 12
-                            // flush right, as the clock is flush left
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: 8
+                            spacing: 1
                             visible: Weather.ready && tiempo.room > 60
 
-                            Text {
-                                id: tiempoIcon
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: Weather.icon
-                                color: Theme.fg
-                                font.family: Theme.fontIcons
-                                font.pixelSize: 28
-                            }
-
-                            Column {
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: 1
+                            Row {
+                                anchors.right: parent.right
+                                spacing: 6
 
                                 Text {
-                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
                                     text: Weather.temp
                                     color: Theme.fg
                                     font.family: Theme.fontDots
@@ -382,16 +374,24 @@ Item {
                                 }
 
                                 Text {
-                                    anchors.right: parent.right
-                                    width: Math.min(implicitWidth, tiempo.room - tiempoIcon.width - tiempo.spacing)
-                                    horizontalAlignment: Text.AlignRight
-                                    text: Weather.desc.trim().toUpperCase()
-                                    color: Theme.fgDim
-                                    font.family: Theme.font
-                                    font.pixelSize: Theme.labelSmall
-                                    font.letterSpacing: Theme.labelSpacing
-                                    elide: Text.ElideRight
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: Weather.icon
+                                    color: Theme.fg
+                                    font.family: Theme.fontIcons
+                                    font.pixelSize: Theme.displaySmall
                                 }
+                            }
+
+                            Text {
+                                anchors.right: parent.right
+                                width: Math.min(implicitWidth, tiempo.room)
+                                horizontalAlignment: Text.AlignRight
+                                text: Weather.desc.trim().toUpperCase()
+                                color: Theme.fgDim
+                                font.family: Theme.font
+                                font.pixelSize: Theme.labelSmall
+                                font.letterSpacing: Theme.labelSpacing
+                                elide: Text.ElideRight
                             }
                         }
                     }
