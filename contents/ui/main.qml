@@ -4,6 +4,7 @@ import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
 import org.kde.taskmanager as TaskManager
 import "."
+import "game.js" as Game
 
 // isla dinámica para plasma: píldora en el panel + panel emergente al clic
 PlasmoidItem {
@@ -167,6 +168,32 @@ PlasmoidItem {
         groupMode: TaskManager.TasksModel.GroupDisabled
     }
 
+    // ── a fullscreen window on the island's screen ──
+    // for "Keep the notch over games": the active window is fullscreen (a
+    // game, a video) on the screen the island's panel is on. read from the
+    // same tasks model, recomputed when the active window or any window's
+    // state changes (a binding can't see the model's dataChanged)
+    property bool gameOnIsland: false
+
+    function refreshGame() {
+        const i = tasks.activeTask;
+        const island = root.compactRepresentationItem?.screenRect ?? null;
+        root.gameOnIsland = i.valid && Game.gameOnIsland(tasks.data(i, TaskManager.AbstractTasksModel.IsFullScreen), tasks.data(i, TaskManager.AbstractTasksModel.ScreenGeometry), island);
+    }
+
+    Connections {
+        target: tasks
+        function onActiveTaskChanged() {
+            root.refreshGame();
+        }
+        function onDataChanged() {
+            root.refreshGame();
+        }
+        function onCountChanged() {
+            root.refreshGame();
+        }
+    }
+
     // the window id of whoever had the keyboard when hover opened the popup;
     // empty when there's nothing to hand back
     property string keyboardOwner: ""
@@ -247,6 +274,12 @@ PlasmoidItem {
 
         // read by the close timer above
         readonly property bool notchHovered: compactPill.notchHovered
+
+        // the island's screen, for refreshGame() (and, later, the floating
+        // notch's window): its rect in the virtual desktop's logical
+        // coordinates, the same space as TaskManager's ScreenGeometry
+        readonly property rect screenRect: Qt.rect(compact.Screen.virtualX, compact.Screen.virtualY, compact.Screen.width, compact.Screen.height)
+        onScreenRectChanged: root.refreshGame()
 
         // Plasma's panel wrapper (CompactApplet.qml) marks an open applet
         // with its expandedFeedback item: the theme's "active tab" frame,
