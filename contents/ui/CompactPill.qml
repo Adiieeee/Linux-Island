@@ -205,8 +205,11 @@ Item {
     readonly property real leftSide: root.ear + (root.media ? root.inset + root.tile + root.gap : root.padding)
     readonly property real rightSide: root.ear + (root.media ? root.edge + root.tile + root.gap : root.padding)
 
-    // the notch itself, animated as its content changes
-    property real notchWidth: root.leftSide + root.middleWidth + root.rightSide
+    // the notch itself, animated as its content changes; notchTarget is
+    // where it's heading (the floating notch's window takes the larger of
+    // the two, so a growing notch isn't clipped)
+    readonly property real notchTarget: root.leftSide + root.middleWidth + root.rightSide
+    property real notchWidth: root.notchTarget
 
     Behavior on notchWidth {
         NumberAnimation {
@@ -222,25 +225,34 @@ Item {
     // one gets empty space at its outer end), so the notch, and the popup
     // that opens under the whole widget, stay in the middle of the screen
     readonly property int sideGap: 12
-    readonly property real sideWidth: Math.max(dots.implicitWidth, clock.implicitWidth) + root.sideGap
+    readonly property real sideWidth: root.notchOnly ? 0 : Math.max(dots.implicitWidth, clock.implicitWidth) + root.sideGap
+
+    // just the notch, without the dots and the clock: the copy that floats
+    // over a fullscreen game (main.qml). the two aren't even created then,
+    // so there's no second TasksModel or ticking clock
+    property bool notchOnly: false
 
     implicitWidth: 2 * root.sideWidth + root.notchWidth
     implicitHeight: Theme.collapsedHeight
 
-    Workspaces {
+    Loader {
         id: dots
+        active: !root.notchOnly
         anchors.right: capsule.left
         anchors.rightMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: -Theme.dotsLift
+        sourceComponent: Workspaces {}
     }
 
-    Clock {
+    Loader {
         id: clock
+        active: !root.notchOnly
         anchors.left: capsule.right
         anchors.leftMargin: root.sideGap
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: -Theme.clockLift
+        sourceComponent: Clock {}
     }
 
     // art and waveform come in and out together with the width
