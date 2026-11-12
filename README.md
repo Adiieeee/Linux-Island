@@ -1270,10 +1270,16 @@ took effort:
   a test window's animation updated ~144 times a second while hidden, the
   same as while shown. So with any song that has a cover, even paused,
   plasmashell kept moving the blobs with nobody looking. Their animations
-  now have `paused: !liquido.shown` (the popup window's `visible`). Not
-  `running`: setting that to false and back restarts the swing from its
-  start, so the blobs would jump; `paused` resumes where they stopped
-  (checked: 0 updates while hidden, and the position carries on).
+  are always `running` and have `paused: !liquido.visible ||
+  !liquido.shown` (no cover, or the popup window isn't `visible`). Not
+  `running: false`: that restarts the swing from its start, so the blobs
+  would jump; `paused` resumes where they stopped. And not `running` for
+  the cover with `paused` for the popup, the first version: Qt ignores
+  `paused` while an animation isn't running ("setPaused() cannot be used
+  when animation isn't running" in the log), so a cover arriving with the
+  popup closed set the blobs going unseen. Checked offscreen through every
+  combination: 0 updates whenever there's no cover or the popup is closed,
+  and the position carries on.
 - **A cover seen before kept the previous cover's colours.** `paleta`'s
   source is `artImg.status === Image.Ready ? artImg : null`, and
   `ImageColors` only recomputes when its source changes. A new cover goes
