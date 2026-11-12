@@ -2,7 +2,7 @@ import QtQuick
 import org.kde.plasma.plasma5support as P5Support
 import "."
 
-// panel de apagado: sesión, suspender, hibernar, reiniciar, apagar, bloquear
+// panel de apagado: sesión, suspender, hibernar, reiniciar, apagar
 // todo por dbus a plasma, no systemctl a mano: cierra sesión ordenado, avisa a las apps
 // reiniciar/apagar piden confirmar en la misma fila, un clic de más no tira la máquina
 Item {
@@ -284,13 +284,6 @@ Item {
                         id: dentro
                         width: lista.width
                         spacing: 6
-
-            Opcion {
-                icono: "lock"
-                titulo: Cfg.t("BLOQUEAR")
-                detalle: Cfg.t("Pide la contraseña al volver")
-                comando: "busctl --user call org.freedesktop.ScreenSaver /ScreenSaver org.freedesktop.ScreenSaver Lock"
-            }
 
             Opcion {
                 icono: "logout"

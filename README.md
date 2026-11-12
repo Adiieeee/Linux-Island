@@ -425,7 +425,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   new inhibition about 5 seconds after it's requested.
 - The lock button in the bottom row works. It called `qdbus`, which Plasma 6
   systems don't ship under that name (only `qdbus6`), so it silently did
-  nothing. It now uses `busctl`, like the lock entry in the power panel. Clicking or scrolling the desktop dots
+  nothing. It now uses `busctl`. Clicking or scrolling the desktop dots
   had the same `qdbus` problem and now sets KWin's `current` desktop with
   `busctl set-property`.
 - On the recording card in the main view, the round button starts recording
@@ -455,6 +455,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 - When Spectacle stops recording on its own (it failed to start, or it was
   stopped from its tray icon), the island notices and goes back to idle
   instead of counting forever.
+- The power panel has no **Lock** entry: the bottom row already has a lock
+  button.
 
 ## Install
 
@@ -792,7 +794,7 @@ around it.
 ## Power panel
 
 The button with the power icon, in the bottom row of the island, opens a
-panel with: lock, log out, sleep, hibernate, restart and shut down. Sleep and
+panel with: log out, sleep, hibernate, restart and shut down. Sleep and
 hibernate only show up if the machine supports them (checked with
 `CanSuspend` and `CanHibernate` on `org.freedesktop.PowerManagement`).
 
@@ -803,8 +805,7 @@ machine down.
 
 Nothing uses `systemctl`. Everything goes through Plasma over DBus:
 `org.kde.Shutdown` for log out, restart and shut down,
-`org.freedesktop.PowerManagement` for sleep and hibernate, and
-`org.freedesktop.ScreenSaver` for lock. That's what KDE's own power menu
+and `org.freedesktop.PowerManagement` for sleep and hibernate. That's what KDE's own power menu
 does, so programs get a chance to save and the session closes in order
 instead of everything being killed at once.
 

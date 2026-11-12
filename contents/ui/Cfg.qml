@@ -136,8 +136,6 @@ QtObject {
 
             // apagado
             "APAGADO_PANEL": ["APAGADO", "POWER"],
-            "BLOQUEAR": ["BLOQUEAR", "LOCK"],
-            "Pide la contraseña al volver": ["Pide la contraseña al volver", "Asks for the password on return"],
             "CERRAR SESIÓN": ["CERRAR SESIÓN", "LOG OUT"],
             "Cierra los programas abiertos": ["Cierra los programas abiertos", "Closes the open programs"],
             "SUSPENDER": ["SUSPENDER", "SLEEP"],
