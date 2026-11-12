@@ -47,6 +47,10 @@
     <entry name="tintIsland" type="Bool">
       <default>false</default>
     </entry>
+    <!-- Float the notch above a fullscreen window (a game, a video) on the island's screen -->
+    <entry name="notchOverGames" type="Bool">
+      <default>false</default>
+    </entry>
 
     <!-- Ciudad para el clima; vacío = detectar sola por IP -->
     <entry name="weatherCity" type="String">

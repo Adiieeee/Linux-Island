@@ -64,6 +64,11 @@ PlasmoidItem {
     }
     Binding {
         target: Cfg
+        property: "notchOverGames"
+        value: Plasmoid.configuration.notchOverGames
+    }
+    Binding {
+        target: Cfg
         property: "weatherCity"
         value: Plasmoid.configuration.weatherCity
     }

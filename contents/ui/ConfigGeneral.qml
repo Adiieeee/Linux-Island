@@ -18,6 +18,7 @@ Kirigami.FormLayout {
     property bool cfg_showMini: true
     property bool cfg_showLyrics: true
     property bool cfg_tintIsland: false
+    property bool cfg_notchOverGames: false
     property string cfg_weatherCity: ""
 
     // del combo en vivo, no de Cfg.esp (eso es el idioma ya aplicado, no el que se está eligiendo)
@@ -168,6 +169,21 @@ Kirigami.FormLayout {
     QQC2.Label {
         Kirigami.FormData.label: ""
         text: page.esp ? "Con los colores de la carátula, como la tarjeta del reproductor en el centro de control. Apagado: negra, como el centro de control." : "In the cover's colours, like the media card in the control center. Off: black, like the control center."
+        opacity: 0.7
+        wrapMode: Text.WordWrap
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 20
+    }
+
+    QQC2.CheckBox {
+        Kirigami.FormData.label: page.esp ? "Pantalla completa:" : "Fullscreen:"
+        text: page.esp ? "Mantener la muesca sobre los juegos" : "Keep the notch over games"
+        checked: page.cfg_notchOverGames
+        onToggled: page.cfg_notchOverGames = checked
+    }
+
+    QQC2.Label {
+        Kirigami.FormData.label: ""
+        text: page.esp ? "Mientras un juego o un video está a pantalla completa en la pantalla de la isla, la muesca flota encima, así la letra sigue a la vista." : "While a game or a video is fullscreen on the island's screen, the notch floats above it, so the lyrics stay in view."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20

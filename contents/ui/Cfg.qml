@@ -49,6 +49,9 @@ QtObject {
     // the panel island in the album art's colours, like the media card; off
     // = black, like the control center
     property bool tintIsland: false
+    // the notch floats above a fullscreen window on the island's screen, so
+    // the lyrics stay in view while gaming (main.qml's overlay window)
+    property bool notchOverGames: false
 
     // ciudad para el clima; vacío = wttr.in detecta sola por ip
     property string weatherCity: ""
