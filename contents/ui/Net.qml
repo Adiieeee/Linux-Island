@@ -20,6 +20,11 @@ QtObject {
 
     // ── bluetooth ──
     property bool btEnabled: false
+    // connected devices ({mac, name}), read on every tick: the Bluetooth
+    // card's name. btKnown below is only fetched while the panel is open,
+    // so the card read "ON" next to a connected device until the panel had
+    // been opened once
+    property var btConnected: []
     property var btKnown: []
     property var btNearby: []
 
@@ -34,7 +39,7 @@ QtObject {
     // cmd en curso en runner, para ignorar respuestas de intentos ya cortados
     property string activeCmd: ""
 
-    readonly property string baseCmd: 'nmcli -t -f TYPE,STATE,CONNECTION device; echo ---; nmcli radio wifi; echo ---; bluetoothctl show | grep Powered'
+    readonly property string baseCmd: 'nmcli -t -f TYPE,STATE,CONNECTION device; echo ---; nmcli radio wifi; echo ---; bluetoothctl show | grep Powered; echo ---; bluetoothctl devices Connected'
 
     readonly property string netListCmd: 'nmcli -t -f IN-USE,SSID,SIGNAL,SECURITY device wifi list; echo ---; nmcli -t -f NAME,TYPE connection show'
 
@@ -78,6 +83,7 @@ QtObject {
 
         root.wifiEnabled = parts[1].trim() === "enabled";
         root.btEnabled = /Powered:\s*yes/.test(parts[2]);
+        root.btConnected = root.btEnabled && parts.length > 3 ? root.parseDevices(parts[3]) : [];
     }
 
     function readNetList(text) {
@@ -123,8 +129,10 @@ QtObject {
             return;
 
         const on = {};
-        for (const d of root.parseDevices(parts[1]))
+        const connectedNow = root.parseDevices(parts[1]);
+        for (const d of connectedNow)
             on[d.mac] = true;
+        root.btConnected = connectedNow;
 
         const paired = {};
         const known = [];

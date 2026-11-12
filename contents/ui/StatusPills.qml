@@ -113,13 +113,8 @@ Row {
     Rectangle {
         id: btPill
         readonly property bool on: Net.btEnabled
-        readonly property var connectedDevice: {
-            const devs = Net.btKnown;
-            for (var i = 0; i < devs.length; i++)
-                if (devs[i].connected)
-                    return devs[i];
-            return null;
-        }
+        // read on every network tick, not only with the Bluetooth panel open
+        readonly property var connectedDevice: Net.btConnected.length > 0 ? Net.btConnected[0] : null
 
         width: root.pillWidth
         height: 52

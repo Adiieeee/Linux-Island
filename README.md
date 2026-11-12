@@ -183,6 +183,12 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   monitors by model name.
   Drag or scroll to adjust. The slider never goes below 1%, because 0 switches
   some backlights off completely.
+- The Bluetooth card names the connected device (e.g. "soundcore R50i NC")
+  as soon as it connects, within one network tick (8 s). It used to say
+  **ON** until the Bluetooth panel had been opened once, because the device
+  list is only fetched while that panel is open. The regular tick now also
+  runs `bluetoothctl devices Connected`, in the same command as before, so
+  nothing polls more often.
 - In the Bluetooth and Wi-Fi panels, a connected device or network is easy to
   spot: its icon sits in a filled disc in the "on" colour (the inverted card
   colour), and its **Connected** line is in the full text colour. Saved and
