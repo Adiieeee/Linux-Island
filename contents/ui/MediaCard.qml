@@ -269,6 +269,13 @@ Item {
         source: artImg.status === Image.Ready ? artImg : null
     }
 
+    // see artImg.onSourceChanged. an uncached cover goes through Loading, so
+    // the source binding above changes and recomputes on its own
+    function refreshTones() {
+        if (artImg.status === Image.Ready)
+            paleta.update();
+    }
+
     // tono real de la carátula (palette), no highlight/average que a veces inventan un color que no está
     readonly property var tonos: {
         const p = paleta.palette;
@@ -490,6 +497,12 @@ Item {
                 sourceSize.width: 92
                 sourceSize.height: 92
                 visible: false
+                // a cover already in Qt's image cache loads at once and status
+                // stays Ready, so paleta's source binding never changes and
+                // it kept the previous cover's colours (YouTube → Spotify →
+                // YouTube stayed blue). recompute after every new picture;
+                // callLater runs once the new source has loaded
+                onSourceChanged: Qt.callLater(root.refreshTones)
             }
 
             // shadowedimage redondea de verdad, un rectangle+clip la dejaba cuadrada

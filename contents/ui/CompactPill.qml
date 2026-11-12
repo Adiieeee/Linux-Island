@@ -56,11 +56,20 @@ Item {
         sourceSize.width: 92
         sourceSize.height: 92
         visible: false
+        // a cached cover loads at once and status stays Ready, so paleta's
+        // source never changes and it kept the previous cover's colours.
+        // recompute after every new picture (as in MediaCard)
+        onSourceChanged: Qt.callLater(root.refreshTones)
     }
 
     Kirigami.ImageColors {
         id: paleta
         source: artImg.status === Image.Ready ? artImg : null
+    }
+
+    function refreshTones() {
+        if (artImg.status === Image.Ready)
+            paleta.update();
     }
 
     // the palette's real colours by area, like MediaCard.tonos (highlight and

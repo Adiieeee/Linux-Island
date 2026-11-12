@@ -126,6 +126,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   Plasma's `visible: opacity > 0` binding. Other widgets keep their mark.
   If a Plasma update renames the property, nothing is found and the line
   just comes back.
+- The media card's colours, and the panel island's tint, follow the cover
+  when switching between players or songs. A cover seen before used to
+  keep the previous cover's colours (YouTube red → Spotify blue → back to
+  YouTube stayed blue). See "The player's liquid background".
 - The control center always opens on its main view. It used to come back
   on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
   The overlay is reset once the popup window is hidden, so the switch
@@ -1218,6 +1222,19 @@ took effort:
   repainting three gradients every frame for a second, which is extra work
   inside plasmashell. The cover changes instantly anyway, so it isn't
   noticeable.
+- **A cover seen before kept the previous cover's colours.** `paleta`'s
+  source is `artImg.status === Image.Ready ? artImg : null`, and
+  `ImageColors` only recomputes when its source changes. A new cover goes
+  Loading → Ready, so the source flips to `null` and back and it
+  recomputes. But a cover already in Qt's image cache loads at once and
+  `status` stays Ready the whole time: the source stays the same `artImg`
+  object and nothing recomputes. Switching players YouTube (red) → Spotify
+  (blue) → YouTube stayed blue; reproduced offscreen with red, blue and
+  green test covers. Now `artImg.onSourceChanged` calls `paleta.update()`
+  through `Qt.callLater` (by then the new source has loaded). The panel
+  island's tint (`CompactPill`) had the same bug and the same fix. While
+  the control center is hidden the colours can't be read at all
+  (`ImageColors` grabs the image); Kirigami catches up when it opens.
 
 ## Lyrics in the panel island
 
