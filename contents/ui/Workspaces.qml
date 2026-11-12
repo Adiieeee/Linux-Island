@@ -10,10 +10,9 @@ import "."
 Item {
     id: root
 
-    // clicking a dot switches to that desktop. the wheel, which steps
-    // through them, stays off: only clicking was asked for
+    // clicking a dot switches to that desktop, the wheel steps through them
     property bool clickable: true
-    property bool scrollable: false
+    property bool scrollable: true
 
     implicitWidth: dots.implicitWidth
     implicitHeight: dots.implicitHeight
@@ -116,11 +115,27 @@ Item {
     }
 
     // rueda sobre toda la fila, sin botones aceptados así los clics siguen llegando a cada punto
+    // one step per wheel notch (120 units), not per event: a touchpad sends
+    // many small events per swipe and would run through every desktop.
+    // same height as a dot's click area
     MouseArea {
         anchors.fill: parent
-        anchors.margins: -4
+        anchors.leftMargin: -4
+        anchors.rightMargin: -4
+        anchors.topMargin: -8
+        anchors.bottomMargin: -8
         enabled: root.scrollable
         acceptedButtons: Qt.NoButton
-        onWheel: wheel => root.step(wheel.angleDelta.y > 0 ? -1 : 1)
+
+        property real pending: 0
+
+        onWheel: wheel => {
+            pending += wheel.angleDelta.y;
+            while (Math.abs(pending) >= 120) {
+                const up = pending > 0;
+                root.step(up ? -1 : 1);
+                pending += up ? -120 : 120;
+            }
+        }
     }
 }

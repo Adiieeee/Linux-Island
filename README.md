@@ -45,7 +45,10 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   empty one a ring. Clicking a dot switches to that desktop
   (`Workspaces.clickable`); each dot's hit area is 24 px tall and reaches
   halfway to its neighbours, so the small dots are easy to hit. The wheel
-  doesn't step through desktops (`Workspaces.scrollable` is off). Both sides of the notch take the same width, the wider of
+  over the dots steps one desktop per notch, up for the left one and down
+  for the right one, stopping at the ends (`Workspaces.scrollable`). It
+  counts 120 units of wheel travel per step, not one step per event, since
+  a touchpad sends many small events per swipe. Both sides of the notch take the same width, the wider of
   the two plus a 12 px gap, so the notch and the popup under it stay in the
   middle of the screen.
 - The clock moved out of the notch to its right, on the panel, in white
@@ -363,7 +366,7 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   systems don't ship under that name (only `qdbus6`), so it silently did
   nothing. It now uses `busctl`, like the lock entry in the power panel. Clicking or scrolling the desktop dots
   had the same `qdbus` problem and now sets KWin's `current` desktop with
-  `busctl set-property` (clicking is on, the wheel is still off).
+  `busctl set-property`.
 - On the recording card in the main view, the round button starts recording
   right away (and stops it while recording). The rest of the card opens the
   recording view. Before, the whole card opened the view first, so starting
