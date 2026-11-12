@@ -191,7 +191,6 @@ PlasmoidItem {
             height: compact.height
             horizontal: compact.horizontal
             bottomEdge: Plasmoid.location === PlasmaCore.Types.BottomEdge
-            onActivated: root.expanded = !root.expanded
             onOpenRequested: root.expanded = true
         }
     }

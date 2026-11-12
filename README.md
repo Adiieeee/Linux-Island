@@ -79,15 +79,15 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   screen's scale, text 13 over 12 in a 34 px notch). The album art also
   sits 1 px right of its inset (`Theme.artNudge`).
 - Only the notch opens the control center. The compact representation is a
-  plain `Item` and `CompactPill` puts the click area on the notch alone, so
-  a click on the dots switches desktop and a click on the empty space beside
-  the notch does nothing.
-- Moving the pointer onto the notch opens the control center at once, no
-  click needed. It started with a 300 ms wait, then 100 ms; both felt slow.
-  Hovering only opens it; a click on the notch still toggles it (so with
-  the popup already open from hovering, a click closes it), and after a
-  click closes it the pointer, still on the notch, doesn't open it again,
-  since only entering the notch opens it.
+  plain `Item` and `CompactPill` puts the hover area on the notch alone, so
+  the dots and the empty space beside the notch don't open it (a click on
+  the dots switches desktop).
+- Moving the pointer onto the notch opens the control center at once. It
+  started with a 300 ms wait, then 100 ms; both felt slow. Clicking the
+  notch does nothing: it used to toggle the popup, which with hover
+  opening it meant a click closed it. The notch's `MouseArea` accepts no
+  buttons, so clicks fall through to the panel, and the pointer stays the
+  plain arrow.
 - The control center closes on its own as soon as the pointer is off both
   the notch and the popup, however it was opened. It waits 50 ms
   (`Theme.hoverCloseDelay`), too short to notice: 400 and 200 ms felt slow,

@@ -23,10 +23,8 @@ Item {
     // from the bottom instead
     property bool bottomEdge: false
 
-    // a click on the notch (not on the sides): main.qml toggles the popup
-    signal activated
-    // the pointer entered the notch: main.qml opens the popup (only opens,
-    // never closes)
+    // the pointer entered the notch (not the sides): main.qml opens the
+    // popup (only opens, never closes)
     signal openRequested
     // the pointer is on the notch: main.qml keeps the control center open
     readonly property bool notchHovered: notchMa.containsMouse
@@ -446,16 +444,15 @@ Item {
         }
 
         // only the notch opens the popup; the dots and the empty sides don't.
-        // entering it opens it at once, a click toggles it. only entering
-        // opens, so after a click closes the popup the pointer, still on the
-        // notch, doesn't open it again
+        // entering it opens it at once. clicks do nothing: no buttons are
+        // accepted (they fall through to the panel), and the pointer stays
+        // the plain arrow, since there's nothing to click
         MouseArea {
             id: notchMa
             anchors.fill: parent
             hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
+            acceptedButtons: Qt.NoButton
             onEntered: root.openRequested()
-            onClicked: root.activated()
         }
     }
 }
