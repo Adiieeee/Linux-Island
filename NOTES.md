@@ -253,6 +253,16 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   use) draws it and its `null` says when it's empty; most notifications
   send an empty one. Tested with a stand-in singleton, not in a panel
   harness, which can only write from outside.
+- **Clicking a notification** runs Plasma's default action for it
+  (`invokeDefaultAction`, what a click on Plasma's pop-up does) while
+  Plasma still has it and the app offered one: ZapZap opens that chat.
+  Chat apps close their notifications once read, and the island's copy
+  outlives them; then there's nothing to run, and main.qml only brings
+  the app's window forward (`Windows.pick`, after `Theme.raiseDelay`, as
+  on Wayland the app can't raise itself), or starts it with `kstart
+  --application` when it has no window. That entry comes from the
+  notification, which any app can send, so only a plain desktop file
+  name (`[A-Za-z0-9._-]`) goes into the command.
 - Layers of a notification's picture: the pixels, else its icon or file
   (ZapZap's photo), else the app's icon (`status === Error` on the one
   above), else a bell.

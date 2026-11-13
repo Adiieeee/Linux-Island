@@ -195,7 +195,10 @@ QtObject {
                 // the fallback when that file is gone). a picture sent as
                 // pixels is in images, by nid
                 picture: e.image || e.applicationIconName,
-                icon: e.applicationIconName
+                icon: e.applicationIconName,
+                // to find or start its app when it's clicked
+                entry: e.desktopEntry,
+                appName: e.applicationName
             };
             if (!(e.appKey in byKey)) {
                 const a = root.alias(e.applicationName, e.desktopEntry);
@@ -239,6 +242,23 @@ QtObject {
         if (root.model.count > 0)
             root.captureRows(0, root.model.count - 1);
     })
+
+    // a click on a notification in the panel: Plasma runs its default action
+    // (the chat, the tab), as a click on its own pop-up does, while it still
+    // has the notification and the app offered one. false: nothing was run
+    // (Plasma dropped it, as chat apps do once read, or there's no action);
+    // the panel then only brings the app forward
+    function activate(nid: int): bool {
+        for (let r = 0; r < root.model.count; r++) {
+            if (root.at(r, NM.Notifications.IdRole) !== nid)
+                continue;
+            if (!root.at(r, NM.Notifications.HasDefaultActionRole))
+                return false;
+            root.model.invokeDefaultAction(root.model.index(r, 0), NM.Notifications.None);
+            return true;
+        }
+        return false;
+    }
 
     // close Plasma's own copy too, if it still has one
     function closeSource(id: int): void {

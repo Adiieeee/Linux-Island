@@ -7,6 +7,7 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.taskmanager as TaskManager
 import "."
 import "game.js" as Game
+import "windows.js" as Windows
 
 // isla dinámica para plasma: píldora en el panel + panel emergente al clic
 PlasmoidItem {
@@ -458,6 +459,37 @@ PlasmoidItem {
         root.expanded = true;
     }
 
+    // ── a notification's app ──
+    // a notification was clicked in the control center: it closes, and a
+    // moment later the app's window comes forward (Windows.pick: by its
+    // desktop entry, else its name). with no window, and no default action
+    // run that would open one, the app is started
+    property string openingEntry: ""
+    property string openingName: ""
+    property bool openingInvoked: false
+
+    function openApp(entry, name, invoked) {
+        root.openingEntry = entry;
+        root.openingName = name;
+        root.openingInvoked = invoked;
+        root.expanded = false;
+        openAppLater.restart();
+    }
+
+    Timer {
+        id: openAppLater
+        interval: Theme.raiseDelay
+        onTriggered: {
+            const best = Windows.pick(tasks, TaskManager.AbstractTasksModel, 0, root.openingEntry, root.openingName);
+            if (best)
+                tasks.requestActivate(best);
+            // the entry comes from the notification, which any app can
+            // send: only a plain desktop file name goes into the command
+            else if (!root.openingInvoked && /^[A-Za-z0-9._-]+$/.test(root.openingEntry))
+                Exec.run("kstart --application " + root.openingEntry);
+        }
+    }
+
     // the control center closes on its own once the pointer has been off
     // the panel's notch and the popup for Theme.hoverCloseDelay
     Timer {
@@ -587,6 +619,7 @@ PlasmoidItem {
         onLyricsToggled: Plasmoid.configuration.showLyrics = !Plasmoid.configuration.showLyrics
         onGameNotchToggled: Plasmoid.configuration.notchOverGames = !Plasmoid.configuration.notchOverGames
         onCloseRequested: root.expanded = false
+        onAppRequested: (entry, name, invoked) => root.openApp(entry, name, invoked)
 
         // smaller than Theme.expandedWidth by the part of Plasma's frame the
         // island covers (ExpandedPanel.reach)

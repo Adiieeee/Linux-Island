@@ -101,6 +101,10 @@ Item {
     // main.qml closes the popup
     signal closeRequested
 
+    // a notification was clicked (NotifPanel): main.qml closes the popup
+    // and brings that app forward, or starts it
+    signal appRequested(string entry, string name, bool invoked)
+
     // the lyrics button in the bottom row: main.qml flips the showLyrics
     // config key (a view can't write Plasmoid.configuration through Cfg)
     signal lyricsToggled
@@ -564,6 +568,7 @@ Item {
                         id: notifComp
                         NotifPanel {
                             onClosed: root.closeOverlay()
+                            onAppRequested: (entry, name, invoked) => root.appRequested(entry, name, invoked)
                         }
                     }
 

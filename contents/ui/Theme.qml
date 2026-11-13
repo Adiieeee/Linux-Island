@@ -156,6 +156,11 @@ QtObject {
     // the window the user was typing in; a later one is the user clicking
     // into it. KWin activates a shown window within a frame or two
     readonly property int keyboardReturnWindow: 500
+    // after a click asks another app to show itself (a notification's), its
+    // window is brought forward this much later: on Wayland an app can't
+    // raise itself, and by then it has had its turn (as the media card found
+    // for players)
+    readonly property int raiseDelay: 250
 
     // capas de estado, en monocromo blanco translúcido
     readonly property real stateHover: 0.10

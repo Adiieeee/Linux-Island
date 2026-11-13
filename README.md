@@ -38,7 +38,8 @@ Move the pointer onto it and a control center opens below it.
 - CPU, RAM and GPU meters.
 - Screen recording through Spectacle: full screen or one window, with system
   audio and microphone.
-- Notification history, grouped by app.
+- Notification history: one folder per app, each notification in its own
+  card. Click one to open it (the chat, the tab) or bring its app forward.
 - Coffee mode (the screen stays on, the computer stays awake), a lyrics
   toggle, lock, and a power menu (sleep, log out, restart, shut down).
 

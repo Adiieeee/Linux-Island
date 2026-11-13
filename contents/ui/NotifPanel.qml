@@ -12,6 +12,15 @@ Item {
     id: popup
 
     signal closed
+    // a notification was clicked: main.qml closes the control center and
+    // brings its app forward, or starts it when nothing was run (invoked:
+    // its default action ran)
+    signal appRequested(string entry, string name, bool invoked)
+
+    function open(item): void {
+        const invoked = Notifs.activate(item.nid);
+        popup.appRequested(item.entry ?? "", item.appName ?? "", invoked);
+    }
 
     implicitHeight: col.implicitHeight + 44
 
@@ -70,6 +79,8 @@ Item {
         property int lines: 2
         property int badge: 0
         property bool expandable: false
+        // a click does something (opens it), so the pointer says so
+        property bool clickable: false
         property bool expanded: false
         signal activated
         signal dismissed
@@ -200,7 +211,7 @@ Item {
             id: entryMa
             anchors.fill: parent
             hoverEnabled: true
-            cursorShape: entry.expandable ? Qt.PointingHandCursor : Qt.ArrowCursor
+            cursorShape: entry.expandable || entry.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: entry.activated()
         }
 
@@ -566,6 +577,8 @@ Item {
                                         title: child.modelData.summary || group.modelData.name
                                         text: child.modelData.body
                                         detail: (child.modelData.originName !== "" && child.modelData.originName !== group.modelData.name ? child.modelData.originName + " · " : "") + popup.when(child.modelData.created)
+                                        clickable: true
+                                        onActivated: popup.open(child.modelData)
                                         onDismissed: Notifs.dismiss(child.modelData.nid)
                                     }
                                 }
