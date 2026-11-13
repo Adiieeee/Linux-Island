@@ -243,6 +243,19 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - ZapZap saves each chat's photo, already round, as
   `~/.local/share/ZapZap/tmp/<chat name>.png` and sends that path as the
   notification's icon. One file per chat, overwritten, never deleted.
+- **Pictures sent as pixels** (`ImageRole`, a QImage) live in
+  `Notifs.images` by id, beside the history (a ListModel can't hold one),
+  and the panel reads them with `Notifs.imageOf(nid)`. Every other way
+  lost the QImage: through `groups` (a Repeater model) it came out
+  `undefined`, and `Notifs.images[nid]` read from another component, or a
+  map assigned from outside the singleton, an invalid QVariant (truthy, so
+  `!!image` can't tell). `KQCA.QImageItem` (what Plasma's notifications
+  use) draws it and its `null` says when it's empty; most notifications
+  send an empty one. Tested with a stand-in singleton, not in a panel
+  harness, which can only write from outside.
+- Layers of a notification's picture: the pixels, else its icon or file
+  (ZapZap's photo), else the app's icon (`status === Error` on the one
+  above), else a bell.
 
 ## Recording (Spectacle)
 

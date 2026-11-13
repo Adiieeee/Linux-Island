@@ -86,6 +86,9 @@ QtObject {
             }
         }
         const appName = root.at(row, NM.Notifications.ApplicationNameRole) ?? "";
+        const pixels = root.at(row, NM.Notifications.ImageRole);
+        if (id && pixels)
+            root.images[id] = pixels;
         const desktopEntry = root.at(row, NM.Notifications.DesktopEntryRole) ?? "";
         const created = root.at(row, NM.Notifications.CreatedRole);
         root.history.insert(0, {
@@ -156,6 +159,19 @@ QtObject {
         return null;
     }
 
+    // nid → the picture a notification sent as pixels (ImageRole: a
+    // QImage, a value, not an object), kept beside the history since a
+    // ListModel can't hold it. only the listed ones are kept (regroup)
+    property var images: ({})
+
+    // the view reads a picture through this. other ways lost the QImage on
+    // the way (an invalid QVariant came out): in groups (a Repeater model)
+    // it arrived undefined, and Notifs.images[nid] read from another
+    // component came out empty. a binding on this call follows images
+    function imageOf(nid) {
+        return root.images[nid] ?? null;
+    }
+
     // the history in folders, one per app, the app with the newest
     // notification first: [{ key, name, icon, logo, items: [entry, ...] }],
     // items newest first. plain data, rebuilt whenever the history changes
@@ -164,16 +180,22 @@ QtObject {
     function regroup(): void {
         const order = [];
         const byKey = {};
+        const images = {};
         for (let i = 0; i < root.history.count; i++) {
             const e = root.history.get(i);
+            if (e.nid in root.images)
+                images[e.nid] = root.images[e.nid];
             const item = {
                 nid: e.nid,
                 summary: e.summary,
                 body: e.body,
                 originName: e.originName,
                 created: e.created,
-                // its own picture, else its app's icon
-                picture: e.image || e.applicationIconName
+                // its own icon or picture file, else its app's icon (also
+                // the fallback when that file is gone). a picture sent as
+                // pixels is in images, by nid
+                picture: e.image || e.applicationIconName,
+                icon: e.applicationIconName
             };
             if (!(e.appKey in byKey)) {
                 const a = root.alias(e.applicationName, e.desktopEntry);
@@ -188,6 +210,7 @@ QtObject {
             }
             byKey[e.appKey].items.push(item);
         }
+        root.images = images;
         root.groups = order.map(k => byKey[k]);
     }
 

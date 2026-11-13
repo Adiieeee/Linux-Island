@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Shapes
 import org.kde.kirigami as Kirigami
+import org.kde.kquickcontrolsaddons as KQCA
 import org.kde.notificationmanager as NM
 import "."
 
@@ -53,15 +54,21 @@ Item {
     component Entry: Rectangle {
         id: entry
 
+        // the notification's own picture sent as pixels (a site's or a
+        // sender's image: a QImage, read from Notifs.images), shown first
+        property var image: null
         property string icon: ""
-        // shown when icon can't load (a logo file that isn't there)
+        // shown when icon can't load (a logo file that isn't there, a
+        // chat photo ZapZap's folder no longer has)
         property string fallbackIcon: ""
+        // a notification's picture is a little bigger than its app's icon
+        // on a folder's row
+        property int pictureSize: 32
         property string title: ""
         property string text: ""
         property string detail: ""
         property int lines: 2
         property int badge: 0
-        property bool indent: false
         property bool expandable: false
         property bool expanded: false
         signal activated
@@ -78,31 +85,56 @@ Item {
             }
         }
 
-        Kirigami.Icon {
-            id: entryIcon
-            // centred in the same 46 px column, smaller inside a folder
+        // the picture, centred in a 46 px column: the image the
+        // notification sent, else its icon or picture file (a ZapZap chat's
+        // photo), else fallbackIcon (the app's), else a bell. each layer
+        // shows only when the one above can't
+        Item {
+            id: pictureBox
             anchors.horizontalCenter: parent.left
             anchors.horizontalCenterOffset: 23
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: entry.indent ? 20 : 26
-            implicitHeight: entry.indent ? 20 : 26
-            source: entry.icon
-            visible: entry.icon !== "" && status !== Kirigami.Icon.Error
-        }
+            width: entry.pictureSize
+            height: entry.pictureSize
 
-        Kirigami.Icon {
-            anchors.fill: entryIcon
-            source: entry.fallbackIcon
-            visible: entry.fallbackIcon !== "" && entryIcon.status === Kirigami.Icon.Error
-        }
+            // the QImage, drawn by the item Plasma's own notifications use:
+            // it says when the image is empty, as most notifications send
+            Loader {
+                id: imageLayer
+                readonly property KQCA.QImageItem picture: item as KQCA.QImageItem
+                readonly property bool shown: picture !== null && !picture.null
+                anchors.fill: parent
+                active: !!entry.image
+                visible: shown
+                sourceComponent: KQCA.QImageItem {
+                    image: entry.image
+                    fillMode: KQCA.QImageItem.PreserveAspectFit
+                    smooth: true
+                }
+            }
 
-        Text {
-            anchors.centerIn: entryIcon
-            visible: !entry.indent && entry.icon === ""
-            text: "notifications"
-            color: Theme.fgFaint
-            font.family: Theme.fontIcons
-            font.pixelSize: 20
+            Kirigami.Icon {
+                id: entryIcon
+                anchors.fill: parent
+                source: entry.icon
+                visible: !imageLayer.shown && entry.icon !== "" && status !== Kirigami.Icon.Error
+            }
+
+            Kirigami.Icon {
+                id: fallbackIcon
+                anchors.fill: parent
+                source: entry.fallbackIcon
+                visible: !imageLayer.shown && !entryIcon.visible && entry.fallbackIcon !== ""
+            }
+
+            Text {
+                anchors.centerIn: parent
+                visible: !imageLayer.shown && !entryIcon.visible && !fallbackIcon.visible
+                text: "notifications"
+                color: Theme.fgFaint
+                font.family: Theme.fontIcons
+                font.pixelSize: 20
+            }
         }
 
         Column {
@@ -433,6 +465,7 @@ Item {
                             Entry {
                                 id: folderRow
                                 visible: group.folder
+                                pictureSize: 26
                                 icon: group.modelData.logo || group.modelData.icon
                                 fallbackIcon: group.modelData.logo ? group.modelData.icon : ""
                                 title: group.modelData.name || Cfg.t("OTRA")
@@ -520,15 +553,16 @@ Item {
                                         }
                                     }
 
-                                    // inside an open folder: in from the line, a smaller
-                                    // picture, each message its own (a chat's sender or
+                                    // inside an open folder: in from the line, each
+                                    // message with its own picture (a chat's sender or
                                     // group photo when it sends one)
                                     Entry {
                                         id: card
                                         x: group.folder ? popup.gutter : 0
                                         width: child.width - x
-                                        indent: group.folder
+                                        image: Notifs.imageOf(child.modelData.nid)
                                         icon: child.modelData.picture
+                                        fallbackIcon: child.modelData.icon
                                         title: child.modelData.summary || group.modelData.name
                                         text: child.modelData.body
                                         detail: (child.modelData.originName !== "" && child.modelData.originName !== group.modelData.name ? child.modelData.originName + " · " : "") + popup.when(child.modelData.created)
