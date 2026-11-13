@@ -18,6 +18,13 @@ Item {
     // itself: the control center closes (ExpandedPanel → main.qml)
     signal raised
 
+    // the game panel's card (over a fullscreen game): the colour blobs stand
+    // still, so the overlay isn't redrawn every frame over the game, and a
+    // click on the art or the title doesn't raise the player, which would
+    // pull the game out of the way. both default to the control center's card
+    property bool still: false
+    property bool raisable: true
+
     // ── the player's window ──
     // the player being raised (an existing container, not created here)
     property var raising: null
@@ -373,7 +380,7 @@ Item {
                 // los valores son el centro de la mancha, no la esquina (si no, queda siempre afuera)
                 SequentialAnimation on x {
                     running: true
-                    paused: !liquido.visible || !liquido.shown
+                    paused: !liquido.visible || !liquido.shown || root.still
                     loops: Animation.Infinite
                     NumberAnimation {
                         to: mancha.hastaX - mancha.width / 2
@@ -388,7 +395,7 @@ Item {
                 }
                 SequentialAnimation on y {
                     running: true
-                    paused: !liquido.visible || !liquido.shown
+                    paused: !liquido.visible || !liquido.shown || root.still
                     loops: Animation.Infinite
                     NumberAnimation {
                         to: mancha.hastaY - mancha.height / 2
@@ -591,7 +598,7 @@ Item {
             anchors.top: art.top
             anchors.bottom: art.bottom
             anchors.right: controls.left
-            enabled: root.player?.canRaise ?? false
+            enabled: root.raisable && (root.player?.canRaise ?? false)
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 root.raising = root.player;
