@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Shapes
 import org.kde.kirigami as Kirigami
 import org.kde.notificationmanager as NM
 import "."
@@ -16,6 +17,18 @@ Item {
     readonly property int count: Notifs.count
     // the list scrolls past this height
     readonly property int listMax: 300
+
+    // ── an open folder's tree ──
+    // a line runs down from under the folder's icon (its centre is lineX
+    // into the card) through the gaps, and branches off to each card
+    // inside, which starts gutter in. the last branch turns off with a
+    // round corner of radius elbow (└), the others cross it (├)
+    readonly property real lineX: 23
+    readonly property real gutter: 36
+    readonly property real elbow: 6
+    // the line starts this far below the folder icon's centre: half the
+    // 26 px icon, then a gap
+    readonly property real lineFromIcon: 13 + 4
 
     // the folders opened (app key → true), reassigned so bindings see it
     property var openApps: ({})
@@ -418,6 +431,7 @@ Item {
                             // the folder's own row: the app, then the newest and how
                             // many while it's closed, or just how many while open
                             Entry {
+                                id: folderRow
                                 visible: group.folder
                                 icon: group.modelData.logo || group.modelData.icon
                                 fallbackIcon: group.modelData.logo ? group.modelData.icon : ""
@@ -435,17 +449,91 @@ Item {
                             Repeater {
                                 model: !group.folder || group.open ? group.modelData.items : []
 
-                                Entry {
+                                Item {
+                                    id: child
                                     required property var modelData
-                                    // inside an open folder: a smaller picture under the
-                                    // folder's, each message its own (a chat's sender or
+                                    required property int index
+                                    readonly property bool last: child.index === group.modelData.items.length - 1
+                                    // where the line comes from: under the folder's icon
+                                    // for the first card, the gap above for the others
+                                    readonly property real lineTop: child.index === 0 ? -(group.spacing + folderRow.height / 2 - popup.lineFromIcon) : -group.spacing
+                                    readonly property real mid: card.height / 2
+
+                                    width: group.width
+                                    height: card.height
+
+                                    // ├ : the line goes on past this card
+                                    Shape {
+                                        visible: group.folder && !child.last
+                                        preferredRendererType: Shape.CurveRenderer
+
+                                        ShapePath {
+                                            strokeColor: Theme.outline
+                                            strokeWidth: 1.5
+                                            fillColor: "transparent"
+                                            startX: popup.lineX
+                                            startY: child.lineTop
+                                            PathLine {
+                                                x: popup.lineX
+                                                y: child.height
+                                            }
+                                        }
+                                        ShapePath {
+                                            strokeColor: Theme.outline
+                                            strokeWidth: 1.5
+                                            fillColor: "transparent"
+                                            startX: popup.lineX
+                                            startY: child.mid
+                                            PathLine {
+                                                x: popup.gutter
+                                                y: child.mid
+                                            }
+                                        }
+                                    }
+
+                                    // └ : the line ends here, turning into the branch
+                                    Shape {
+                                        visible: group.folder && child.last
+                                        preferredRendererType: Shape.CurveRenderer
+
+                                        ShapePath {
+                                            strokeColor: Theme.outline
+                                            strokeWidth: 1.5
+                                            fillColor: "transparent"
+                                            startX: popup.lineX
+                                            startY: child.lineTop
+                                            PathLine {
+                                                x: popup.lineX
+                                                y: child.mid - popup.elbow
+                                            }
+                                            PathArc {
+                                                x: popup.lineX + popup.elbow
+                                                y: child.mid
+                                                radiusX: popup.elbow
+                                                radiusY: popup.elbow
+                                                direction: PathArc.Counterclockwise
+                                            }
+                                            PathLine {
+                                                x: popup.gutter
+                                                y: child.mid
+                                            }
+                                        }
+                                    }
+
+                                    // inside an open folder: in from the line, a smaller
+                                    // picture, each message its own (a chat's sender or
                                     // group photo when it sends one)
-                                    indent: group.folder
-                                    icon: modelData.picture
-                                    title: modelData.summary || group.modelData.name
-                                    text: modelData.body
-                                    detail: (modelData.originName !== "" && modelData.originName !== group.modelData.name ? modelData.originName + " · " : "") + popup.when(modelData.created)
-                                    onDismissed: Notifs.dismiss(modelData.nid)
+                                    Entry {
+                                        id: card
+                                        x: group.folder ? popup.gutter : 0
+                                        width: child.width - x
+                                        indent: group.folder
+                                        icon: child.modelData.picture
+                                        title: child.modelData.summary || group.modelData.name
+                                        text: child.modelData.body
+                                        detail: (child.modelData.originName !== "" && child.modelData.originName !== group.modelData.name ? child.modelData.originName + " · " : "") + popup.when(child.modelData.created)
+                                        onDismissed: Notifs.dismiss(child.modelData.nid)
+                                    }
                                 }
                             }
                         }
