@@ -3,6 +3,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.mpris as Mpris
 import org.kde.taskmanager as TaskManager
 import "."
+import "windows.js" as Windows
 
 // tarjeta del reproductor: carátula, controles, onda
 // la onda no es audio real, es un patrón fijo por título de la pista
@@ -39,42 +40,15 @@ Item {
         groupMode: TaskManager.TasksModel.GroupDisabled
     }
 
-    // bring the player's window to the front: its windows are the ones of
-    // its process (AppPid = the MPRIS player's pid), or failing that of its
-    // app (AppId = its desktop entry). with several, the one demanding
-    // attention (it just asked to be shown), else the one used last
+    // bring the player's window to the front: windows.js picks it (its
+    // process, else its app; the one demanding attention, else the one used
+    // last)
     function activateWindow(p): void {
         if (!p)
             return;
-        const pid = Number(p.instancePid ?? 0);
-        const entry = String(p.desktopEntry ?? "").toLowerCase();
-        const R = TaskManager.AbstractTasksModel;
-        let byPid = [], byApp = [];
-        for (let i = 0; i < tasks.count; i++) {
-            const idx = tasks.index(i, 0);
-            if (!tasks.data(idx, R.IsWindow))
-                continue;
-            const appId = String(tasks.data(idx, R.AppId) ?? "").toLowerCase();
-            if (pid > 0 && Number(tasks.data(idx, R.AppPid)) === pid)
-                byPid.push(idx);
-            else if (entry !== "" && (appId === entry || appId.indexOf(entry) >= 0))
-                byApp.push(idx);
-        }
-        const found = byPid.length > 0 ? byPid : byApp;
-        if (found.length === 0)
-            return;
-        let best = found[0];
-        for (const idx of found) {
-            if (tasks.data(idx, R.IsDemandingAttention)) {
-                best = idx;
-                break;
-            }
-            const t = tasks.data(idx, R.LastActivated);
-            const bt = tasks.data(best, R.LastActivated);
-            if (t && (!bt || new Date(t) > new Date(bt)))
-                best = idx;
-        }
-        tasks.requestActivate(best);
+        const best = Windows.pick(tasks, TaskManager.AbstractTasksModel, Number(p.instancePid ?? 0), p.desktopEntry ?? "", "");
+        if (best)
+            tasks.requestActivate(best);
     }
 
     // ── a skip in progress ──
