@@ -1,14 +1,17 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import org.kde.plasma.private.brightnesscontrolplugin as BC
+import org.kde.plasma.private.clipboard as Clip
 import org.kde.plasma.private.volume as PA
 import org.kde.plasma.workspace.dbus as DBus
 import "."
+import "alerts.js" as AlertsLib
 
 // short alerts in the notch, in place of KDE's on-screen display: the
-// volume, the output device, the microphone and the brightness keys, for
-// now. one alert at a time: a new one takes over at once, and the same
+// volume, the output device, the microphone, the brightness keys and the
+// clipboard, for now. one alert at a time: a new one takes over at once, and the same
 // level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
@@ -16,13 +19,16 @@ QtObject {
     id: root
 
     // ── the alert on show ──
-    // kind: "" (none), "volume", "output", "mic", "brightness". icon: a Material Symbols name. text: the
-    // line for an alert that isn't a level. value: a level's bar, 0..1 of
-    // its whole range, or -1 for no bar; boostFrom: where the bar turns red
-    // (the volume past 100%), 1 = never; valueText: the number beside it.
-    // dim: muted. critical: in Theme.alert
+    // kind: "" (none), "volume", "output", "mic", "brightness",
+    // "clipboard". icon: a Material Symbols name; image: a picture in its
+    // place (a copied image). text: the line for an alert that isn't a
+    // level. value: a level's bar, 0..1 of its whole range, or -1 for no
+    // bar; boostFrom: where the bar turns red (the volume past 100%), 1 =
+    // never; valueText: the number beside it. dim: muted. critical: in
+    // Theme.alert
     property string kind: ""
     property string icon: ""
+    property string image: ""
     property string text: ""
     property real value: -1
     property real boostFrom: 1
@@ -49,12 +55,14 @@ QtObject {
         onTriggered: root.hide()
     }
 
-    // props: any of icon, text, value, boostFrom, valueText, dim, critical;
+    // props: any of icon, image, text, value, boostFrom, valueText, dim,
+    // critical;
     // the ones left out go back to their defaults
     function show(kind: string, props, ms: int): void {
         if (!root.armed || root.paused)
             return;
         root.icon = props.icon ?? "";
+        root.image = props.image ?? "";
         root.text = props.text ?? "";
         root.value = props.value ?? -1;
         root.boostFrom = props.boostFrom ?? 1;
@@ -182,6 +190,46 @@ QtObject {
             value: level,
             valueText: Math.round(level * 100) + "%"
         }, Theme.alertLevelMs);
+    }
+
+    // ── clipboard ──
+    // what was just copied, from Klipper's history (the model Plasma's
+    // clipboard applet uses, shared inside plasmashell): the first line of
+    // a text, or a copied picture's thumbnail. a password manager's copies
+    // never reach the history (Klipper skips them), so they don't show.
+    // the newest entry is row 0; it's read once the model has settled.
+    // only inside plasmashell, where the clipboard applet already made it:
+    // anywhere else (a test in the qml tool) it starts a second Klipper,
+    // which crashed offscreen (SystemClipboard asks X11 for the focus) and
+    // would otherwise write to the same history database
+    readonly property Instantiator clipboard: Instantiator {
+        active: Qt.application.name === "plasmashell"
+        delegate: Clip.HistoryModel {
+            onCurrentTextChanged: Qt.callLater(root.clipboardAlert)
+        }
+    }
+
+    function clipboardAlert(): void {
+        const model = root.clipboard.object as Clip.HistoryModel;
+        if (!model || model.count === 0)
+            return;
+        const top = model.index(0, 0);
+        const picture = String(model.data(top, Qt.DecorationRole) ?? "");
+        if (picture !== "") {
+            root.show("clipboard", {
+                icon: "image",
+                image: picture,
+                text: Cfg.t("Imagen copiada")
+            }, Theme.alertClipMs);
+            return;
+        }
+        const line = AlertsLib.preview(model.data(top, Qt.DisplayRole));
+        if (line === "")
+            return;
+        root.show("clipboard", {
+            icon: "content_copy",
+            text: line
+        }, Theme.alertClipMs);
     }
 
     // ── microphone ──

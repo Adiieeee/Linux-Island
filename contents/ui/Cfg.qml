@@ -94,6 +94,7 @@ QtObject {
             "Contraseña": ["Contraseña", "Password"],
             "Buscando…": ["Buscando…", "Searching…"],
             "Desconocido": ["Desconocido", "Unknown"],
+            "Imagen copiada": ["Imagen copiada", "Image copied"],
             "Wi-Fi apagado": ["Wi-Fi apagado", "Wi-Fi off"],
             "Bluetooth apagado": ["Bluetooth apagado", "Bluetooth off"],
             "CALENDARIO": ["CALENDARIO", "CALENDAR"],

@@ -18,7 +18,8 @@ Move the pointer onto it and a control center opens below it.
 - Desktop dots on the left (click or scroll to switch desktop) and a
   24-hour clock on the right.
 - Short alerts in the notch in place of KDE's pop-ups: the volume, the
-  microphone, a new output device and the brightness keys.
+  microphone, a new output device, the brightness keys and what you copy
+  (text or a picture).
 - Optional: tint the notch with the album art's colours.
 - Optional, experimental: keep the notch above fullscreen games. Hovering it
   there opens a small game panel with the player, the meters and recording.

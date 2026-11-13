@@ -1,4 +1,5 @@
 import QtQuick
+import org.kde.kirigami as Kirigami
 import "."
 
 // the notch's middle during an alert (Alerts.qml): an icon, then a level's
@@ -13,16 +14,35 @@ Item {
 
     implicitHeight: 20
 
-    Text {
+    // the icon, or a copied picture in its place (the icon until it loads)
+    Item {
         id: glyph
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         width: 20
-        horizontalAlignment: Text.AlignHCenter
-        text: Alerts.icon
-        color: root.tone
-        font.family: Theme.fontIcons
-        font.pixelSize: 16
+        height: 20
+
+        Text {
+            anchors.centerIn: parent
+            visible: !thumb.visible
+            text: Alerts.icon
+            color: root.tone
+            font.family: Theme.fontIcons
+            font.pixelSize: 16
+        }
+
+        // clip leaves it square; ShadowedImage really rounds it
+        Kirigami.ShadowedImage {
+            id: thumb
+            anchors.fill: parent
+            visible: Alerts.image !== "" && status === Image.Ready
+            source: Alerts.image
+            radius: Theme.shapeXs
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+            sourceSize.width: 40
+            sourceSize.height: 40
+        }
     }
 
     // ── a level: bar and number ──

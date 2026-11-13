@@ -185,6 +185,15 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   those keys alert, not idle dimming or the sliders. Read with
   `SignalWatcher` (`org.kde.plasma.workspace.dbus`): it calls
   `dbus<Signal>(…)` on itself, strings wrapped as `{value}`.
+- **Clipboard.** Klipper's `HistoryModel` (`org.kde.plasma.private.clipboard`)
+  is shared inside plasmashell with the clipboard applet; `currentText`
+  changes with each new copy, and row 0 gives the text (`DisplayRole`) or
+  a picture's URL (`DecorationRole`). Item types: 2 text, 4 image, 8 URL.
+  It's only made inside plasmashell (`Qt.application.name`): in the `qml`
+  tool it starts a second Klipper, which crashed offscreen (X11 call in
+  `SystemClipboard`) and could write to the same history database.
+- Offscreen tests draw `Kirigami.ShadowedImage` as a white box; a plain
+  `Image` draws fine there. In plasmashell both work.
 
 ## Recording (Spectacle)
 
