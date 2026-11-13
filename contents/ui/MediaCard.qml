@@ -14,6 +14,11 @@ Item {
     readonly property var player: Media.cardPlayer
     readonly property bool active: player !== null
 
+    // on screen: its window is up and nothing hides the card in it. Plasma
+    // keeps the control center's items after its popup closes, and the game
+    // panel hides this card with the floating notch still up
+    readonly property bool shown: root.visible && (root.Window.window?.visible ?? false)
+
     // the art or the title was clicked and the player was asked to show
     // itself: the control center closes (ExpandedPanel → main.qml)
     signal raised
@@ -252,10 +257,14 @@ Item {
     }
 
     // refresca posición mientras suena
+    // only while the card is on screen: hidden, it asked the player for its
+    // position every second for nothing (the island's lyrics resync on their
+    // own). at once when it shows, so the progress bar starts right
     Timer {
         interval: 1000
-        running: root.active && root.isPlaying
+        running: root.active && root.isPlaying && root.shown
         repeat: true
+        triggeredOnStart: true
         onTriggered: root.player?.updatePosition()
     }
 

@@ -115,6 +115,12 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - **Raise.** On Wayland a browser can't bring its own window forward, so
   after MPRIS `Raise` the card activates the player's window through
   `TaskManager.TasksModel.requestActivate`.
+- **Plasma keeps the popup's items after it closes**, and their Timers keep
+  running. The card's 1 s position refresh asked the player over DBus every
+  second with the popup closed (23 calls in 20 s, with the lyrics' resync).
+  It runs only while the card is `shown` (its window up and the card
+  visible in it). `Lyrics` doesn't need it: lines start on their own
+  single-shot timer, and its 5 s resync only corrects drift.
 
 ## The media card's colours
 
