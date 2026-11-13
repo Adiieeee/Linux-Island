@@ -161,13 +161,16 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   10 dB apart, and loud pop sat near the top 97 % of the time.
 - PipeWire leaves monitor ports at full level, so the volume slider doesn't
   shrink the bars.
-- No animation on the bars while live. A 70 ms `Behavior` per sample
+- No QML animation on the bars while live. A 70 ms `Behavior` per sample
   (samples come every ~42 ms) always had one running, and any running
   animation makes Qt redraw the whole panel at the display's rate: on the
   144 Hz screen plasmashell went from 0.3 % to 12.9 % of a core and KWin
-  from 1.3 % to 6.9 % while music played. Each sample now just sets the
-  height (~24 frames a second). The settle to rest when playback stops is
-  still animated; its reset goes through `Qt.callLater`, because the
+  from 1.3 % to 6.9 % while music played. A 33 ms `Timer` eases the bars
+  toward the samples instead (at most 30 frames a second, fewer when the
+  rounded heights don't change) and stops once they've caught up. With
+  no easing at all (~24 fps) the two were 4.1 % and 2.7 %; the user
+  picked 30 fps for smoothness. The settle to rest when playback stops is
+  still a `Behavior`; its reset goes through `Qt.callLater`, because the
   `Behavior`'s `enabled` can update after `onLiveChanged` runs (the bars
   then dropped at once).
 

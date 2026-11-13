@@ -63,6 +63,44 @@ Item {
     property real env: 0
     // history[0] is the newest level (middle bar), history[k] is k samples older
     property var history: []
+    // what the bars show: each frame moves these part of the way to history
+    property var drawn: []
+
+    // ~30 frames a second while live, whatever the display's rate. a QML
+    // animation ticks at the display's rate, and while any runs Qt redraws
+    // the whole panel: a 70 ms Behavior per sample (samples come every
+    // ~42 ms, so one always ran) kept the panel at 144 fps, ~18 % of a core
+    // with KWin (measured). a Timer sets the pace instead, and stops once
+    // the bars have caught up (a silent passage)
+    readonly property int frameMs: 33
+    // share of the way to the newest level covered each frame: 60 %, then
+    // 84 % after two frames, about the 70 ms animation's catch-up
+    readonly property real ease: 0.6
+    property bool catching: false
+
+    Timer {
+        interval: wave.frameMs
+        repeat: true
+        running: wave.live && wave.catching
+        onTriggered: wave.frame()
+    }
+
+    function frame(): void {
+        const next = [];
+        let moving = false;
+        for (let k = 0; k < wave.history.length; k++) {
+            const from = wave.drawn[k] ?? 0;
+            const gap = wave.history[k] - from;
+            if (Math.abs(gap) > 0.005) {
+                next.push(from + gap * wave.ease);
+                moving = true;
+            } else {
+                next.push(wave.history[k]);
+            }
+        }
+        wave.drawn = next;
+        wave.catching = moving;
+    }
 
     function push(peak: real): void {
         let level = 0;
@@ -79,6 +117,7 @@ Item {
         const next = [wave.env].concat(wave.history);
         next.length = Math.min(next.length, (wave.bars + 1) / 2);
         wave.history = next;
+        wave.catching = true;
     }
 
     function quiet(): void {
@@ -88,6 +127,8 @@ Item {
         wave.refDb = wave.refFloorDb;
         wave.avgDb = wave.gateDb;
         wave.history = [];
+        wave.drawn = [];
+        wave.catching = false;
     }
 
     // a moment later, not in this handler: the bars' Behavior follows live
@@ -113,7 +154,7 @@ Item {
                 required property int index
 
                 readonly property int distance: Math.abs(bar.index - (wave.bars - 1) / 2)
-                readonly property real level: (wave.history[bar.distance] ?? 0) * (bar.distance === (wave.bars - 1) / 2 ? wave.edgeScale : 1)
+                readonly property real level: (wave.drawn[bar.distance] ?? 0) * (bar.distance === (wave.bars - 1) / 2 ? wave.edgeScale : 1)
 
                 anchors.verticalCenter: parent.verticalCenter
                 width: wave.barWidth
@@ -121,12 +162,9 @@ Item {
                 radius: width / 2
                 color: wave.live ? Theme.fg : Theme.fgFaint
 
-                // no animation while live: each sample sets the height (~24
-                // frames a second). an animation between samples outlasted
-                // the gap to the next one, so one always ran and the whole
-                // panel was redrawn at the display's rate (144 fps, ~18 % of
-                // a core with KWin). the usual settle when it stops, instead
-                // of dropping at once
+                // no animation while live: the frame timer above moves the
+                // bars. the usual settle when it stops, instead of dropping
+                // at once
                 Behavior on height {
                     enabled: !wave.live
                     NumberAnimation {
