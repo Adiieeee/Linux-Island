@@ -17,8 +17,8 @@ Move the pointer onto it and a control center opens below it.
   few seconds. With nothing playing, the notch shows today's date.
 - Desktop dots on the left (click or scroll to switch desktop) and a
   24-hour clock on the right.
-- Short alerts in the notch in place of KDE's pop-ups: the volume and the
-  microphone.
+- Short alerts in the notch in place of KDE's pop-ups: the volume, the
+  microphone and a new output device.
 - Optional: tint the notch with the album art's colours.
 - Optional, experimental: keep the notch above fullscreen games. Hovering it
   there opens a small game panel with the player, the meters and recording.

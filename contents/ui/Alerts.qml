@@ -5,7 +5,7 @@ import org.kde.plasma.private.volume as PA
 import "."
 
 // short alerts in the notch, in place of KDE's on-screen display: the
-// volume and the microphone, with their mute, for now. one alert at a time: a new one takes over
+// volume, the output device and the microphone, for now. one alert at a time: a new one takes over
 // at once, and the same level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
@@ -13,7 +13,7 @@ QtObject {
     id: root
 
     // ── the alert on show ──
-    // kind: "" (none), "volume", "mic". icon: a Material Symbols name. text: the
+    // kind: "" (none), "volume", "output", "mic". icon: a Material Symbols name. text: the
     // line for an alert that isn't a level. value: a level's bar, 0..1 of
     // its whole range, or -1 for no bar; boostFrom: where the bar turns red
     // (the volume past 100%), 1 = never; valueText: the number beside it.
@@ -86,7 +86,7 @@ QtObject {
 
     function volumeAlert(): void {
         const sink = PA.PreferredDevice.sink;
-        if (!sink)
+        if (!sink || Date.now() - root.sinkSwitchedAt < Theme.alertQuietMs)
             return;
         const level = sink.volume / PA.PulseAudio.NormalVolume;
         root.show("volume", {
@@ -96,6 +96,30 @@ QtObject {
             valueText: Math.round(level * 100) + "%",
             dim: sink.muted
         }, Theme.alertLevelMs);
+    }
+
+    // ── output device ──
+    // the default output changing (a headset plugged in, a pick in the
+    // sound dropdown): the new device's name and icon, as the dropdown
+    // shows them. its volume stays quiet for a moment (volumeAlert)
+    property double sinkSwitchedAt: 0
+
+    readonly property Connections preferredWatch: Connections {
+        target: PA.PreferredDevice
+        function onSinkChanged() {
+            root.outputAlert();
+        }
+    }
+
+    function outputAlert(): void {
+        root.sinkSwitchedAt = Date.now();
+        const sink = PA.PreferredDevice.sink;
+        if (!sink)
+            return;
+        root.show("output", {
+            icon: Audio.deviceIcon(sink, false),
+            text: Audio.deviceName(sink)
+        }, Theme.alertMs);
     }
 
     // ── microphone ──

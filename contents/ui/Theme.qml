@@ -137,6 +137,10 @@ QtObject {
     // nothing alerts this soon after the widget starts: every source
     // reports its first values then, and those aren't changes
     readonly property int alertArmDelay: 3000
+    // after the default output changes, its volume doesn't alert for this
+    // long: a new device reports its level as it comes in, and the alert
+    // naming the device should stay
+    readonly property int alertQuietMs: 800
     // how long the pointer may be off both the notch and the control center
     // before it closes: as good as instant (400 and 200 felt slow), but not
     // 0. moving from the notch into the popup, the notch's leave arrives

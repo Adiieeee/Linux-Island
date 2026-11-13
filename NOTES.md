@@ -174,6 +174,9 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - `armed` turns on `Theme.alertArmDelay` after start: the models report
   their first values then, which aren't changes. `paused` (the control
   center is open) drops alerts: its sliders show the levels already.
+- A new default output reports its own volume as it comes in, which
+  replaced the alert naming it. The volume stays quiet for
+  `Theme.alertQuietMs` after `PreferredDevice.sink` changes.
 
 ## Recording (Spectacle)
 
