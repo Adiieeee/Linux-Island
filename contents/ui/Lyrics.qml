@@ -25,7 +25,8 @@ QtObject {
     readonly property bool playing: (root.player?.playbackStatus ?? Mpris.PlaybackStatus.Stopped) === Mpris.PlaybackStatus.Playing
     readonly property real rate: Math.max(0.01, root.player?.rate ?? 1)
 
-    readonly property string track: root.player?.track ?? ""
+    // what the pill's track peek shows (a generic name for Google Drive)
+    readonly property string track: Media.title(root.player)
     readonly property string artist: root.player?.artist ?? ""
     readonly property string album: root.player?.album ?? ""
     readonly property real lengthSec: (root.player?.length ?? 0) / 1000000
@@ -205,6 +206,12 @@ QtObject {
         if (k in root.cache) {
             root.stopAsking();
             root.apply(root.cache[k]);
+            return;
+        }
+        // Drive's title is a stand-in, not the song's: nothing to look up
+        if (Media.isDrive(root.player)) {
+            root.stopAsking();
+            root.apply(null);
             return;
         }
         // already on it (the length changed while asking)

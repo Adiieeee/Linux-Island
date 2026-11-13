@@ -103,6 +103,7 @@ QtObject {
             "Semana": ["Semana", "Week"],
             "GRABACIÓN": ["GRABACIÓN", "RECORDING"],
             "Nada reproduciéndose": ["Nada reproduciéndose", "Nothing playing"],
+            "Reproductor de audio de Drive": ["Reproductor de audio de Drive", "Drive Audio Player"],
 
             // detalle de red/dispositivo
             "Señal": ["Señal", "Signal"],

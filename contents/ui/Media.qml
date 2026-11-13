@@ -119,6 +119,21 @@ QtObject {
         return /firefox|\bzen\b|librewolf|waterfox|floorp|chrom|brave|vivaldi|opera|microsoft-edge|epiphany|falkon|qutebrowser|plasma-browser-integration/.test(app);
     }
 
+    // an audio file played in Google Drive's viewer. Drive gives the browser
+    // no song info (no Media Session), so the title that comes through is
+    // the viewer frame's own ("Pelihat", "Viewer") and the tab's is the
+    // folder's; Plasma Integration then puts the page's origin in the album
+    function isDrive(player): bool {
+        return root.isBrowser(player) && /^https:\/\/drive\.google\.com\/?$/.test(player.album ?? "") && (player.artist ?? "") === "";
+    }
+
+    // the title to show: the player's own, or a generic name for Drive
+    function title(player): string {
+        if (root.isDrive(player))
+            return Cfg.t("Reproductor de audio de Drive");
+        return player?.track ?? "";
+    }
+
     function step(direction: int): void {
         const n = root.players.length;
         if (n < 2)

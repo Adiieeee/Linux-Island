@@ -565,7 +565,7 @@ Item {
 
             Text {
                 width: parent.width
-                text: root.player?.track || Cfg.t("Nada reproduciéndose")
+                text: Media.title(root.player) || Cfg.t("Nada reproduciéndose")
                 color: Theme.fg
                 font.family: Theme.font
                 font.pixelSize: Theme.bodyMedium

@@ -104,6 +104,11 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   none at all after a seek, so without a length the bar is disabled. Firefox
   sends no `mpris:artUrl`, so no thumbnail; without art the app's icon shows.
   The Plasma Integration extension fixes both.
+- **Google Drive** sends no song info: the title is the viewer frame's
+  ("Pelihat" in Indonesian, "Viewer"), the tab's title is the folder, and
+  the album is the origin. `Media.title()` shows "Drive Audio Player"
+  instead, and `Lyrics` skips the lookup. The file name exists only in
+  Drive's page.
 - **Previous / next** are disabled until the player reports the new track
   (0.4–1.5 s; YouTube via Plasma Integration takes ~0.9 s), and greyed out
   when `canGoPrevious`/`canGoNext` is false (YouTube outside a playlist).
