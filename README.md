@@ -18,7 +18,7 @@ Move the pointer onto it and a control center opens below it.
 - Desktop dots on the left (click or scroll to switch desktop) and a
   24-hour clock on the right.
 - Short alerts in the notch in place of KDE's pop-ups: the volume, the
-  microphone and a new output device.
+  microphone, a new output device and the brightness keys.
 - Optional: tint the notch with the album art's colours.
 - Optional, experimental: keep the notch above fullscreen games. Hovering it
   there opens a small game panel with the player, the meters and recording.
@@ -80,6 +80,19 @@ Without one of these, its section stays empty and the rest keeps working.
 - **Alerts.** So KDE's own volume pop-up doesn't show as well: System
   Settings → Sound → **Configure Volume Controls…** → uncheck everything
   under **Show OSD popups for changes to:**.
+- **Brightness keys.** PowerDevil always shows KDE's pop-up for its own
+  brightness keys, so give the keys to these commands instead: System
+  Settings → Keyboard → Shortcuts → **Power Management**, set the four
+  *Screen Brightness* shortcuts to None; then **Add New → Command or
+  Script…** once per key (press the key in the shortcut field):
+
+  ```bash
+  qdbus6 org.kde.ScreenBrightness /org/kde/ScreenBrightness \
+    org.kde.ScreenBrightness.AdjustBrightnessStepWithContext 0 1 linuxisland
+  ```
+
+  `0` is up, `1` down, `2` and `3` the small steps (Shift); the `1` after
+  it hides KDE's pop-up. Only changes from `linuxisland` alert.
 - **Shortcut.** Right-click the island → **Configure Linux Island…** →
   **Keyboard Shortcuts**. The shortcut turns the notch over games on and off.
 

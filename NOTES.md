@@ -177,6 +177,14 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - A new default output reports its own volume as it comes in, which
   replaced the alert naming it. The volume stays quiet for
   `Theme.alertQuietMs` after `PreferredDevice.sink` changes.
+- **Brightness.** PowerDevil's keys always call the OSD (no setting), so
+  the README gives the keys to `AdjustBrightnessStepWithContext(step, 1,
+  "linuxisland")`: flag 1 skips `osdService.screenBrightnessChanged`
+  (checked with `dbus-monitor`; flag 0 calls it), step 0/1/2/3 = up, down,
+  small up, small down. `BrightnessChanged` carries that context, so only
+  those keys alert, not idle dimming or the sliders. Read with
+  `SignalWatcher` (`org.kde.plasma.workspace.dbus`): it calls
+  `dbus<Signal>(…)` on itself, strings wrapped as `{value}`.
 
 ## Recording (Spectacle)
 

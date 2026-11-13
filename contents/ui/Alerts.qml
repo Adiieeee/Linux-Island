@@ -1,19 +1,22 @@
 pragma Singleton
 
 import QtQuick
+import org.kde.plasma.private.brightnesscontrolplugin as BC
 import org.kde.plasma.private.volume as PA
+import org.kde.plasma.workspace.dbus as DBus
 import "."
 
 // short alerts in the notch, in place of KDE's on-screen display: the
-// volume, the output device and the microphone, for now. one alert at a time: a new one takes over
-// at once, and the same level changing again only updates it.
+// volume, the output device, the microphone and the brightness keys, for
+// now. one alert at a time: a new one takes over at once, and the same
+// level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
 QtObject {
     id: root
 
     // ── the alert on show ──
-    // kind: "" (none), "volume", "output", "mic". icon: a Material Symbols name. text: the
+    // kind: "" (none), "volume", "output", "mic", "brightness". icon: a Material Symbols name. text: the
     // line for an alert that isn't a level. value: a level's bar, 0..1 of
     // its whole range, or -1 for no bar; boostFrom: where the bar turns red
     // (the volume past 100%), 1 = never; valueText: the number beside it.
@@ -120,6 +123,65 @@ QtObject {
             icon: Audio.deviceIcon(sink, false),
             text: Audio.deviceName(sink)
         }, Theme.alertMs);
+    }
+
+    // ── brightness ──
+    // only the brightness keys set up as in the README: they call
+    // PowerDevil with its indicator off and the context "linuxisland".
+    // PowerDevil announces every change with the context that asked for
+    // it, so dimming when idle, the control center's slider or Plasma's
+    // brightness applet don't alert
+    readonly property BC.ScreenBrightnessControl screens: BC.ScreenBrightnessControl {}
+
+    // each display's ceiling, by its DBus name (the model's displayName)
+    component ScreenRow: QtObject {
+        required property string displayName
+        required property int maxBrightness
+    }
+
+    readonly property Instantiator screenRows: Instantiator {
+        model: root.screens.isBrightnessAvailable ? root.screens.displays : null
+        delegate: ScreenRow {}
+    }
+
+    function maxBrightness(display: string): int {
+        for (let i = 0; i < root.screenRows.count; i++) {
+            const row = root.screenRows.objectAt(i) as ScreenRow;
+            if (row && row.displayName === display)
+                return row.maxBrightness;
+        }
+        return 0;
+    }
+
+    // SignalWatcher calls dbus<SignalName> for each signal of the
+    // interface; strings arrive wrapped ({value: ...}), see plain()
+    readonly property DBus.SignalWatcher brightnessWatch: DBus.SignalWatcher {
+        busType: DBus.BusType.Session
+        service: "org.kde.ScreenBrightness"
+        path: "/org/kde/ScreenBrightness"
+        iface: "org.kde.ScreenBrightness"
+
+        function dbusBrightnessChanged(display, brightness, client, context) {
+            root.brightnessAlert(root.plain(display), root.plain(brightness), root.plain(context));
+        }
+    }
+
+    function plain(arg) {
+        return arg?.value ?? arg;
+    }
+
+    function brightnessAlert(display: string, brightness: int, context: string): void {
+        if (context !== "linuxisland")
+            return;
+        const max = root.maxBrightness(display);
+        if (max <= 0)
+            return;
+        const level = brightness / max;
+        root.show("brightness", {
+            icon: "light_mode",
+            value: level,
+            valueText: Math.round(level * 100) + "%"
+        }, Theme.alertLevelMs);
     }
 
     // ── microphone ──
