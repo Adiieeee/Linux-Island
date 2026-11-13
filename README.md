@@ -1,15 +1,15 @@
 # Linux Island
 
-A Nothing OS-style dynamic island for KDE Plasma 6. It sits in the middle of
-your panel and works as a control center: clock, weather, media, network,
-Bluetooth, sound, system meters, notifications, screen recording and power
-actions.
+A dynamic island for KDE Plasma 6, inspired by
+[impasto](https://github.com/andreumassanet/impasto), Andreu Massanet's
+Quickshell shell for Hyprland, and brought to KDE as a Plasma widget. It sits
+in the middle of your panel and works as a control center: clock, weather,
+media, network, Bluetooth, sound, system meters, notifications, screen
+recording and power actions.
 
-Linux Island is a personal fork of **Nothing Dynamic Island** by Omar
-(applet id `org.omar.nothingisland`, MIT license). The original is itself a
-port of a Quickshell island from Hyprland to a Plasma widget, with the same
-Nothing OS style, animations and content. This fork uses its own applet id,
-`linuxisland`, so it can be installed next to the original.
+The code started as a fork of **Nothing Dynamic Island** by Omar (applet id
+`org.omar.nothingisland`, MIT license). Linux Island uses its own applet id,
+`linuxisland`, so it can be installed next to it.
 
 ## What this fork changes
 
@@ -1469,6 +1469,8 @@ instead of a generic music note.
 
 ## Credits and license
 
-- Original widget: **Nothing Dynamic Island** by Omar, MIT license.
-- Fork: **Linux Island** by Adiieeee, MIT license. See [`LICENSE`](LICENSE).
+- Inspiration: [impasto](https://github.com/andreumassanet/impasto) by
+  Andreu Massanet, a Quickshell shell for Hyprland.
+- Code base: **Nothing Dynamic Island** by Omar, MIT license.
+- **Linux Island** by Adiieeee, MIT license. See [`LICENSE`](LICENSE).
 - Bundled icon font: Material Symbols Rounded by Google, Apache License 2.0.

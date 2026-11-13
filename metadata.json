@@ -6,8 +6,8 @@
             }
         ],
         "Category": "System Information",
-        "Description": "Nothing OS-style dynamic island: clock, media, network, sound and system.",
-        "Description[es]": "Isla dinámica estilo Nothing OS: reloj, medios, red, sonido y sistema.",
+        "Description": "Dynamic island for the panel: clock, media with lyrics, network, sound and system.",
+        "Description[es]": "Isla dinámica para el panel: reloj, medios con letras, red, sonido y sistema.",
         "Icon": "preferences-system-windows-effect-squash",
         "Id": "linuxisland",
         "License": "MIT",
