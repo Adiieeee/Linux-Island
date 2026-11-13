@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Shapes
 import org.kde.kirigami as Kirigami
+import org.kde.plasma.clock as PlasmaClock
 import "."
 
 // interior de la isla abierta, mismo contenido y overlays que hyprland
@@ -82,9 +83,6 @@ Item {
             if (root.Window.window && root.Window.window.visible) {
                 root.nudge = 1;
                 nudgeBack.restart();
-                // the big clock stops while hidden: right from the first
-                // frame, not a second later
-                panelClock.now = new Date();
             } else {
                 // every opening starts on the main view, not on whatever
                 // overlay (notifications, Wi-Fi…) or dropdown (sound,
@@ -242,16 +240,17 @@ Item {
                         width: parent.width
                         height: 44
 
-                        // only while the popup is up: Plasma keeps this panel
-                        // after it closes, and the clock ticked on unseen
-                        Timer {
+                        // Plasma's clock source, as the panel's clock: with
+                        // seconds on it ticks right on each second, so they
+                        // step evenly. a 1 s Timer ticked wherever in the
+                        // second the popup opened, and near the turn of one
+                        // its jitter showed some seconds longer than others.
+                        // seconds only while the popup is up (Plasma keeps
+                        // this panel after it closes); turned on, it ticks at
+                        // once, and dateTime is read fresh each time
+                        PlasmaClock.Clock {
                             id: panelClock
-                            property date now: new Date()
-                            interval: 1000
-                            running: root.Window.window?.visible ?? false
-                            repeat: true
-                            triggeredOnStart: true
-                            onTriggered: now = new Date()
+                            trackSeconds: root.Window.window?.visible ?? false
                         }
 
                         // hora y segundos separados, un solo Text no deja mezclar tamaños
@@ -273,7 +272,7 @@ Item {
                                 id: horaTxt
                                 anchors.bottom: parent.bottom
                                 width: moldeHora.width
-                                text: Qt.formatDateTime(panelClock.now, Cfg.fmtHora)
+                                text: Qt.formatDateTime(panelClock.dateTime, Cfg.fmtHora)
                                 color: Theme.fg
                                 font.family: Theme.fontDots
                                 font.features: Theme.numFeatures
@@ -292,7 +291,7 @@ Item {
                                 anchors.bottom: parent.bottom
                                 anchors.bottomMargin: 4
                                 width: moldeSeg.width
-                                text: Qt.formatDateTime(panelClock.now, "ss")
+                                text: Qt.formatDateTime(panelClock.dateTime, "ss")
                                 color: Theme.fgDim
                                 font.family: Theme.fontDots
                                 font.features: Theme.numFeatures
@@ -326,7 +325,7 @@ Item {
                                 spacing: 2
 
                                 Text {
-                                    text: Cfg.locale.toString(panelClock.now, "dddd, d MMMM").toUpperCase()
+                                    text: Cfg.locale.toString(panelClock.dateTime, "dddd, d MMMM").toUpperCase()
                                     color: Theme.fg
                                     font.family: Theme.font
                                     font.pixelSize: Theme.labelMedium

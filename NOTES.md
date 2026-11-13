@@ -284,8 +284,12 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   `trackSeconds: false`, as Breeze's lock screen does): one tick per
   minute, right at :00 (tested), and it follows a suspend or a change of
   time. A Timer set to the next minute wouldn't, since Qt's timers stand
-  still while the machine sleeps. The control center's big clock (with
-  seconds) ticks only while the popup is up, and is set fresh as it shows.
+  still while the machine sleeps. The control center's big clock uses the
+  same `Clock` with `trackSeconds` on only while the popup is up: then it
+  ticks right on each second (tested: .000), turned on it ticks at once,
+  and `dateTime` is read fresh each time. A 1 s Timer ticked wherever in
+  the second the popup opened, so near the turn of one its jitter (up to
+  ~20 ms in a real window) showed some seconds longer than others.
 - Testing offscreen (`qml` with `QT_QPA_PLATFORM=offscreen`) shows layout
   bugs, not the cost of a real popup resize. `console.warn` goes to the
   journal.
