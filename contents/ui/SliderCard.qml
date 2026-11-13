@@ -133,33 +133,6 @@ Rectangle {
         return !port || port.availability !== PA.Port.Unavailable;
     }
 
-    // "HDA NVidia Digital Stereo (HDMI) [24G2W1G3-]" → "24G2W1G3",
-    // "Alder Lake … Controller Headphones" → "Headphones", bluetooth names as they are
-    function deviceName(dev) {
-        const desc = dev?.description ?? "";
-        const bracket = desc.match(/\[(.+?)\]\s*$/);
-        if (bracket)
-            return bracket[1].replace(/[-\s]+$/, "");
-        const port = dev?.ports[dev.activePortIndex]?.description ?? "";
-        if (port && desc.endsWith(port))
-            return port;
-        return desc || Cfg.t("Desconocido");
-    }
-
-    function deviceIcon(dev, input) {
-        const name = dev?.name ?? "";
-        const text = (dev?.description ?? "") + " " + (dev?.ports[dev.activePortIndex]?.description ?? "");
-        if (name.startsWith("bluez"))
-            return input ? "headset_mic" : "earbuds";
-        if (input)
-            return "mic";
-        if (/HDMI|DisplayPort/i.test(text))
-            return "tv";
-        if (/Headphone|Headset/i.test(text))
-            return "headphones";
-        return "speaker";
-    }
-
     TextMetrics {
         id: valueMetrics
         font.family: Theme.fontDots
@@ -559,9 +532,9 @@ Rectangle {
             ds.dev.volume = Math.round(Math.max(0, Math.min(ds.maxLevel, v)) * PA.PulseAudio.NormalVolume);
         }
 
-        icon: root.deviceIcon(ds.dev, ds.isInput)
+        icon: Audio.deviceIcon(ds.dev, ds.isInput)
         iconColor: ds.devMuted ? Theme.fgFaint : ds.level > 1 ? Theme.alert : ds.selected ? Theme.fg : Theme.fgVariant
-        label: root.deviceName(ds.dev).toUpperCase()
+        label: Audio.deviceName(ds.dev).toUpperCase()
         selected: ds.dev ? ds.dev.default : false
         labelClickable: !ds.selected
         labelIcon: ds.selected ? "check" : ""

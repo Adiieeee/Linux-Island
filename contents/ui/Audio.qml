@@ -146,4 +146,33 @@ QtObject {
                 root.refreshDevices();
         }
     }
+
+    // ── names and icons for plasma-pa's devices (PulseObject) ──
+    // shared by the sound dropdown (SliderCard) and the output alert (Alerts)
+    // "HDA NVidia Digital Stereo (HDMI) [24G2W1G3-]" → "24G2W1G3",
+    // "Alder Lake … Controller Headphones" → "Headphones", bluetooth names as they are
+    function deviceName(dev) {
+        const desc = dev?.description ?? "";
+        const bracket = desc.match(/\[(.+?)\]\s*$/);
+        if (bracket)
+            return bracket[1].replace(/[-\s]+$/, "");
+        const port = dev?.ports[dev.activePortIndex]?.description ?? "";
+        if (port && desc.endsWith(port))
+            return port;
+        return desc || Cfg.t("Desconocido");
+    }
+
+    function deviceIcon(dev, input) {
+        const name = dev?.name ?? "";
+        const text = (dev?.description ?? "") + " " + (dev?.ports[dev.activePortIndex]?.description ?? "");
+        if (name.startsWith("bluez"))
+            return input ? "headset_mic" : "earbuds";
+        if (input)
+            return "mic";
+        if (/HDMI|DisplayPort/i.test(text))
+            return "tv";
+        if (/Headphone|Headset/i.test(text))
+            return "headphones";
+        return "speaker";
+    }
 }
