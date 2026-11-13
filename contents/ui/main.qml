@@ -242,7 +242,12 @@ PlasmoidItem {
         LayerShell.Window.anchors: LayerShell.Window.AnchorTop
         LayerShell.Window.keyboardInteractivity: LayerShell.Window.KeyboardInteractivityNone
         LayerShell.Window.exclusionZone: -1
-        LayerShell.Window.screenConfiguration: LayerShell.Window.ScreenFromQWindow
+        // on the window's own screen (set above), not the active one.
+        // layer-shell-qt 6.8 warns that screenConfiguration (used first) is
+        // deprecated in favour of this. (its own screen property wants a
+        // QScreen, which QML's screen list doesn't give: "Unable to assign
+        // QQuickScreenInfo to QScreen")
+        LayerShell.Window.wantsToBeOnActiveScreen: false
         LayerShell.Window.scope: "linuxisland-game-notch"
 
         // it may appear right under the pointer: don't let that open the
@@ -434,8 +439,20 @@ PlasmoidItem {
         readonly property rect screenRect: Qt.rect(compact.Screen.virtualX, compact.Screen.virtualY, compact.Screen.width, compact.Screen.height)
         onScreenRectChanged: root.refreshGame()
         // the floating notch's window goes on this screen, as tall as this
-        // notch (the panel's thickness: it reaches the panel's edges)
-        readonly property var islandScreen: compact.Window.window ? compact.Window.window.screen : null
+        // notch (the panel's thickness: it reaches the panel's edges). taken
+        // from QML's screen list by name: a QML Window's screen takes those
+        // entries (QQuickScreenInfo), and Qt's setter turns anything else,
+        // like the panel window's own QScreen, into no screen, which means
+        // the primary one
+        readonly property var islandScreen: {
+            const name = compact.Screen.name;
+            const screens = Qt.application.screens;
+            for (let i = 0; i < screens.length; i++) {
+                if (screens[i].name === name)
+                    return screens[i];
+            }
+            return null;
+        }
         readonly property real notchHeight: compactPill.capsuleHeight
 
         // Plasma's panel wrapper (CompactApplet.qml) marks an open applet
