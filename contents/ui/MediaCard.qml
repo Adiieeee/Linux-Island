@@ -119,8 +119,13 @@ Item {
         if (root.skipLanded && !skipMinTimer.running)
             root.endSkip();
     }
-    // another player in the card: whatever it was waiting for is moot
-    onPlayerChanged: root.endSkip()
+    // another player in the card: whatever it was waiting for is moot, and
+    // the time on show starts from where the new one is
+    onPlayerChanged: {
+        root.endSkip();
+        root.rebase(root.reported());
+        root.showPos();
+    }
 
     Timer {
         id: skipMinTimer
@@ -219,8 +224,7 @@ Item {
 
     // mpris usa microsegundos, acá todo en segundos
     readonly property real length: (player?.length ?? 0) / 1000000
-    readonly property real position: (player?.position ?? 0) / 1000000
-    readonly property real progress: length > 0 ? Math.max(0, Math.min(1, position / length)) : 0
+    readonly property real progress: length > 0 ? Math.max(0, Math.min(1, shownPos / length)) : 0
     // the player reports where it is and how long the track is. a browser
     // doesn't always: Zen's own MPRIS player with YouTube reports position 0
     // and no length on some videos, and on the others stops reporting both
@@ -233,19 +237,88 @@ Item {
     readonly property bool canSkip: (player?.canGoPrevious ?? false) || (player?.canGoNext ?? false)
 
     // where the player is now: the last reported position plus the time
-    // since, so a seek lands where it's aimed (the position is only asked
-    // for once a second)
-    property real posAt: 0
+    // since, times the rate, as in Lyrics, so a seek lands where it's aimed
+    // (the position is only asked for once a second). basePlaying is
+    // whether it was playing from then on: a pause keeps where it got to
+    property real basePos: 0
+    property double baseAt: 0
+    property bool basePlaying: false
+
+    // the player's own position in seconds, read from it each time: a
+    // binding on it may not have caught up yet inside the same signal
+    function reported(): real {
+        return (root.player?.position ?? 0) / 1000000;
+    }
+    function rebase(pos: real): void {
+        root.basePos = pos;
+        root.baseAt = Date.now();
+        root.basePlaying = root.isPlaying;
+    }
+    function playhead(): real {
+        const since = root.basePlaying ? (Date.now() - root.baseAt) / 1000 * (root.player?.rate ?? 1) : 0;
+        return Math.max(0, Math.min(root.length, root.basePos + since));
+    }
+
     Connections {
         target: root.player
         function onPositionChanged() {
-            root.posAt = Date.now();
+            root.rebase(root.reported());
+            root.correct();
+        }
+        // a new track: from its own start, not the last one's position
+        function onTrackChanged() {
+            root.rebase(root.reported());
+            root.showPos();
+        }
+        function onRateChanged() {
+            root.rebase(root.playhead());
+            root.showPos();
         }
     }
-    function playhead(): real {
-        const since = root.isPlaying && root.posAt > 0 ? (Date.now() - root.posAt) / 1000 * (root.player?.rate ?? 1) : 0;
-        return Math.max(0, Math.min(root.length, root.position + since));
+    onIsPlayingChanged: {
+        root.rebase(root.playhead());
+        root.showPos();
     }
+
+    // ── the time on show ──
+    // the playhead, stepped on at each of the song's whole seconds by a
+    // single-shot timer (as Lyrics does for its lines). shown as each answer
+    // came in, the seconds stepped whenever one arrived: this card asks every
+    // second and the lyrics every 5 s, so every fifth second or so one came
+    // early and the next one late. now an answer only corrects the playhead,
+    // and shows at once only for a jump (a seek) or while paused
+    property real shownPos: 0
+
+    function showPos(): void {
+        root.shownPos = root.playhead();
+        root.nextSecond();
+    }
+
+    function correct(): void {
+        const now = root.playhead();
+        if (!root.basePlaying || Math.abs(now - root.shownPos) > 1)
+            root.shownPos = now;
+        root.nextSecond();
+    }
+
+    function nextSecond(): void {
+        secondTick.stop();
+        if (!root.basePlaying || !root.shown || !root.timed)
+            return;
+        const at = root.playhead();
+        const rate = Math.max(0.01, root.player?.rate ?? 1);
+        // a few ms past the turn, so the new second is the one shown
+        secondTick.interval = Math.max(20, Math.round((Math.floor(at) + 1 - at) / rate * 1000) + 10);
+        secondTick.start();
+    }
+
+    Timer {
+        id: secondTick
+        onTriggered: root.showPos()
+    }
+
+    onShownChanged: root.showPos()
+    onTimedChanged: root.nextSecond()
 
     // MPRIS here only seeks relative to where the player is (no SetPosition)
     function seekTo(seconds: real): void {
@@ -851,7 +924,7 @@ Item {
             anchors.leftMargin: 12 + root.side
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 6
-            text: root.fmt(seekMa.dragging ? seekMa.at * root.length : root.position)
+            text: root.fmt(seekMa.dragging ? seekMa.at * root.length : root.shownPos)
             visible: root.timed
             color: Theme.mediaDim
             font.family: Theme.fontDots

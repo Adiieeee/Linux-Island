@@ -121,6 +121,14 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   It runs only while the card is `shown` (its window up and the card
   visible in it). `Lyrics` doesn't need it: lines start on their own
   single-shot timer, and its 5 s resync only corrects drift.
+- **The elapsed time steps on the song's own seconds.** Shown as each
+  position answer came in, it stepped whenever one arrived, and with two
+  askers (the card every second, the lyrics every 5 s) every fifth second
+  was 880 ms and the next 1120 ms (measured). The card now keeps its own
+  playhead (base + time since × rate, as `Lyrics`), shows `shownPos`, and
+  a single-shot timer steps it just past each whole second. An answer only
+  rebases the playhead; it shows at once only for a jump over 1 s (a seek)
+  or while paused. The progress bar follows `shownPos` too.
 
 ## The media card's colours
 
