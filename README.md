@@ -85,18 +85,18 @@ Without one of these, its section stays empty and the rest keeps working.
   Settings → Sound → **Configure Volume Controls…** → uncheck everything
   under **Show OSD popups for changes to:**.
 - **Brightness keys.** PowerDevil always shows KDE's pop-up for its own
-  brightness keys, so give the keys to these commands instead: System
-  Settings → Keyboard → Shortcuts → **Power Management**, set the four
-  *Screen Brightness* shortcuts to None; then **Add New → Command or
-  Script…** once per key (press the key in the shortcut field):
+  brightness keys, so give the keys to commands instead. System Settings →
+  Keyboard → Shortcuts → **Add New → Command or Script…**; any name, and
+  this command on one line:
 
-  ```bash
-  qdbus6 org.kde.ScreenBrightness /org/kde/ScreenBrightness \
-    org.kde.ScreenBrightness.AdjustBrightnessStepWithContext 0 1 linuxisland
+  ```
+  qdbus6 org.kde.ScreenBrightness /org/kde/ScreenBrightness org.kde.ScreenBrightness.AdjustBrightnessStepWithContext 0 1 linuxisland
   ```
 
-  `0` is up, `1` down, `2` and `3` the small steps (Shift); the `1` after
-  it hides KDE's pop-up. Only changes from `linuxisland` alert.
+  Then **Add…** under *Custom shortcuts*, press the key, and **Reassign**
+  it from Power Management. One command per key: `0` brightness up, `1`
+  down, `2` and `3` the small steps (Shift+). The `1` after it hides KDE's
+  pop-up; only changes from `linuxisland` alert.
 - **Shortcut.** Right-click the island → **Configure Linux Island…** →
   **Keyboard Shortcuts**. The shortcut turns the notch over games on and off.
 
