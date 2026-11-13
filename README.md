@@ -106,8 +106,8 @@ Right-click the island → **Configure Linux Island…**
 
 - **Island**: language (English or Spanish), 12- or 24-hour big clock, RAM
   used next to its percentage, the player in the notch, the album-art tint,
-  the notch over games, synced lyrics, and the weather city (empty finds it
-  from your IP).
+  the notch over games, synced lyrics, the weather city (empty finds it
+  from your IP), and which alerts show in the notch.
 - **Colours**: four colours plus the text colour. The greys in between are
   mixed from them.
 - **Fonts**: the text and number fonts. Both follow the system font by

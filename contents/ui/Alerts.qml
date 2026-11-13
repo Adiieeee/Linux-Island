@@ -23,7 +23,7 @@ QtObject {
 
     // ── the alert on show ──
     // kind: "" (none), "volume", "output", "mic", "brightness",
-    // "clipboard", "bluetooth", "power", "battery", "record". icon: a Material Symbols name; image: a picture in its
+    // "clipboard", "bluetooth", "charger", "battery", "record". icon: a Material Symbols name; image: a picture in its
     // place (a copied image). text: the line for an alert that isn't a
     // level. value: a level's bar, 0..1 of its whole range, or -1 for no
     // bar; boostFrom: where the bar turns red (the volume past 100%), 1 =
@@ -62,7 +62,7 @@ QtObject {
     // critical;
     // the ones left out go back to their defaults
     function show(kind: string, props, ms: int): void {
-        if (!root.armed || root.paused)
+        if (!root.armed || root.paused || !root.allowed(kind))
             return;
         root.icon = props.icon ?? "";
         root.image = props.image ?? "";
@@ -75,6 +75,31 @@ QtObject {
         root.kind = kind;
         root.hideTimer.interval = ms;
         root.hideTimer.restart();
+    }
+
+    // each kind has its own switch in the settings (Cfg.alert...)
+    function allowed(kind: string): bool {
+        switch (kind) {
+        case "volume":
+            return Cfg.alertVolume;
+        case "mic":
+            return Cfg.alertMic;
+        case "output":
+            return Cfg.alertOutput;
+        case "brightness":
+            return Cfg.alertBrightness;
+        case "clipboard":
+            return Cfg.alertClipboard;
+        case "bluetooth":
+            return Cfg.alertBluetooth;
+        case "charger":
+            return Cfg.alertCharger;
+        case "battery":
+            return Cfg.alertBattery;
+        case "record":
+            return Cfg.alertRecord;
+        }
+        return true;
     }
 
     function hide(): void {
@@ -206,9 +231,10 @@ QtObject {
     // only inside plasmashell, where the clipboard applet already made it:
     // anywhere else (a test in the qml tool) it starts a second Klipper,
     // which crashed offscreen (SystemClipboard asks X11 for the focus) and
-    // would otherwise write to the same history database
+    // would otherwise write to the same history database. with its alert
+    // turned off the clipboard isn't read at all
     readonly property Instantiator clipboard: Instantiator {
-        active: Qt.application.name === "plasmashell"
+        active: Qt.application.name === "plasmashell" && Cfg.alertClipboard
         delegate: Clip.HistoryModel {
             onCurrentTextChanged: Qt.callLater(root.clipboardAlert)
         }
@@ -316,7 +342,7 @@ QtObject {
         root.pluggedIn = plugged;
         if (before < 0 || before === plugged || root.batteryPercent < 0)
             return;
-        root.show("power", {
+        root.show("charger", {
             icon: plugged ? "power" : "battery_full",
             text: plugged ? Cfg.t("Enchufado") : Cfg.t("Con batería"),
             valueText: root.batteryPercent + "%"

@@ -52,6 +52,17 @@ QtObject {
     // the notch floats above a fullscreen window on the island's screen, so
     // the lyrics stay in view while gaming (main.qml's overlay window)
     property bool notchOverGames: false
+    // alerts in the notch in place of KDE's pop-ups (Alerts.qml), one
+    // switch per kind
+    property bool alertVolume: true
+    property bool alertMic: true
+    property bool alertOutput: true
+    property bool alertBrightness: true
+    property bool alertClipboard: true
+    property bool alertBluetooth: true
+    property bool alertCharger: true
+    property bool alertBattery: true
+    property bool alertRecord: true
 
     // ciudad para el clima; vacío = wttr.in detecta sola por ip
     property string weatherCity: ""

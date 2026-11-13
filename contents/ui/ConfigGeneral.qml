@@ -19,6 +19,15 @@ Kirigami.FormLayout {
     property bool cfg_showLyrics: true
     property bool cfg_tintIsland: false
     property bool cfg_notchOverGames: false
+    property bool cfg_alertVolume: true
+    property bool cfg_alertMic: true
+    property bool cfg_alertOutput: true
+    property bool cfg_alertBrightness: true
+    property bool cfg_alertClipboard: true
+    property bool cfg_alertBluetooth: true
+    property bool cfg_alertCharger: true
+    property bool cfg_alertBattery: true
+    property bool cfg_alertRecord: true
     property string cfg_weatherCity: ""
 
     // del combo en vivo, no de Cfg.esp (eso es el idioma ya aplicado, no el que se está eligiendo)
@@ -184,6 +193,69 @@ Kirigami.FormLayout {
     QQC2.Label {
         Kirigami.FormData.label: ""
         text: page.esp ? "Mientras un juego o un video está a pantalla completa en la pantalla de la isla, la muesca flota encima, así la letra sigue a la vista." : "While a game or a video is fullscreen on the island's screen, the notch floats above it, so the lyrics stay in view."
+        opacity: 0.7
+        wrapMode: Text.WordWrap
+        Layout.maximumWidth: Kirigami.Units.gridUnit * 20
+    }
+
+    QQC2.CheckBox {
+        Kirigami.FormData.label: page.esp ? "Avisos:" : "Alerts:"
+        text: page.esp ? "Volumen" : "Volume"
+        checked: page.cfg_alertVolume
+        onToggled: page.cfg_alertVolume = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Micrófono" : "Microphone"
+        checked: page.cfg_alertMic
+        onToggled: page.cfg_alertMic = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Dispositivo de salida nuevo" : "New output device"
+        checked: page.cfg_alertOutput
+        onToggled: page.cfg_alertOutput = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Teclas de brillo" : "Brightness keys"
+        checked: page.cfg_alertBrightness
+        onToggled: page.cfg_alertBrightness = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Lo que se copia" : "What you copy"
+        checked: page.cfg_alertClipboard
+        onToggled: page.cfg_alertClipboard = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Dispositivos Bluetooth" : "Bluetooth devices"
+        checked: page.cfg_alertBluetooth
+        onToggled: page.cfg_alertBluetooth = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Cargador" : "Charger"
+        checked: page.cfg_alertCharger
+        onToggled: page.cfg_alertCharger = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Batería baja" : "Low battery"
+        checked: page.cfg_alertBattery
+        onToggled: page.cfg_alertBattery = checked
+    }
+
+    QQC2.CheckBox {
+        text: page.esp ? "Grabación guardada" : "Saved recording"
+        checked: page.cfg_alertRecord
+        onToggled: page.cfg_alertRecord = checked
+    }
+
+    QQC2.Label {
+        Kirigami.FormData.label: ""
+        text: page.esp ? "Avisos cortos en la muesca en lugar de las ventanas de KDE. Para que las de KDE no salgan también, mira los consejos del README." : "Short alerts in the notch in place of KDE's pop-ups. To keep KDE's from showing as well, see the tips in the README."
         opacity: 0.7
         wrapMode: Text.WordWrap
         Layout.maximumWidth: Kirigami.Units.gridUnit * 20

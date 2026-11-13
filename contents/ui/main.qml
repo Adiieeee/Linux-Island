@@ -80,6 +80,51 @@ PlasmoidItem {
     }
     Binding {
         target: Cfg
+        property: "alertVolume"
+        value: Plasmoid.configuration.alertVolume
+    }
+    Binding {
+        target: Cfg
+        property: "alertMic"
+        value: Plasmoid.configuration.alertMic
+    }
+    Binding {
+        target: Cfg
+        property: "alertOutput"
+        value: Plasmoid.configuration.alertOutput
+    }
+    Binding {
+        target: Cfg
+        property: "alertBrightness"
+        value: Plasmoid.configuration.alertBrightness
+    }
+    Binding {
+        target: Cfg
+        property: "alertClipboard"
+        value: Plasmoid.configuration.alertClipboard
+    }
+    Binding {
+        target: Cfg
+        property: "alertBluetooth"
+        value: Plasmoid.configuration.alertBluetooth
+    }
+    Binding {
+        target: Cfg
+        property: "alertCharger"
+        value: Plasmoid.configuration.alertCharger
+    }
+    Binding {
+        target: Cfg
+        property: "alertBattery"
+        value: Plasmoid.configuration.alertBattery
+    }
+    Binding {
+        target: Cfg
+        property: "alertRecord"
+        value: Plasmoid.configuration.alertRecord
+    }
+    Binding {
+        target: Cfg
         property: "weatherCity"
         value: Plasmoid.configuration.weatherCity
     }

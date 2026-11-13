@@ -51,6 +51,34 @@
     <entry name="notchOverGames" type="Bool">
       <default>false</default>
     </entry>
+    <!-- Alerts in the notch in place of KDE's pop-ups (Alerts.qml), one switch per kind -->
+    <entry name="alertVolume" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertMic" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertOutput" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertBrightness" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertClipboard" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertBluetooth" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertCharger" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertBattery" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="alertRecord" type="Bool">
+      <default>true</default>
+    </entry>
 
     <!-- Ciudad para el clima; vacío = detectar sola por IP -->
     <entry name="weatherCity" type="String">
