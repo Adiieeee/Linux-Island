@@ -84,9 +84,11 @@ Item {
                 nudgeBack.restart();
             } else {
                 // every opening starts on the main view, not on whatever
-                // overlay (notifications, Wi-Fi…) was up when it closed.
-                // done once the window is hidden, so the switch isn't seen
+                // overlay (notifications, Wi-Fi…) or dropdown (sound,
+                // brightness) was up when it closed. done once the window
+                // is hidden, so the switch isn't seen
                 root.closeOverlay();
+                sliderCard.reset();
             }
         }
     }

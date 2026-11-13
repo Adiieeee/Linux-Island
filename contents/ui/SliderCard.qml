@@ -91,7 +91,19 @@ Rectangle {
     }
 
     function toggle(name) {
+        root.animate = true;
         root.menu = root.menu === name ? "" : name;
+    }
+
+    // the dropdowns' and chevrons' animations. off after reset() until the
+    // next click on a label, so a quick reopen doesn't catch them closing
+    property bool animate: true
+
+    // every opening starts with the dropdowns shut (ExpandedPanel calls this
+    // once the popup is hidden)
+    function reset() {
+        root.animate = false;
+        root.menu = "";
     }
 
     // all label columns are as wide as the widest label, so the tracks line
@@ -265,6 +277,7 @@ Rectangle {
                 rotation: row.expanded && row.labelIcon === "expand_more" ? 180 : 0
 
                 Behavior on rotation {
+                    enabled: root.animate
                     NumberAnimation {
                         duration: Theme.durMedium
                         easing.type: Easing.Bezier
@@ -480,7 +493,11 @@ Rectangle {
         border.width: 1
         border.color: Theme.outline
 
+        // a long list opens at its top, not where it was last scrolled to
+        onOpenChanged: if (dd.open) flick.contentY = 0
+
         Behavior on height {
+            enabled: root.animate
             NumberAnimation {
                 duration: Theme.durMedium
                 easing.type: Easing.Bezier
@@ -488,6 +505,7 @@ Rectangle {
             }
         }
         Behavior on opacity {
+            enabled: root.animate
             NumberAnimation {
                 duration: Theme.durShort
                 easing.type: Easing.Bezier
@@ -502,6 +520,7 @@ Rectangle {
         }
 
         Flickable {
+            id: flick
             anchors.fill: parent
             anchors.margins: dd.pad
             anchors.leftMargin: 14

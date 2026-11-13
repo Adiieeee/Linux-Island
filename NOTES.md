@@ -85,6 +85,11 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   pointer enters the notch and activates it again if the popup becomes
   active within 500 ms; a later click into the popup keeps the keyboard.
   `hideOnWindowDeactivate` is off for this.
+- Every opening starts fresh: once the popup is hidden, `ExpandedPanel`
+  closes the overlay and `SliderCard.reset()` the SOUND/BRIGHTNESS
+  dropdowns. Their own state outlives the hide, so they came back open.
+  `reset()` turns their animations off until the next click on a label, or
+  a reopen within 280 ms caught them still closing.
 
 ## Media
 
