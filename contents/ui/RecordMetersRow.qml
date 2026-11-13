@@ -7,16 +7,17 @@ import "."
 Item {
     id: root
 
-    // a click on the card itself starts/stops recording (the game panel)
-    // instead of asking for the recording view
-    property bool cardToggles: false
+    // the card itself opens the recording view. off in the game panel,
+    // which has none: there only the round button records, and the card
+    // doesn't look clickable (no hover, plain pointer)
+    property bool cardClickable: true
 
     // the card was clicked and the recording view should open (ExpandedPanel)
     signal settingsRequested
 
     // one of the card's setting icons, clickable. it always takes its click,
-    // even while recording when it changes nothing: a click let through
-    // would reach the card, which in the game panel starts or stops
+    // even while recording when it changes nothing, so a click on it never
+    // reaches the card underneath (which would open the recording view)
     component SettingToggle: Item {
         id: st
         property string icon: ""
@@ -79,17 +80,11 @@ Item {
             id: recMa
             anchors.fill: parent
             hoverEnabled: true
+            enabled: root.cardClickable
             cursorShape: Qt.PointingHandCursor
             // the card opens the recording view (status and stop
-            // while recording), or, with cardToggles (the game panel, which
-            // has no recording view), starts/stops like the round button;
-            // the round button starts/stops directly
-            onClicked: {
-                if (root.cardToggles)
-                    Recorder.toggle();
-                else
-                    root.settingsRequested();
-            }
+            // while recording); the round button starts/stops directly
+            onClicked: root.settingsRequested()
         }
 
         Rectangle {

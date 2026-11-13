@@ -46,11 +46,11 @@ Item {
             raisable: false
         }
 
-        // a click anywhere on the recording card starts/stops (there's no
-        // recording view here)
+        // the round button starts/stops; the card itself does nothing here
+        // (there's no recording view in the game panel)
         RecordMetersRow {
             width: parent.width
-            cardToggles: true
+            cardClickable: false
         }
     }
 }

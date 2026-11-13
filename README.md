@@ -179,9 +179,8 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   audio, microphone) are toggles: a click flips them right there, in the
   control center and in the game panel alike, with a round hover mark like
   the other buttons. While recording they don't change, as in the
-  recording view (Spectacle reads them when a recording starts), but they
-  still take the click: in the game panel a click let through to the card
-  would stop the recording.
+  recording view (Spectacle reads them when a recording starts), and a
+  click on them never reaches the card underneath.
 - The control center always opens on its main view. It used to come back
   on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
   The overlay is reset once the popup window is hidden, so the switch
@@ -752,8 +751,9 @@ Right-click the island → **Configure Linux Island…**. Options:
   moving the pointer onto the panel's notch. Hovering the floating notch
   opens a smaller **game panel** right under it instead: the media card
   (its colours standing still, a click on the art doesn't bring the player
-  forward) and the recording + meters row (a click anywhere on the
-  recording card starts or stops). It closes when the pointer leaves, and
+  forward) and the recording + meters row (the round button starts or
+  stops; the rest of the card does nothing there, as the game panel has no
+  recording view). It closes when the pointer leaves, and
   the game keeps the keyboard throughout. (New, still being tested on the
   desktop.)
 - **Show synced lyrics** (on by default): the lyric lines in the small
