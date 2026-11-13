@@ -210,25 +210,9 @@ PlasmoidItem {
         }
     }
 
-    // the control center was opened from the floating notch. the popup
-    // isn't a window in the tasks model, and while it has the keyboard the
-    // game isn't the active window, so gameOnIsland drops; without this the
-    // floating notch would vanish under the pointer as the popup opens
-    property bool gameNotchHeld: false
-    onExpandedChanged: {
-        // Plasma expanding on the shortcut, see Plasmoid.onActivated
-        if (root.expanded && root.activating) {
-            root.expanded = false;
-            return;
-        }
-        if (root.expanded)
-            return;
-        root.gameNotchHeld = false;
-        // back to the game the control center was opened over
-        const owner = root.gameOwner;
-        root.gameOwner = "";
-        root.activateWindowId(owner);
-    }
+    // Plasma expanding on the shortcut, see Plasmoid.onActivated
+    onExpandedChanged: if (root.expanded && root.activating)
+        root.expanded = false
 
     // ── the notch over a fullscreen game ──
     // a fullscreen active window sits above Plasma's panels, so the panel's
@@ -241,7 +225,7 @@ PlasmoidItem {
     Window {
         id: gameNotch
 
-        visible: Cfg.notchOverGames && (root.gameOnIsland || (root.expanded && root.gameNotchHeld))
+        visible: Cfg.notchOverGames && root.gameOnIsland
         screen: root.compactRepresentationItem?.islandScreen ?? null
         // closed: the larger of the notch's width and the width it's heading
         // to (a growing notch isn't clipped, and the window is never much
@@ -360,19 +344,6 @@ PlasmoidItem {
         root.activateWindowId(owner);
     }
 
-    // ── over a game, the keyboard goes back on close instead ──
-    // handing the keyboard straight back doesn't work over a fullscreen
-    // game: KWin keeps a fullscreen window above the panels only while it's
-    // the active one, so the popup taking the keyboard sends the game behind
-    // the panel (the whole panel shows), and handing it back raises the game
-    // above everything again, the control center included (seen live: the
-    // panel and the control center flashed for a frame and were gone).
-    // Plasma's popup can't sit above an active fullscreen window. so when the
-    // control center opens from the floating notch, it keeps the keyboard
-    // and the game waits behind the panel, as when any Plasma popup opens
-    // over a game; when it closes, the game is activated again
-    property string gameOwner: ""
-
     // past this, a popup activation is the user's own click, not the show
     Timer {
         id: keyboardReturn
@@ -380,8 +351,9 @@ PlasmoidItem {
         onTriggered: root.keyboardOwner = ""
     }
 
-    // the pointer reached a notch (the panel's or the one over a game):
-    // open the control center, and hand the keyboard back afterwards
+    // the pointer reached a notch: the floating one over a game opens the
+    // game panel; the panel's opens the control center and hands the
+    // keyboard back afterwards
     function openFromNotch() {
         // the floating notch over a game: its own game panel, not Plasma's
         // popup (which would send the game behind the panel)
@@ -392,22 +364,15 @@ PlasmoidItem {
         }
         if (root.expanded)
             return;
-        // opened from the floating notch: keep it up while the control
-        // center is open (see gameNotchHeld), and give the game its keyboard
-        // back only when it closes (see gameOwner)
-        root.gameNotchHeld = gameNotch.visible;
-        if (root.gameNotchHeld)
-            root.gameOwner = root.activeWindowId();
-        else
-            root.rememberKeyboardOwner();
+        root.rememberKeyboardOwner();
         root.expanded = true;
     }
 
     // the control center closes on its own once the pointer has been off
-    // the notches and the popup for Theme.hoverCloseDelay
+    // the panel's notch and the popup for Theme.hoverCloseDelay
     Timer {
         interval: Theme.hoverCloseDelay
-        running: root.expanded && !(root.compactRepresentationItem?.notchHovered ?? false) && !gamePill.notchHovered && !(root.fullRepresentationItem?.engaged ?? false)
+        running: root.expanded && !(root.compactRepresentationItem?.notchHovered ?? false) && !(root.fullRepresentationItem?.engaged ?? false)
         onTriggered: root.expanded = false
     }
 
