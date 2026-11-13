@@ -81,12 +81,20 @@ Item {
         wave.history = next;
     }
 
-    onLiveChanged: if (!live) {
+    function quiet(): void {
+        if (wave.live)
+            return;
         wave.env = 0;
         wave.refDb = wave.refFloorDb;
         wave.avgDb = wave.gateDb;
         wave.history = [];
     }
+
+    // a moment later, not in this handler: the bars' Behavior follows live
+    // too and may not be enabled yet when this runs (tested: the bars then
+    // dropped to rest at once instead of settling)
+    onLiveChanged: if (!live)
+        Qt.callLater(wave.quiet)
 
     PA.VolumeMonitor {
         target: wave.live ? PA.PreferredDevice.sink : null
@@ -113,11 +121,16 @@ Item {
                 radius: width / 2
                 color: wave.live ? Theme.fg : Theme.fgFaint
 
-                // short while live, to smooth the steps between samples; the
-                // usual settle when it stops, instead of dropping at once
+                // no animation while live: each sample sets the height (~24
+                // frames a second). an animation between samples outlasted
+                // the gap to the next one, so one always ran and the whole
+                // panel was redrawn at the display's rate (144 fps, ~18 % of
+                // a core with KWin). the usual settle when it stops, instead
+                // of dropping at once
                 Behavior on height {
+                    enabled: !wave.live
                     NumberAnimation {
-                        duration: wave.live ? Theme.durTick : Theme.durMedium
+                        duration: Theme.durMedium
                         easing.type: Easing.OutQuad
                     }
                 }
