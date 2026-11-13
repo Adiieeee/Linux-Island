@@ -32,6 +32,10 @@ QtObject {
     readonly property color fgDim: mezcla(fg, bg, 0.3)
     readonly property color fgFaint: mezcla(fg, bg, 0.5)
     readonly property color outline: mezcla(bg, fg, 0.165)
+    // the edge of the sheet the control center's panels open on (Wi-Fi,
+    // Bluetooth, recording, sound, notifications, calendar, power): brighter
+    // than outline, so the sheet stands out from the island under it
+    readonly property color overlayEdge: mezcla(bg, fg, 0.3)
     // the media card keeps the original dim grey (#9A9A9A with the defaults);
     // the brighter text greys above are not meant for it. not for the artist
     // line though, see mediaArtistAlpha

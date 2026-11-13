@@ -490,7 +490,7 @@ Item {
                     radius: Theme.shapeLg
                     color: Theme.surface
                     border.width: 1
-                    border.color: Theme.outline
+                    border.color: Theme.overlayEdge
                     clip: true
 
                     opacity: root.overlay !== "" ? 1 : 0
