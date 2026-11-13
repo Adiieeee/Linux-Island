@@ -83,7 +83,8 @@ Without one of these, its section stays empty and the rest keeps working.
   video doesn't show up twice.
 - **Alerts.** So KDE's own volume pop-up doesn't show as well: System
   Settings → Sound → **Configure Volume Controls…** → uncheck everything
-  under **Show OSD popups for changes to:**.
+  under **Show OSD popups for changes to:**. In the same dialog, **Raise
+  maximum volume** lets the volume keys go up to 150%, like the slider.
 - **Brightness keys.** PowerDevil always shows KDE's pop-up for its own
   brightness keys, so give the keys to commands instead. System Settings →
   Keyboard → Shortcuts → **Add New → Command or Script…**; any name, and
