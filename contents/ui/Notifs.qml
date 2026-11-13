@@ -101,6 +101,7 @@ QtObject {
             // Chromium), when the browser says
             originName: root.at(row, NM.Notifications.OriginNameRole) ?? "",
             created: created ? new Date(created).getTime() : Date.now(),
+            desktopEntry: desktopEntry,
             // the folder it goes in: one per app
             appKey: appName || desktopEntry || ""
         });
@@ -134,9 +135,30 @@ QtObject {
             root.capture(e.row);
     }
 
+    // apps shown under another name in the panel: a wrapper named after
+    // its own project rather than the service it opens (ZapZap is
+    // WhatsApp). match is tried on the desktop entry and the app's name.
+    // logo: a local file, ignored by git (contents/local/), since a brand's
+    // logo can't go in the repo; without it the app's own icon shows
+    readonly property var aliases: [
+        {
+            match: /^(com\.rtosta\.)?zapzap/i,
+            name: "WhatsApp",
+            logo: Qt.resolvedUrl("../local/whatsapp.svg").toString()
+        }
+    ]
+
+    function alias(appName, desktopEntry) {
+        for (const a of root.aliases) {
+            if (a.match.test(desktopEntry) || a.match.test(appName))
+                return a;
+        }
+        return null;
+    }
+
     // the history in folders, one per app, the app with the newest
-    // notification first: [{ key, name, icon, items: [entry, ...] }], items
-    // newest first. plain data, rebuilt whenever the history changes
+    // notification first: [{ key, name, icon, logo, items: [entry, ...] }],
+    // items newest first. plain data, rebuilt whenever the history changes
     property var groups: []
 
     function regroup(): void {
@@ -154,10 +176,12 @@ QtObject {
                 picture: e.image || e.applicationIconName
             };
             if (!(e.appKey in byKey)) {
+                const a = root.alias(e.applicationName, e.desktopEntry);
                 byKey[e.appKey] = {
                     key: e.appKey,
-                    name: e.applicationName,
+                    name: a ? a.name : e.applicationName,
                     icon: e.applicationIconName,
+                    logo: a ? a.logo : "",
                     items: []
                 };
                 order.push(e.appKey);

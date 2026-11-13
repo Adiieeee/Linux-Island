@@ -40,6 +40,8 @@ Item {
         id: entry
 
         property string icon: ""
+        // shown when icon can't load (a logo file that isn't there)
+        property string fallbackIcon: ""
         property string title: ""
         property string text: ""
         property string detail: ""
@@ -71,7 +73,13 @@ Item {
             implicitWidth: entry.indent ? 20 : 26
             implicitHeight: entry.indent ? 20 : 26
             source: entry.icon
-            visible: entry.icon !== ""
+            visible: entry.icon !== "" && status !== Kirigami.Icon.Error
+        }
+
+        Kirigami.Icon {
+            anchors.fill: entryIcon
+            source: entry.fallbackIcon
+            visible: entry.fallbackIcon !== "" && entryIcon.status === Kirigami.Icon.Error
         }
 
         Text {
@@ -409,7 +417,8 @@ Item {
                             // the folder's own row: the app, how many, the newest
                             Entry {
                                 visible: group.folder
-                                icon: group.modelData.icon
+                                icon: group.modelData.logo || group.modelData.icon
+                                fallbackIcon: group.modelData.logo ? group.modelData.icon : ""
                                 title: group.modelData.name || Cfg.t("OTRA")
                                 text: group.modelData.items[0].summary + (group.modelData.items[0].body !== "" ? " · " + group.modelData.items[0].body : "")
                                 detail: popup.when(group.modelData.items[0].created)

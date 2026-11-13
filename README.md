@@ -98,6 +98,9 @@ Without one of these, its section stays empty and the rest keeps working.
   it from Power Management. One command per key: `0` brightness up, `1`
   down, `2` and `3` the small steps (Shift+). The `1` after it hides KDE's
   pop-up; only changes from `linuxisland` alert.
+- **WhatsApp.** Notifications from ZapZap show as WhatsApp. For WhatsApp's
+  logo too, save it as `contents/local/whatsapp.svg` (git ignores that
+  folder: a brand's logo can't ship in the repo).
 - **Shortcut.** Right-click the island → **Configure Linux Island…** →
   **Keyboard Shortcuts**. The shortcut turns the notch over games on and off.
 

@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# personal files, never published: brand logos (contents/local/whatsapp.svg)
+# can't go in an MIT repo
+contents/local/

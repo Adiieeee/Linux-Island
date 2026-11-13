@@ -228,6 +228,22 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - Offscreen tests draw `Kirigami.ShadowedImage` as a white box; a plain
   `Image` draws fine there. In plasmashell both work.
 
+## Notifications
+
+- Plasma removes a notification from its history when the app closes it
+  (chat apps do, once read), so `Notifs` keeps its own copy (up to 100, in
+  memory). Formatted bodies arrive as XHTML starting with `<?xml`; the copy
+  strips them to plain text.
+- **ZapZap shows as WhatsApp** (`Notifs.aliases`, matched on the desktop
+  entry `com.rtosta.zapzap` or the app's name). WhatsApp's logo isn't in
+  the repo: it's Meta's trademark and artwork, which an MIT repo can't
+  license. It's read from `contents/local/whatsapp.svg`, which git
+  ignores; without it the panel shows ZapZap's own icon (the icon is drawn
+  twice, the app's icon showing when the logo's `status` is `Error`).
+- ZapZap saves each chat's photo, already round, as
+  `~/.local/share/ZapZap/tmp/<chat name>.png` and sends that path as the
+  notification's icon. One file per chat, overwritten, never deleted.
+
 ## Recording (Spectacle)
 
 - The mode is the short letter (`--record=s`, `w`). To stop, request the same
@@ -266,10 +282,6 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   "<uuid>"`.
 - plasma-pa's `SinkModel` does say which device is the default, a moment
   after it's created; bind to it rather than reading it once.
-- Plasma removes a notification from its history when the app closes it
-  (chat apps do, once read), so `Notifs` keeps its own copy (up to 100, in
-  memory). Formatted bodies arrive as XHTML starting with `<?xml`; the copy
-  strips them to plain text.
 - wttr.in sends weather codes outside the standard 48 (149, "Smoky haze");
   those get an icon from the description. Night comes from wttr.in's
   sunrise and sunset against the local clock.
