@@ -115,6 +115,7 @@ QtObject {
             "CALENDARIO": ["CALENDARIO", "CALENDAR"],
             "EN LA BANDEJA": ["EN LA BANDEJA", "IN THE TRAY"],
             "OTRA": ["Otra", "Other"],
+            "notificaciones": ["notificaciones", "notifications"],
             "HOY": ["HOY", "TODAY"],
             "Semana": ["Semana", "Week"],
             "GRABACIÓN": ["GRABACIÓN", "RECORDING"],

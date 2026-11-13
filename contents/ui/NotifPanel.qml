@@ -414,16 +414,17 @@ Item {
                             width: dentro.width
                             spacing: 2
 
-                            // the folder's own row: the app, how many, the newest
+                            // the folder's own row: the app, then the newest and how
+                            // many while it's closed, or just how many while open
                             Entry {
                                 visible: group.folder
                                 icon: group.modelData.logo || group.modelData.icon
                                 fallbackIcon: group.modelData.logo ? group.modelData.icon : ""
                                 title: group.modelData.name || Cfg.t("OTRA")
-                                text: group.modelData.items[0].summary + (group.modelData.items[0].body !== "" ? " · " + group.modelData.items[0].body : "")
-                                detail: popup.when(group.modelData.items[0].created)
+                                text: group.open ? group.modelData.items.length + " " + Cfg.t("notificaciones") : group.modelData.items[0].summary + (group.modelData.items[0].body !== "" ? " · " + group.modelData.items[0].body : "")
+                                detail: group.open ? "" : popup.when(group.modelData.items[0].created)
                                 lines: 1
-                                badge: group.modelData.items.length
+                                badge: group.open ? 0 : group.modelData.items.length
                                 expandable: true
                                 expanded: group.open
                                 onActivated: popup.toggle(group.modelData.key)
