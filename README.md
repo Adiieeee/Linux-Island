@@ -540,10 +540,14 @@ Nothing OS style, animations and content. This fork uses its own applet id,
 ## Install
 
 ```bash
-git clone https://github.com/Adiieeee/linuxisland.git \
+git clone https://github.com/Adiieeee/Linux-Island.git \
     ~/.local/share/plasma/plasmoids/linuxisland
 kquitapp6 plasmashell && kstart plasmashell
 ```
+
+The folder must be named `linuxisland`, the applet's id in
+`metadata.json`: Plasma looks a widget up by that id, whatever the
+repository is called.
 
 Then right-click the desktop or a panel → **Add Widgets…** → search for
 **Linux Island**.
