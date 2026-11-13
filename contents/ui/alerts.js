@@ -34,3 +34,20 @@ function bluetoothIcon(iconName) {
         return "computer";
     return "bluetooth_connected";
 }
+
+// the battery levels that alert on the way down, highest first
+var LOW_LEVELS = [20, 10];
+
+// the low level the battery just went down to (20 or 10), or 0: only on
+// battery, and only when it crosses one (from above it to at or under it),
+// so each level alerts once on the way down. before < 0: no reading yet
+function lowCrossing(before, now, onBattery) {
+    if (!onBattery || before < 0)
+        return 0;
+    for (var i = LOW_LEVELS.length - 1; i >= 0; i--) {
+        var level = LOW_LEVELS[i];
+        if (before > level && now <= level)
+            return level;
+    }
+    return 0;
+}

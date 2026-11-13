@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import org.kde.bluezqt as BluezQt
+import org.kde.plasma.plasma5support as P5Support
 import org.kde.plasma.private.brightnesscontrolplugin as BC
 import org.kde.plasma.private.clipboard as Clip
 import org.kde.plasma.private.volume as PA
@@ -12,7 +13,8 @@ import "alerts.js" as AlertsLib
 
 // short alerts in the notch, in place of KDE's on-screen display: the
 // volume, the output device, the microphone, the brightness keys, the
-// clipboard and Bluetooth devices, for now. one alert at a time: a new one takes over at once, and the same
+// clipboard, Bluetooth devices, the charger and a low battery, for now.
+// one alert at a time: a new one takes over at once, and the same
 // level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
@@ -21,7 +23,7 @@ QtObject {
 
     // ── the alert on show ──
     // kind: "" (none), "volume", "output", "mic", "brightness",
-    // "clipboard", "bluetooth". icon: a Material Symbols name; image: a picture in its
+    // "clipboard", "bluetooth", "power", "battery". icon: a Material Symbols name; image: a picture in its
     // place (a copied image). text: the line for an alert that isn't a
     // level. value: a level's bar, 0..1 of its whole range, or -1 for no
     // bar; boostFrom: where the bar turns red (the volume past 100%), 1 =
@@ -270,6 +272,55 @@ QtObject {
             valueText: battery >= 0 ? battery + "%" : ""
         }, Theme.alertMs);
         root.bluetoothAddress = device.address;
+    }
+
+    // ── charger and battery ──
+    // Plasma's power management engine, as the control center's battery
+    // (Battery.qml): it pushes each change, nothing polls. plugging in or
+    // out shows the level; going down to 20% or 10% on battery shows it in
+    // red. the first readings are only the starting point
+    property int batteryPercent: -1
+    property int pluggedIn: -1
+
+    readonly property P5Support.DataSource power: P5Support.DataSource {
+        engine: "powermanagement"
+        connectedSources: ["Battery", "AC Adapter"]
+        onNewData: (source, data) => {
+            if (source === "Battery")
+                root.batteryRead(data);
+            else if (source === "AC Adapter")
+                root.adapterRead(data);
+        }
+    }
+
+    function batteryRead(data): void {
+        // a desktop reports a phantom battery, "Unknown" (see Battery.qml)
+        if (!(data["Has Battery"] ?? false) || data["State"] === "Unknown")
+            return;
+        const now = data["Percent"] ?? 0;
+        const low = AlertsLib.lowCrossing(root.batteryPercent, now, root.pluggedIn === 0);
+        root.batteryPercent = now;
+        if (low > 0) {
+            root.show("battery", {
+                icon: "battery_alert",
+                text: Cfg.t("Batería baja"),
+                valueText: now + "%",
+                critical: true
+            }, Theme.alertMs);
+        }
+    }
+
+    function adapterRead(data): void {
+        const plugged = (data["Plugged in"] ?? false) ? 1 : 0;
+        const before = root.pluggedIn;
+        root.pluggedIn = plugged;
+        if (before < 0 || before === plugged || root.batteryPercent < 0)
+            return;
+        root.show("power", {
+            icon: plugged ? "power" : "battery_full",
+            text: plugged ? Cfg.t("Enchufado") : Cfg.t("Con batería"),
+            valueText: root.batteryPercent + "%"
+        }, Theme.alertMs);
     }
 
     // ── microphone ──
