@@ -33,6 +33,10 @@ QtObject {
 
     // the singleton can't reach Plasmoid.configuration, so main.qml saves it
     signal folderChosen(string path)
+    // a recording was stopped from the island and Spectacle is closing the
+    // file (Alerts shows it). not sent when it ended on its own (a
+    // cancelled window pick, Spectacle failing to start)
+    signal saved(string file)
 
     // single quotes for the shell, escaping only the single quote (as in Net)
     function quote(s) {
@@ -133,6 +137,7 @@ QtObject {
             return;
         Exec.run(`pgrep -x spectacle >/dev/null && spectacle --background --record=${root.lastMode} --output=${root.quote(root.lastFile)}`);
         recording = false;
+        root.saved(root.lastFile);
     }
 
     function toggle(): void {

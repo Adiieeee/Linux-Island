@@ -13,8 +13,8 @@ import "alerts.js" as AlertsLib
 
 // short alerts in the notch, in place of KDE's on-screen display: the
 // volume, the output device, the microphone, the brightness keys, the
-// clipboard, Bluetooth devices, the charger and a low battery, for now.
-// one alert at a time: a new one takes over at once, and the same
+// clipboard, Bluetooth devices, the charger, a low battery and a saved
+// recording. one alert at a time: a new one takes over at once, and the same
 // level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
@@ -23,7 +23,7 @@ QtObject {
 
     // ── the alert on show ──
     // kind: "" (none), "volume", "output", "mic", "brightness",
-    // "clipboard", "bluetooth", "power", "battery". icon: a Material Symbols name; image: a picture in its
+    // "clipboard", "bluetooth", "power", "battery", "record". icon: a Material Symbols name; image: a picture in its
     // place (a copied image). text: the line for an alert that isn't a
     // level. value: a level's bar, 0..1 of its whole range, or -1 for no
     // bar; boostFrom: where the bar turns red (the volume past 100%), 1 =
@@ -321,6 +321,18 @@ QtObject {
             text: plugged ? Cfg.t("Enchufado") : Cfg.t("Con batería"),
             valueText: root.batteryPercent + "%"
         }, Theme.alertMs);
+    }
+
+    // ── screen recording ──
+    // a recording stopped from the island (Recorder.saved)
+    readonly property Connections recorderWatch: Connections {
+        target: Recorder
+        function onSaved() {
+            root.show("record", {
+                icon: "videocam",
+                text: Cfg.t("Grabación guardada")
+            }, Theme.alertMs);
+        }
     }
 
     // ── microphone ──

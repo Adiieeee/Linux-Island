@@ -98,6 +98,7 @@ QtObject {
             "Enchufado": ["Enchufado", "Plugged in"],
             "Con batería": ["Con batería", "On battery"],
             "Batería baja": ["Batería baja", "Battery low"],
+            "Grabación guardada": ["Grabación guardada", "Recording saved"],
             "Wi-Fi apagado": ["Wi-Fi apagado", "Wi-Fi off"],
             "Bluetooth apagado": ["Bluetooth apagado", "Bluetooth off"],
             "CALENDARIO": ["CALENDARIO", "CALENDAR"],
