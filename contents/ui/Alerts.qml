@@ -12,23 +12,24 @@ import "."
 import "alerts.js" as AlertsLib
 
 // short alerts in the notch, in place of KDE's on-screen display: the
-// volume, the output device, the microphone, the brightness keys, the
-// clipboard, Bluetooth devices, the charger, a low battery and a saved
-// recording. one alert at a time: a new one takes over at once, and the same
-// level changing again only updates it.
-// every source is live (signals from Plasma's own models), nothing polls.
-// CompactPill shows Alerts.showing in its middle (AlertView)
+// volume, the output device, the microphone's mute, the brightness keys,
+// the clipboard, Bluetooth devices, the charger, a low battery and a saved
+// recording. one alert at a time: a new one takes over at once, and the
+// same level changing again only updates it. every source is live
+// (signals from Plasma's own models), nothing polls. CompactPill shows
+// Alerts.showing in its middle (AlertView)
 QtObject {
     id: root
 
     // ── the alert on show ──
     // kind: "" (none), "volume", "output", "mic", "brightness",
-    // "clipboard", "bluetooth", "charger", "battery", "record". icon: a Material Symbols name; image: a picture in its
-    // place (a copied image). text: the line for an alert that isn't a
-    // level. value: a level's bar, 0..1 of its whole range, or -1 for no
-    // bar; boostFrom: where the bar turns red (the volume past 100%), 1 =
-    // never; valueText: the number beside the bar or the line. dim: muted. critical: in
-    // Theme.alert
+    // "clipboard", "bluetooth", "charger", "battery", "record".
+    // icon: a Material Symbols name; image: a picture in its place (a
+    // copied image). text: the line for an alert that isn't a level.
+    // value: a level's bar, 0..1 of its whole range, or -1 for no bar;
+    // boostFrom: where the bar turns red (the volume past 100%), 1 = never;
+    // valueText: the number beside the bar or the line. dim: muted.
+    // critical: in Theme.alert
     property string kind: ""
     property string icon: ""
     property string image: ""
@@ -59,8 +60,7 @@ QtObject {
     }
 
     // props: any of icon, image, text, value, boostFrom, valueText, dim,
-    // critical;
-    // the ones left out go back to their defaults
+    // critical; the ones left out go back to their defaults
     function show(kind: string, props, ms: int): void {
         if (!root.armed || root.paused || !root.allowed(kind))
             return;
