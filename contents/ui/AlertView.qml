@@ -45,16 +45,17 @@ Item {
         }
     }
 
-    // ── a level: bar and number ──
+    // ── a level: bar and number. a line can carry a number too (a
+    // device's battery) ──
     Text {
         id: valueText
-        visible: root.level
+        visible: root.level || Alerts.valueText !== ""
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         width: valueMetrics.advanceWidth
         horizontalAlignment: Text.AlignRight
         text: Alerts.valueText
-        color: Alerts.dim ? Theme.fgFaint : Alerts.value > Alerts.boostFrom ? Theme.alert : Theme.fg
+        color: Alerts.critical ? Theme.alert : Alerts.dim ? Theme.fgFaint : Alerts.value > Alerts.boostFrom ? Theme.alert : Theme.fg
         font.family: Theme.fontDots
         font.features: Theme.numFeatures
         font.pixelSize: Theme.bodySmall
@@ -124,7 +125,8 @@ Item {
         visible: !root.level
         anchors.left: glyph.right
         anchors.leftMargin: 10
-        anchors.right: parent.right
+        anchors.right: valueText.visible ? valueText.left : parent.right
+        anchors.rightMargin: valueText.visible ? 12 : 0
         anchors.verticalCenter: parent.verticalCenter
         text: Alerts.text
         color: root.tone

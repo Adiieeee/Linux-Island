@@ -15,3 +15,22 @@ function preview(text) {
     }
     return "";
 }
+
+// a Bluetooth device's freedesktop icon name (BluezQt's Device.icon:
+// "audio-headphones", "input-mouse", "phone"...) as a Material Symbols name
+function bluetoothIcon(iconName) {
+    var name = String(iconName || "");
+    if (/headset|headphone|audio|speaker/.test(name))
+        return "headphones";
+    if (/mouse/.test(name))
+        return "mouse";
+    if (/keyboard/.test(name))
+        return "keyboard";
+    if (/joystick|gaming|gamepad|joypad/.test(name))
+        return "sports_esports";
+    if (/phone/.test(name))
+        return "smartphone";
+    if (/computer|laptop/.test(name))
+        return "computer";
+    return "bluetooth_connected";
+}

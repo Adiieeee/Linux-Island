@@ -2,6 +2,7 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import org.kde.bluezqt as BluezQt
 import org.kde.plasma.private.brightnesscontrolplugin as BC
 import org.kde.plasma.private.clipboard as Clip
 import org.kde.plasma.private.volume as PA
@@ -10,8 +11,8 @@ import "."
 import "alerts.js" as AlertsLib
 
 // short alerts in the notch, in place of KDE's on-screen display: the
-// volume, the output device, the microphone, the brightness keys and the
-// clipboard, for now. one alert at a time: a new one takes over at once, and the same
+// volume, the output device, the microphone, the brightness keys, the
+// clipboard and Bluetooth devices, for now. one alert at a time: a new one takes over at once, and the same
 // level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
@@ -20,11 +21,11 @@ QtObject {
 
     // ── the alert on show ──
     // kind: "" (none), "volume", "output", "mic", "brightness",
-    // "clipboard". icon: a Material Symbols name; image: a picture in its
+    // "clipboard", "bluetooth". icon: a Material Symbols name; image: a picture in its
     // place (a copied image). text: the line for an alert that isn't a
     // level. value: a level's bar, 0..1 of its whole range, or -1 for no
     // bar; boostFrom: where the bar turns red (the volume past 100%), 1 =
-    // never; valueText: the number beside it. dim: muted. critical: in
+    // never; valueText: the number beside the bar or the line. dim: muted. critical: in
     // Theme.alert
     property string kind: ""
     property string icon: ""
@@ -125,7 +126,9 @@ QtObject {
     function outputAlert(): void {
         root.sinkSwitchedAt = Date.now();
         const sink = PA.PreferredDevice.sink;
-        if (!sink)
+        // a Bluetooth headset that just connected becomes the output a
+        // moment later: its own alert already names it
+        if (!sink || root.kind === "bluetooth")
             return;
         root.show("output", {
             icon: Audio.deviceIcon(sink, false),
@@ -230,6 +233,43 @@ QtObject {
             icon: "content_copy",
             text: line
         }, Theme.alertClipMs);
+    }
+
+    // ── Bluetooth ──
+    // a device that connects (BluezQt, what Plasma's Bluetooth applet
+    // uses): its name, and its battery when it reports one. the battery
+    // often arrives a moment after the connection; it fills in then, and
+    // the alert's time starts over so it can be read
+    property string bluetoothAddress: ""
+
+    component DeviceWatch: Connections {
+        // a BluezQt device, owned by BluezQt
+        required property var modelData
+
+        target: modelData
+        function onConnectedChanged(connected) {
+            if (connected)
+                root.bluetoothAlert(modelData);
+        }
+        function onBatteryChanged() {
+            if (root.kind === "bluetooth" && root.bluetoothAddress === modelData.address)
+                root.bluetoothAlert(modelData);
+        }
+    }
+
+    readonly property Instantiator bluetoothDevices: Instantiator {
+        model: BluezQt.Manager.devices
+        delegate: DeviceWatch {}
+    }
+
+    function bluetoothAlert(device): void {
+        const battery = device.battery ? device.battery.percentage : -1;
+        root.show("bluetooth", {
+            icon: AlertsLib.bluetoothIcon(device.icon),
+            text: device.name,
+            valueText: battery >= 0 ? battery + "%" : ""
+        }, Theme.alertMs);
+        root.bluetoothAddress = device.address;
     }
 
     // ── microphone ──
