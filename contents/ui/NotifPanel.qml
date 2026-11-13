@@ -35,7 +35,8 @@ Item {
         return Cfg.locale.toString(d, "d MMM");
     }
 
-    // one notification, or a folder's own row
+    // one notification, or a folder's own row, each a card of its own
+    // (opaque at rest and on hover, see hard rule 6)
     component Entry: Rectangle {
         id: entry
 
@@ -56,7 +57,7 @@ Item {
         width: parent ? parent.width : 0
         height: Math.max(52, texts.implicitHeight + 16)
         radius: Theme.shapeMd
-        color: entryMa.containsMouse ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+        color: entryMa.containsMouse ? Theme.surfaceHigh : Theme.surfaceAlt
 
         Behavior on color {
             ColorAnimation {
@@ -400,7 +401,7 @@ Item {
                     id: dentro
                     // room for the scroll bar
                     width: lista.width - 8
-                    spacing: 2
+                    spacing: 6
 
                     Repeater {
                         model: Notifs.groups
@@ -412,7 +413,7 @@ Item {
                             readonly property bool open: folder && popup.openApps[modelData.key] === true
 
                             width: dentro.width
-                            spacing: 2
+                            spacing: 4
 
                             // the folder's own row: the app, then the newest and how
                             // many while it's closed, or just how many while open
