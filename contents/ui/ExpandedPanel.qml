@@ -82,6 +82,9 @@ Item {
             if (root.Window.window && root.Window.window.visible) {
                 root.nudge = 1;
                 nudgeBack.restart();
+                // the big clock stops while hidden: right from the first
+                // frame, not a second later
+                panelClock.now = new Date();
             } else {
                 // every opening starts on the main view, not on whatever
                 // overlay (notifications, Wi-Fi…) or dropdown (sound,
@@ -239,11 +242,13 @@ Item {
                         width: parent.width
                         height: 44
 
+                        // only while the popup is up: Plasma keeps this panel
+                        // after it closes, and the clock ticked on unseen
                         Timer {
                             id: panelClock
                             property date now: new Date()
                             interval: 1000
-                            running: true
+                            running: root.Window.window?.visible ?? false
                             repeat: true
                             triggeredOnStart: true
                             onTriggered: now = new Date()

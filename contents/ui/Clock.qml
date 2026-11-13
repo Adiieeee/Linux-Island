@@ -1,4 +1,5 @@
 import QtQuick
+import org.kde.plasma.clock as PlasmaClock
 import "."
 
 // the panel island's clock, outside the notch on its right, on the panel.
@@ -12,15 +13,14 @@ Item {
     implicitWidth: molde.width
     implicitHeight: label.implicitHeight
 
-    // quickshell tenía SystemClock, acá un Timer común alcanza igual
-    Timer {
+    // Plasma's own clock source (the lock screen's uses it too): only HH:mm
+    // shows, so it ticks on each minute instead of every second, and it
+    // catches up after a suspend or a change of time, which a Timer set to
+    // the next minute wouldn't (Qt's timers stand still while the machine
+    // sleeps)
+    PlasmaClock.Clock {
         id: clock
-        property date now: new Date()
-        interval: 1000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: now = new Date()
+        trackSeconds: false
     }
 
     TextMetrics {
@@ -32,7 +32,7 @@ Item {
     Text {
         id: label
         anchors.centerIn: parent
-        text: Qt.formatDateTime(clock.now, "HH:mm")
+        text: Qt.formatDateTime(clock.dateTime, "HH:mm")
         color: Theme.fg
         font.family: Theme.fontDots
         font.features: Theme.numFeatures
