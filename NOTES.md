@@ -192,6 +192,11 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
   It's only made inside plasmashell (`Qt.application.name`): in the `qml`
   tool it starts a second Klipper, which crashed offscreen (X11 call in
   `SystemClipboard`) and could write to the same history database.
+- **Over fullscreen.** The floating notch (`gameNotch`, layer-shell
+  Overlay) also shows while `Alerts.showing` when "Keep the notch over
+  games" is off (`alertOnly`). Then it has `Qt.WindowTransparentForInput`,
+  so the game keeps every click, `openFromNotch()` ignores it, and the
+  pill fades out (`alertFade` keeps the window up for the fade).
 - Offscreen tests draw `Kirigami.ShadowedImage` as a white box; a plain
   `Image` draws fine there. In plasmashell both work.
 

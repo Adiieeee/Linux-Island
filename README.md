@@ -21,7 +21,8 @@ Move the pointer onto it and a control center opens below it.
   microphone, a new output device, the brightness keys, what you copy
   (text or a picture), Bluetooth devices connecting (with their battery),
   the charger, the battery going down to 20% and 10%, and a saved
-  recording.
+  recording. Over a fullscreen game or video the notch comes up just for
+  the alert.
 - Optional: tint the notch with the album art's colours.
 - Optional, experimental: keep the notch above fullscreen games. Hovering it
   there opens a small game panel with the player, the meters and recording.

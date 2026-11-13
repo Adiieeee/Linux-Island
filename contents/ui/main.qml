@@ -229,11 +229,17 @@ PlasmoidItem {
     // the top edge of the island's screen. it never takes the keyboard, so
     // the game keeps it (prototyped outside plasmashell first: drawn above
     // a fullscreen window, hover and clicks reach it, the fullscreen window
-    // stays active and gets every key)
+    // stays active and gets every key).
+    // with "Keep the notch over games" off it still comes up for an alert
+    // (Alerts.qml: the volume, ...), then fades and goes. that one lets
+    // every click through to the game and opens nothing
     Window {
         id: gameNotch
 
-        visible: Cfg.notchOverGames && root.gameOnIsland
+        // up only for an alert, not kept over the game
+        readonly property bool alertOnly: !Cfg.notchOverGames
+        visible: root.gameOnIsland && (Cfg.notchOverGames || Alerts.showing || alertFade.running)
+        flags: alertOnly ? (Qt.Window | Qt.WindowTransparentForInput) : Qt.Window
         screen: root.compactRepresentationItem?.islandScreen ?? null
         // closed: the larger of the notch's width and the width it's heading
         // to (a growing notch isn't clipped, and the window is never much
@@ -289,6 +295,29 @@ PlasmoidItem {
             width: implicitWidth
             height: gameNotch.notchHigh
             onOpenRequested: root.openFromNotch()
+
+            // up for an alert only: fades in with it and out after it
+            opacity: gameNotch.alertOnly && !Alerts.showing ? 0 : 1
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: Theme.durMedium
+                    easing.type: Easing.Bezier
+                    easing.bezierCurve: Theme.emphasizedDecel
+                }
+            }
+        }
+
+        // keeps the window up while the notch fades after an alert
+        Timer {
+            id: alertFade
+            interval: Theme.durMedium
+        }
+        Connections {
+            target: Alerts
+            function onShowingChanged() {
+                if (!Alerts.showing)
+                    alertFade.restart();
+            }
         }
 
         // ── the game panel ──
@@ -369,8 +398,11 @@ PlasmoidItem {
     // keyboard back afterwards
     function openFromNotch() {
         // the floating notch over a game: its own game panel, not Plasma's
-        // popup (which would send the game behind the panel)
+        // popup (which would send the game behind the panel). up only for
+        // an alert it opens nothing
         if (gameNotch.visible) {
+            if (gameNotch.alertOnly)
+                return;
             root.gamePanelMade = true;
             root.gamePanelOpen = true;
             return;
