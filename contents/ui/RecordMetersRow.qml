@@ -14,6 +14,50 @@ Item {
     // the card was clicked and the recording view should open (ExpandedPanel)
     signal settingsRequested
 
+    // one of the card's setting icons, clickable. it always takes its click,
+    // even while recording when it changes nothing: a click let through
+    // would reach the card, which in the game panel starts or stops
+    component SettingToggle: Item {
+        id: st
+        property string icon: ""
+        property bool on: true
+        signal toggled
+
+        readonly property bool live: !Recorder.recording
+
+        width: 24
+        height: 24
+
+        Rectangle {
+            anchors.fill: parent
+            radius: height / 2
+            color: stMa.containsMouse && st.live ? Qt.alpha(Theme.fg, Theme.stateHover) : Qt.alpha(Theme.fg, 0)
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: Theme.durShort
+                }
+            }
+        }
+
+        Text {
+            anchors.centerIn: parent
+            text: st.icon
+            color: st.on ? Theme.fgDim : Theme.fgFaint
+            font.family: Theme.fontIcons
+            font.pixelSize: 15
+        }
+
+        MouseArea {
+            id: stMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: st.live ? Qt.PointingHandCursor : Qt.ArrowCursor
+            onClicked: if (st.live)
+                st.toggled()
+        }
+    }
+
     implicitHeight: 106
 
     Rectangle {
@@ -127,35 +171,34 @@ Item {
             }
         }
 
-        // current settings at a glance, top to bottom on the card's
-        // right: screen or window, system audio, microphone.
-        // on = dim, off = faint + the crossed-out glyph
+        // the current settings, top to bottom on the card's right, each one
+        // a toggle: screen or window, system audio, microphone (the same as
+        // the recording view's). on = dim, off = faint + the crossed-out
+        // glyph. while recording they don't change, as in the recording
+        // view (Spectacle reads them when a recording starts)
         Column {
             id: recInfo
             anchors.right: parent.right
-            anchors.rightMargin: 14
+            anchors.rightMargin: 9
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 8
+            spacing: 2
 
-            Text {
-                text: Recorder.mode === "w" ? "select_window" : "desktop_windows"
-                color: Theme.fgDim
-                font.family: Theme.fontIcons
-                font.pixelSize: 15
+            SettingToggle {
+                icon: Recorder.mode === "w" ? "select_window" : "desktop_windows"
+                on: true
+                onToggled: Recorder.setMode(Recorder.mode === "w" ? "s" : "w")
             }
 
-            Text {
-                text: Recorder.systemAudio ? "volume_up" : "volume_off"
-                color: Recorder.systemAudio ? Theme.fgDim : Theme.fgFaint
-                font.family: Theme.fontIcons
-                font.pixelSize: 15
+            SettingToggle {
+                icon: Recorder.systemAudio ? "volume_up" : "volume_off"
+                on: Recorder.systemAudio
+                onToggled: Recorder.systemAudio = !Recorder.systemAudio
             }
 
-            Text {
-                text: Recorder.microphone ? "mic" : "mic_off"
-                color: Recorder.microphone ? Theme.fgDim : Theme.fgFaint
-                font.family: Theme.fontIcons
-                font.pixelSize: 15
+            SettingToggle {
+                icon: Recorder.microphone ? "mic" : "mic_off"
+                on: Recorder.microphone
+                onToggled: Recorder.microphone = !Recorder.microphone
             }
         }
     }

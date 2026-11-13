@@ -175,6 +175,13 @@ Nothing OS style, animations and content. This fork uses its own applet id,
   computer's clock at each reading (every 15 minutes), so it's right for
   the place the computer is in (found by IP when **Weather city** is
   empty), not for a city in another time zone.
+- The recording card's three setting icons (screen or window, system
+  audio, microphone) are toggles: a click flips them right there, in the
+  control center and in the game panel alike, with a round hover mark like
+  the other buttons. While recording they don't change, as in the
+  recording view (Spectacle reads them when a recording starts), but they
+  still take the click: in the game panel a click let through to the card
+  would stop the recording.
 - The control center always opens on its main view. It used to come back
   on whatever overlay was up when it closed (notifications, Wi-Fi, power…).
   The overlay is reset once the popup window is hidden, so the switch
