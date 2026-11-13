@@ -162,6 +162,19 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - PipeWire leaves monitor ports at full level, so the volume slider doesn't
   shrink the bars.
 
+## Alerts in the notch
+
+- `Alerts` holds one alert; `CompactPill` shows it in the middle (mode
+  `"alert"`, before every other mode) and `AlertView` draws it. Every
+  source is a live signal from Plasma's own models; nothing polls.
+- KDE's OSD can't be hidden from a widget: plasmashell draws it whenever a
+  component calls `org.kde.osdService`. Volume: plasma-pa has its own
+  switches (Sound → Configure Volume Controls…). Brightness: PowerDevil
+  has none, see below.
+- `armed` turns on `Theme.alertArmDelay` after start: the models report
+  their first values then, which aren't changes. `paused` (the control
+  center is open) drops alerts: its sliders show the levels already.
+
 ## Recording (Spectacle)
 
 - The mode is the short letter (`--record=s`, `w`). To stop, request the same

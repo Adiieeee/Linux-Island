@@ -17,6 +17,7 @@ Move the pointer onto it and a control center opens below it.
   few seconds. With nothing playing, the notch shows today's date.
 - Desktop dots on the left (click or scroll to switch desktop) and a
   24-hour clock on the right.
+- Short alerts in the notch in place of KDE's pop-ups: the volume.
 - Optional: tint the notch with the album art's colours.
 - Optional, experimental: keep the notch above fullscreen games. Hovering it
   there opens a small game panel with the player, the meters and recording.
@@ -75,6 +76,9 @@ Without one of these, its section stays empty and the rest keeps working.
   `plasma-browser-integration` package). In Firefox-based browsers, also set
   `media.hardwaremediakeys.enabled` to `false` in `about:config`, so the
   video doesn't show up twice.
+- **Alerts.** So KDE's own volume pop-up doesn't show as well: System
+  Settings → Sound → **Configure Volume Controls…** → uncheck everything
+  under **Show OSD popups for changes to:**.
 - **Shortcut.** Right-click the island → **Configure Linux Island…** →
   **Keyboard Shortcuts**. The shortcut turns the notch over games on and off.
 

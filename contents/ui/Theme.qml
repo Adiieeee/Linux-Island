@@ -127,6 +127,16 @@ QtObject {
     readonly property int marqueeHold: 700
     // how long the panel island shows a new song's title and artist
     readonly property int peekDuration: 4500
+    // ── alerts in the notch (Alerts.qml) ──
+    // how long each kind stays: a level (volume, brightness, the
+    // microphone) 2 s, the clipboard 2.5 s, everything else 3 s. the
+    // Windhawk island's times, with its 1.8 s levels stretched a little
+    readonly property int alertLevelMs: 2000
+    readonly property int alertClipMs: 2500
+    readonly property int alertMs: 3000
+    // nothing alerts this soon after the widget starts: every source
+    // reports its first values then, and those aren't changes
+    readonly property int alertArmDelay: 3000
     // how long the pointer may be off both the notch and the control center
     // before it closes: as good as instant (400 and 200 felt slow), but not
     // 0. moving from the notch into the popup, the notch's leave arrives
@@ -158,6 +168,9 @@ QtObject {
     // the panel island's middle while it shows a lyric line instead of the
     // clock; the same for every line, so the island doesn't resize on each
     readonly property int lyricsWidth: 280
+    // the middle's width while an alert shows: the lyric line's, so an
+    // alert taking a line's place doesn't resize the notch
+    readonly property int alertWidth: lyricsWidth
     // the panel island is a notch (NotchShape): its bottom corners' radius,
     // and how far the concave flares at its top corners reach out sideways
     readonly property int notchCorner: 14

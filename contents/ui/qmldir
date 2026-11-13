@@ -10,3 +10,4 @@ singleton Recorder 1.0 Recorder.qml
 singleton Net 1.0 Net.qml
 singleton Media 1.0 Media.qml
 singleton Lyrics 1.0 Lyrics.qml
+singleton Alerts 1.0 Alerts.qml

@@ -94,7 +94,11 @@ Item {
     // pausing changes nothing here: the playhead stops, so Lyrics.wide and
     // the line on show stay as they are, and the waveform resting dim says
     // it's paused
+    // "alert" (Alerts.qml: the volume, ...) comes before all of these, with
+    // or without a song: the art and the waveform stay, the line goes
     readonly property string mode: {
+        if (Alerts.showing)
+            return "alert";
         if (!root.media || !Lyrics.enabled)
             return "date";
         if (root.peeking)
@@ -150,6 +154,8 @@ Item {
             return dateText.implicitWidth;
         if (root.mode === "peek" || root.mode === "lyric")
             return Theme.lyricsWidth;
+        if (root.mode === "alert")
+            return Theme.alertWidth;
         return Theme.noteWidth;
     }
 
@@ -471,6 +477,15 @@ Item {
                 NoteGlyph {
                     anchors.centerIn: parent
                     kind: "beamed"
+                }
+            }
+
+            Layer {
+                on: root.mode === "alert"
+
+                AlertView {
+                    anchors.centerIn: parent
+                    width: Theme.alertWidth
                 }
             }
         }

@@ -14,6 +14,14 @@ PlasmoidItem {
 
     preferredRepresentation: compactRepresentation
 
+    // the notch's alerts wait while the control center is open: its
+    // sliders show every level already
+    Binding {
+        target: Alerts
+        property: "paused"
+        value: root.expanded
+    }
+
     // ── preferencias ──
     Binding {
         target: Cfg
