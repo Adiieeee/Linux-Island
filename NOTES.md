@@ -177,6 +177,8 @@ Width alone does work (`lengthMode = "fit"`, a string, not `1`).
 - A new default output reports its own volume as it comes in, which
   replaced the alert naming it. The volume stays quiet for
   `Theme.alertQuietMs` after `PreferredDevice.sink` changes.
+- The microphone alerts on mute only: WebRTC's automatic gain control (a
+  call in Chrome) moves the input's level all the time.
 - **Brightness.** PowerDevil's keys always call the OSD (no setting), so
   the README gives the keys to `AdjustBrightnessStepWithContext(step, 1,
   "linuxisland")`: flag 1 skips `osdService.screenBrightnessChanged`

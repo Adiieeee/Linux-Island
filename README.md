@@ -18,7 +18,7 @@ Move the pointer onto it and a control center opens below it.
 - Desktop dots on the left (click or scroll to switch desktop) and a
   24-hour clock on the right.
 - Short alerts in the notch in place of KDE's pop-ups: the volume, the
-  microphone, a new output device, the brightness keys, what you copy
+  microphone's mute, a new output device, the brightness keys, what you copy
   (text or a picture), Bluetooth devices connecting (with their battery),
   the charger, the battery going down to 20% and 10%, and a saved
   recording. Over a fullscreen game or video the notch comes up just for

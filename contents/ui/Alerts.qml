@@ -362,13 +362,12 @@ QtObject {
     }
 
     // ── microphone ──
-    // the default input's level and mute (the Microphone Mute key,
-    // Meta+Volume Mute). inputs stop at 100%, so there's no red part
+    // the default input muted or unmuted (the Microphone Mute key,
+    // Meta+Volume Mute), with its level. not its level changing: in a call
+    // the browser's automatic gain control moves it all the time.
+    // inputs stop at 100%, so there's no red part
     readonly property Connections sourceWatch: Connections {
         target: PA.PreferredDevice.source
-        function onVolumeChanged() {
-            root.micAlert();
-        }
         function onMutedChanged() {
             root.micAlert();
         }
