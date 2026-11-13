@@ -5,7 +5,7 @@ import org.kde.plasma.private.volume as PA
 import "."
 
 // short alerts in the notch, in place of KDE's on-screen display: the
-// volume and its mute, for now. one alert at a time: a new one takes over
+// volume and the microphone, with their mute, for now. one alert at a time: a new one takes over
 // at once, and the same level changing again only updates it.
 // every source is live (signals from Plasma's own models), nothing polls.
 // CompactPill shows Alerts.showing in its middle (AlertView)
@@ -13,7 +13,7 @@ QtObject {
     id: root
 
     // ── the alert on show ──
-    // kind: "" (none), "volume". icon: a Material Symbols name. text: the
+    // kind: "" (none), "volume", "mic". icon: a Material Symbols name. text: the
     // line for an alert that isn't a level. value: a level's bar, 0..1 of
     // its whole range, or -1 for no bar; boostFrom: where the bar turns red
     // (the volume past 100%), 1 = never; valueText: the number beside it.
@@ -95,6 +95,32 @@ QtObject {
             boostFrom: 1 / root.maxVolume,
             valueText: Math.round(level * 100) + "%",
             dim: sink.muted
+        }, Theme.alertLevelMs);
+    }
+
+    // ── microphone ──
+    // the default input's level and mute (the Microphone Mute key,
+    // Meta+Volume Mute). inputs stop at 100%, so there's no red part
+    readonly property Connections sourceWatch: Connections {
+        target: PA.PreferredDevice.source
+        function onVolumeChanged() {
+            root.micAlert();
+        }
+        function onMutedChanged() {
+            root.micAlert();
+        }
+    }
+
+    function micAlert(): void {
+        const source = PA.PreferredDevice.source;
+        if (!source)
+            return;
+        const level = source.volume / PA.PulseAudio.NormalVolume;
+        root.show("mic", {
+            icon: source.muted ? "mic_off" : "mic",
+            value: Math.min(1, level),
+            valueText: Math.round(level * 100) + "%",
+            dim: source.muted
         }, Theme.alertLevelMs);
     }
 }
