@@ -126,7 +126,8 @@ PlasmoidItem {
     Binding {
         target: SysInfo
         property: "open"
-        value: root.expanded
+        // the game panel shows the meters too
+        value: root.expanded || root.gamePanelOpen
     }
     Binding {
         target: Audio
@@ -242,11 +243,15 @@ PlasmoidItem {
 
         visible: Cfg.notchOverGames && (root.gameOnIsland || (root.expanded && root.gameNotchHeld))
         screen: root.compactRepresentationItem?.islandScreen ?? null
-        // the larger of the notch's width and the width it's heading to:
-        // a growing notch isn't clipped, and the window is never much wider
-        // than the notch, so it doesn't swallow the game's clicks around it
-        width: Math.ceil(Math.max(gamePill.notchWidth, gamePill.notchTarget))
-        height: root.compactRepresentationItem?.notchHeight ?? Theme.collapsedHeight
+        // closed: the larger of the notch's width and the width it's heading
+        // to (a growing notch isn't clipped, and the window is never much
+        // wider than the notch, so it doesn't swallow the game's clicks
+        // around it). with the game panel open it grows down and, if need
+        // be, sideways to hold it; closing shrinks it back
+        readonly property real notchWide: Math.ceil(Math.max(gamePill.notchWidth, gamePill.notchTarget))
+        readonly property real notchHigh: root.compactRepresentationItem?.notchHeight ?? Theme.collapsedHeight
+        width: root.gamePanelOpen ? Math.max(notchWide, gamePanel.implicitWidth) : notchWide
+        height: notchHigh + (root.gamePanelOpen ? gamePanel.implicitHeight : 0)
         color: "transparent"
 
         LayerShell.Window.layer: LayerShell.Window.LayerOverlay
@@ -257,20 +262,65 @@ PlasmoidItem {
         LayerShell.Window.scope: "linuxisland-game-notch"
 
         // it may appear right under the pointer: don't let that open the
-        // control center (CompactPill.hoverArmed)
-        onVisibleChanged: if (visible)
-            gamePill.disarmHover()
+        // game panel (CompactPill.hoverArmed). gone (the game left
+        // fullscreen, the setting went off): the panel closes and is dropped
+        onVisibleChanged: {
+            if (visible) {
+                gamePill.disarmHover();
+            } else {
+                root.gamePanelOpen = false;
+                root.gamePanelMade = false;
+            }
+        }
+
+        // the whole window counts as "inside" for the game panel's close
+        // timer: the notch, the panel and the transparent corners beside the
+        // notch, so going from the notch down into the panel never reads as
+        // leaving. on the root, so hover-enabled MouseAreas inside don't hide
+        // the pointer from it
+        HoverHandler {
+            id: gameHover
+        }
 
         // as tall as the panel's notch; the window is exactly its height,
         // so the pill's reach (to the panel's edges) is 0
         CompactPill {
             id: gamePill
             notchOnly: true
+            anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             width: implicitWidth
-            height: parent.height
+            height: gameNotch.notchHigh
             onOpenRequested: root.openFromNotch()
         }
+
+        // ── the game panel ──
+        // made on the first open and kept while the floating notch is up, so
+        // later hovers show it at once; dropped with the notch. shown right
+        // under the notch, as the control center sits under the panel
+        Loader {
+            id: gamePanel
+            active: root.gamePanelMade
+            visible: root.gamePanelOpen
+            anchors.top: gamePill.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            sourceComponent: GamePanel {}
+        }
+    }
+
+    // ── the game panel over a fullscreen game ──
+    // the floating notch opens this instead of Plasma's popup (see
+    // GamePanel.qml for why). gamePanelMade: the panel exists (from the first
+    // open until the floating notch goes)
+    property bool gamePanelOpen: false
+    property bool gamePanelMade: false
+
+    // closes once the pointer has been off the floating notch's window for
+    // Theme.hoverCloseDelay, as the control center does
+    Timer {
+        interval: Theme.hoverCloseDelay
+        running: root.gamePanelOpen && !gameHover.hovered
+        onTriggered: root.gamePanelOpen = false
     }
 
     // the window id of whoever had the keyboard when hover opened the popup;
@@ -333,6 +383,13 @@ PlasmoidItem {
     // the pointer reached a notch (the panel's or the one over a game):
     // open the control center, and hand the keyboard back afterwards
     function openFromNotch() {
+        // the floating notch over a game: its own game panel, not Plasma's
+        // popup (which would send the game behind the panel)
+        if (gameNotch.visible) {
+            root.gamePanelMade = true;
+            root.gamePanelOpen = true;
+            return;
+        }
         if (root.expanded)
             return;
         // opened from the floating notch: keep it up while the control

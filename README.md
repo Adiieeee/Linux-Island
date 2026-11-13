@@ -742,9 +742,13 @@ Right-click the island → **Configure Linux Island…**. Options:
   than "don't open", and live the shortcut flashed the control center and,
   over a game, the whole panel. `Plasmoid.onActivated` collapses it again
   in the same signal.) The control center opens by
-  moving the pointer onto the notch, the floating one included: hovering it
-  opens the control center like the panel's notch, and it stays up while
-  the control center is open. (New, still being tested on the desktop.)
+  moving the pointer onto the panel's notch. Hovering the floating notch
+  opens a smaller **game panel** right under it instead: the media card
+  (its colours standing still, a click on the art doesn't bring the player
+  forward) and the recording + meters row (a click anywhere on the
+  recording card starts or stops). It closes when the pointer leaves, and
+  the game keeps the keyboard throughout. (New, still being tested on the
+  desktop.)
 - **Show synced lyrics** (on by default): the lyric lines in the small
   island. The lyrics button in the control center's bottom row flips the
   same setting. Off, nothing is sent to lrclib.net, and the middle shows the
